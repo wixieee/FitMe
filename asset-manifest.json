@@ -1,16 +1,16 @@
 {
   "files": {
-    "main.css": "/FitMe/static/css/main.41bc5304.css",
+    "main.css": "/FitMe/static/css/main.0bf447ab.css",
     "main.js": "/FitMe/static/js/main.af9b8b0e.js",
     "static/js/453.bd7158d4.chunk.js": "/FitMe/static/js/453.bd7158d4.chunk.js",
     "static/media/gym.png": "/FitMe/static/media/gym.a582c73f6015236802b4.png",
     "index.html": "/FitMe/index.html",
-    "main.41bc5304.css.map": "/FitMe/static/css/main.41bc5304.css.map",
+    "main.0bf447ab.css.map": "/FitMe/static/css/main.0bf447ab.css.map",
     "main.af9b8b0e.js.map": "/FitMe/static/js/main.af9b8b0e.js.map",
     "453.bd7158d4.chunk.js.map": "/FitMe/static/js/453.bd7158d4.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.41bc5304.css",
+    "static/css/main.0bf447ab.css",
     "static/js/main.af9b8b0e.js"
   ]
 }
