@@ -1,0 +1,116 @@
+/* Hero styles */
+
+.hero {
+  margin-top: 4rem;
+  display: flex;
+  background-color: black;
+  color: white;
+  padding: 4rem 4rem;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+}
+
+.hero-text {
+  max-width: 32rem;
+}
+
+.hero-text h1 {
+  font-size: 4rem;
+  font-weight: var(--font-light);
+  line-height: 1.2;
+}
+
+.hero-text h1 span {
+  font-weight: var(--font-bold);
+  font-size: 5rem;
+}
+
+.hero-text p {
+  margin-top: 1.5rem;
+  line-height: 1.6;
+  font-size: 1.2rem;
+}
+
+.cta-button {
+  width: 10rem;
+  margin-top: 2rem;
+  background-color: var(--yellow);
+  border: none;
+  padding: 0.75rem 1.5rem;
+  font-weight: var(--font-bold);
+  font-size: 1rem;
+  border-radius: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.cta-button:hover {
+  background-color: #d3c60e;
+}
+
+.hero-image {
+  margin-right: 9rem;
+}
+
+.hero-image img {
+  max-width: 100rem;
+  width: 120%;
+  height: auto;
+}
+
+/* Programs Section */
+
+.programs-section {
+  background: black;
+  padding: 4rem 4rem;
+  color: white;
+}
+
+.programs-section h2 {
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  font-weight: var(--font-bold);
+}
+
+.workout-grid {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 3rem;
+}
+
+/* Swiper Styles */
+.swiper-button-prev,
+.swiper-button-next {
+  color: var(--yellow);
+}
+
+.swiper-slide {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+@media screen and (max-width: 1490px) {
+  /* Hero styles */
+  .hero-text {
+    text-align: center;
+    max-width: 100%;
+  }
+
+  .hero {
+    background-image: linear-gradient(rgba(0, 0, 0, 0.8), rgba(0, 0, 0, 0.8)),
+      url("../assets/gym.png");
+    background-repeat: no-repeat;
+    background-position: right center;
+    background-size: cover;
+  }
+
+  .hero-image {
+    display: none;
+  }
+
+  /* Programs Section */
+
+}
