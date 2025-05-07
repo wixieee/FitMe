@@ -75,8 +75,9 @@ function RecipeSection() {
               navigation
               loop={true}
               breakpoints={{
-                0: { slidesPerView: 2 },
-                950: { slidesPerView: 3 },
+                0: { slidesPerView: 1 },
+                700: { slidesPerView: 2 },
+                900: { slidesPerView: 3 },
               }}
             >
               {recipes.map((r, index) => (

@@ -58,7 +58,7 @@
   color: black;
 }
 
-@media screen and (max-width: 1700px) {
+@media screen and (max-width: 1760px) {
   .workout-card {
     width: 15rem;
   }

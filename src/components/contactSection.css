@@ -30,7 +30,6 @@
 
 .contact-left {
   flex: 1;
-  min-width: 20rem;
 }
 
 .contact-title {
@@ -101,5 +100,11 @@
 
   .contact-subtitle {
     max-width: 100%;
+  }
+}
+
+@media screen and (max-width: 440px) {
+  .contact-section{
+    padding: 4rem 0.5rem;
   }
 }

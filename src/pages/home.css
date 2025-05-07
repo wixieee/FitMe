@@ -114,3 +114,18 @@
   /* Programs Section */
 
 }
+
+@media screen and (max-width: 440px) {
+  .programs-section{
+    padding: 4rem 0.5rem;
+  }
+
+  .programs-section h2 {
+    text-align: center;
+  }
+
+  .hero {
+    padding: 4rem 0.5rem;
+  }
+
+}

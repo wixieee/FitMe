@@ -13,8 +13,7 @@ const Header = () => {
     { name: "Рецепти", path: "/recipes" },
     { name: "Калькулятор калорій", path: "/calories" },
     { name: "Про нас", path: "/about" },
-    { name: "Увійти", path: "/login" },
-    { name: "Зареєструватись", path: "/signup" },
+    { name: "Увійти / Зареєструватися", path: "/authorization" },
   ];
 
   return (

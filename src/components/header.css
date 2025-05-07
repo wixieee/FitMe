@@ -52,7 +52,6 @@
   background-color: white;
 }
 
-
 .burger {
   display: none;
   flex-direction: column;
@@ -93,5 +92,11 @@
 
   .burger {
     display: flex;
+  }
+}
+
+@media screen and (max-width: 440px) {
+  .header-container {
+    padding: 1rem 0.5rem;
   }
 }

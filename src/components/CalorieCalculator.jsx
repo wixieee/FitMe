@@ -18,64 +18,75 @@ const CalorieCalculator = () => {
       </div>
       <div className="calculator-wrapper">
         <div className="calculator-container">
-          <div className="age-section">
-            <label className="age-label">
+          <div className="age-section form-row">
+            <label htmlFor="age" className="form-label">
               Вік
+            </label>
+            <div className="form-input-wrapper">
               <input
+                id="age"
                 type="number"
                 value={age}
                 onChange={(e) => setAge(e.target.value)}
               />
-              <span className="input-annontation">15 - 80 років</span>
-            </label>
+              <span className="input-annotation">15 - 80 років</span>
+            </div>
           </div>
 
-          <div className="gender-section">
-            <p className="gender-title">Стать</p>
-            <label className="gender-label">
-              <input
-                type="radio"
-                name="gender"
-                value="male"
-                checked={gender === "male"}
-                onChange={() => setGender("male")}
-              />
-              <span className="gender-span">Чоловік</span>
-            </label>
-            <label className="gender-label">
-              <input
-                type="radio"
-                name="gender"
-                value="female"
-                checked={gender === "female"}
-                onChange={() => setGender("female")}
-              />
-              <span className="gender-span">Жінка</span>
-            </label>
+          <div className="form-row gender-section">
+            <p className="form-label">Стать</p>
+            <div className="gender-options">
+              <label className="gender-label">
+                <input
+                  type="radio"
+                  name="gender"
+                  value="male"
+                  checked={gender === "male"}
+                  onChange={() => setGender("male")}
+                />
+                <span className="gender-span">Чоловік</span>
+              </label>
+              <label className="gender-label">
+                <input
+                  type="radio"
+                  name="gender"
+                  value="female"
+                  checked={gender === "female"}
+                  onChange={() => setGender("female")}
+                />
+                <span className="gender-span">Жінка</span>
+              </label>
+            </div>
           </div>
 
-          <div className="height-section">
-            <label className="height-label">
+          <div className="form-row height-section">
+            <label htmlFor="height" className="form-label">
               Зріст
+            </label>
+            <div className="form-input-wrapper">
               <input
+                id="height"
                 type="number"
                 value={height}
                 onChange={(e) => setHeight(e.target.value)}
               />
-              <span className="input-annontation">см</span>
-            </label>
+              <span className="input-annotation">см</span>
+            </div>
           </div>
 
-          <div className="weight-section">
-            <label className="weight-label">
+          <div className="form-row weight-section">
+            <label htmlFor="weight" className="form-label">
               Вага
+            </label>
+            <div className="form-input-wrapper">
               <input
+                id="weight"
                 type="number"
                 value={weight}
                 onChange={(e) => setWeight(e.target.value)}
               />
-              <span className="input-annontation">кг</span>
-            </label>
+              <span className="input-annotation">кг</span>
+            </div>
           </div>
 
           <div className="activity-section">

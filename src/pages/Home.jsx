@@ -5,7 +5,7 @@ import "swiper/css";
 import "swiper/css/navigation";
 
 import Header from "../components/Header";
-import WorkoutCard from "../components/WorkoutCard";
+import WorkoutCard, { workoutData } from "../components/WorkoutCard";
 import RecipeSection from "../components/Home-RecepieSection";
 import ContactSection from "../components/ContactSection";
 import CalorieCalculator from "../components/CalorieCalculator";
@@ -13,29 +13,6 @@ import Footer from "../components/Footer";
 
 import "../assets/variables.css";
 import "./home.css";
-
-const workoutData = [
-  {
-    label: "Для початківців",
-    image: process.env.PUBLIC_URL + "/images/beginner.png",
-  },
-  {
-    label: "Від середнього до просунутого",
-    image: process.env.PUBLIC_URL + "/images/advanced.png",
-  },
-  {
-    label: "Схуднення",
-    image: process.env.PUBLIC_URL + "/images/weight-loss.png",
-  },
-  {
-    label: "Без обладнання",
-    image: process.env.PUBLIC_URL + "/images/no-equipment.png",
-  },
-  {
-    label: "Силові тренування",
-    image: process.env.PUBLIC_URL + "/images/strenght.png",
-  },
-];
 
 function Home() {
   const [isSlider, setIsSlider] = useState(window.innerWidth <= 1520);
@@ -80,8 +57,8 @@ function Home() {
             navigation
             loop={true}
             breakpoints={{
-              0: { slidesPerView: 2 },
-              1000: { slidesPerView: 2 },
+              0: { slidesPerView: 1 },
+              800: { slidesPerView: 2 },
               1200: { slidesPerView: 3 },
               1400: { slidesPerView: 4 },
             }}

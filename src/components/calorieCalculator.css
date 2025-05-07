@@ -65,52 +65,13 @@ input[type="number"] {
   -moz-appearance: textfield;
 }
 
-input[type="radio"]:after {
-  width: 1rem;
-  height: 1rem;
-  border-radius: 1rem;
-  top: -2px;
-  left: -1px;
-  position: relative;
-  background-color: var(--black);
-  content: "";
-  display: inline-block;
-  visibility: visible;
-  border: 2px solid var(--yellow);
-  cursor: pointer;
-}
-
-input[type="radio"]:checked:after {
-  width: 1rem;
-  height: 1rem;
-  border-radius: 1rem;
-  top: -2px;
-  left: -1px;
-  position: relative;
-  background-color: var(--yellow);
-  content: "";
-  display: inline-block;
-  visibility: visible;
-  border: 2px solid var(--yellow);
-  cursor: pointer;
-}
-
-.input-annontation {
+.input-annotation {
   margin-left: 1rem;
   font-weight: var(--font-regular);
 }
 
 .gender-span {
-  margin-left: 1rem;
-  top: -5px;
-  position: relative;
   font-weight: var(--font-regular);
-}
-
-.gender-title {
-  display: inline-block;
-  top: -5px;
-  position: relative;
 }
 
 select {
@@ -180,6 +141,9 @@ select {
   margin-top: 0.5rem;
   background-color: var(--black);
   color: var(--white);
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .unit-title {
@@ -284,10 +248,77 @@ select {
   margin-bottom: 1rem;
 }
 
+.form-row {
+  display: flex;
+  align-items: center;
+  margin-top: 1rem;
+}
+
+.form-label {
+  font-weight: var(--font-semi-bold);
+}
+
+.form-input-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.gender-options {
+  display: flex;
+  gap: 2rem;
+}
+
+.gender-label {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
 @media screen and (max-width: 980px) {
   .calculator-wrapper {
     flex-direction: column;
   }
 
-  
+  select {
+    width: 100%;
+    max-width: 32rem;
+  }
+}
+
+@media screen and (max-width: 527px) {
+  .form-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .form-input-wrapper {
+    flex-direction: row;
+    align-items: center;
+    margin-top: 1rem;
+    gap: 0.5rem;
+  }
+
+  .gender-options {
+    margin-top: 1rem;
+    gap: 1rem;
+  }
+
+  .age-section input,
+  .gender-section input,
+  .height-section input,
+  .weight-section input {
+    margin-left: 0rem;
+  }
+}
+
+@media screen and (max-width: 440px) {
+  .calculator-section {
+    padding: 4rem 0.5rem;
+  }
+
+  .label-container{
+    flex-direction: column;
+    gap: 1rem;
+  }
 }

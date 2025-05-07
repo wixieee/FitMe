@@ -1,61 +1,67 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap");
 
-:root{
-    --black: rgba(0, 0, 0, 1);
-    --white: rgba(255, 255, 255, 1);
-    --yellow: rgba(255, 237, 0, 1);
-    --grey: rgba(74, 74, 74, 1);
+:root {
+  --black: rgba(0, 0, 0, 1);
+  --white: rgba(255, 255, 255, 1);
+  --yellow: rgba(255, 237, 0, 1);
+  --grey: rgba(74, 74, 74, 1);
 
-    --body-font: "Montserrat", sans-serif;
-    --font-bold: 700;
-    --font-light: 300;
-    --font-medium: 500;
-    --font-regular: 400;
-    --font-thin: 100;
-    --font-black: 900;
-    --font-extra-bold: 800;
-    --font-semi-bold: 600;
+  --body-font: "Montserrat", sans-serif;
+  --font-bold: 700;
+  --font-light: 300;
+  --font-medium: 500;
+  --font-regular: 400;
+  --font-thin: 100;
+  --font-black: 900;
+  --font-extra-bold: 800;
+  --font-semi-bold: 600;
 }
 
-*{
-    box-sizing: border-box;
-    padding: 0;
-    margin: 0;
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
 }
 
-html{
-    scroll-behavior: smooth;
-    height: 100%;
+html {
+  scroll-behavior: smooth;
+  height: 100%;
 }
 
-body{
-    width: 100%;
-    min-height: 100vh;
-    font-family: var(--body-font);
-    color: var(--black);
-    display: flex;
-    flex-direction: column;
+body {
+  width: 100%;
+  min-height: 100vh;
+  font-family: var(--body-font);
+  color: var(--black);
+  display: flex;
+  flex-direction: column;
 }
 
-ul{
-    list-style: none;
+ul {
+  list-style: none;
 }
 
-a{
-    text-decoration: none;
+a {
+  text-decoration: none;
 }
 
 input,
-button{
-    font-family: var(--body-font);
-    outline: none;
-    border: none;
+button {
+  font-family: var(--body-font);
+  outline: none;
+  border: none;
 }
 
-.main{
-    overflow: hidden;
+.main {
+  overflow: hidden;
 }
 
-.grid{
-    display: grid;
+.grid {
+  display: grid;
+}
+
+@media screen and (min-width: 2048px) {
+  body {
+    zoom: 1.4;
+  }
 }
