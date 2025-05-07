@@ -60,6 +60,21 @@ button {
   display: grid;
 }
 
+.swiper {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+.swiper-slide {
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  overflow-x: hidden;
+}
+
 @media screen and (min-width: 2048px) {
   body {
     zoom: 1.4;
