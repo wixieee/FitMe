@@ -1,0 +1,24 @@
+.recipes-section {
+  padding: 4rem 4rem;
+  background-color: #000;
+  color: white;
+}
+
+.recipes-section h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 1rem;
+}
+
+.recipes-section p {
+  font-size: 1rem;
+  color: #bbb;
+  margin-bottom: 2rem;
+}
+
+.recipes-container {
+  padding-top: 8rem;
+  padding-left: 4rem;
+  color: white;
+  background-color: #000;
+}

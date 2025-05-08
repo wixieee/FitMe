@@ -1,18 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/navigation";
 
 import Header from "../components/general-components/Header";
 import WorkoutCard, { workoutData } from "../components/home-components/WorkoutCard";
-import RecipeSection from "../components/home-components/Home-RecepieSection";
+import RecipeSection from "../components/home-components/Home-RecipeSection";
 import ContactSection from "../components/general-components/ContactSection";
 import CalorieCalculator from "../components/home-components/CalorieCalculator";
 import Footer from "../components/general-components/Footer";
 
 import "../assets/variables.css";
 import "./home.css";
+
 
 function Home() {
   const [isSlider, setIsSlider] = useState(window.innerWidth <= 1520);
@@ -77,7 +76,11 @@ function Home() {
           </div>
         )}
       </section>
-
+      
+      <div className="recipe-container">
+        <h2 className="recipe-section-title">/// Рецепти</h2>
+        <button className="view-more-btn">Переглянути більше рецептів</button>
+      </div>
       <RecipeSection />
       <CalorieCalculator/>
       <ContactSection />
