@@ -3,6 +3,16 @@
   flex-direction: column;
   align-items: center;
   width: 18rem;
+  cursor: pointer;
+}
+
+.workout-card:hover {
+  transform: scale(1.03);
+}
+
+.workout-card:hover .card-image {
+  box-shadow: rgba(251, 255, 0, 0.35) 0px 5px 15px;
+  transform: scale(1.03);
 }
 
 .card-image {
@@ -69,5 +79,15 @@
 
   .start-button {
     width: 15rem;
+  }
+}
+
+@media screen and (max-width: 1520px) {
+  .workout-card:hover {
+    transform: none;
+  }
+
+  .workout-card:hover .card-image {
+    transform: none;
   }
 }

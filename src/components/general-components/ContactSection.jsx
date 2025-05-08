@@ -1,5 +1,5 @@
 import React from "react";
-import "../assets/variables.css";
+import "../../assets/variables.css";
 import "./contactSection.css";
 
 function ContactSection() {
@@ -15,7 +15,11 @@ function ContactSection() {
         <form className="contact-form">
           <input type="text" placeholder="Введіть ваше ім’я" />
           <input type="email" placeholder="xyz@gmail.com" />
-          <textarea className="message-input" placeholder="Введіть ваше повідомлення..." rows="4" />
+          <textarea
+            className="message-input"
+            placeholder="Введіть ваше повідомлення..."
+            rows="4"
+          />
           <button type="submit" className="contact-button">
             Надіслати
           </button>

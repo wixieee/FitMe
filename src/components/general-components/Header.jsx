@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
-import "../assets/variables.css";
+import "../../assets/variables.css";
 import "./header.css";
 
 const Header = () => {
@@ -19,12 +19,13 @@ const Header = () => {
   return (
     <header className="header">
       <div className="header-container">
-        <img src={process.env.PUBLIC_URL + "/images/fitme.png"} alt="Logo" className="logo" />
-        
-        <button
-          className="burger"
-          onClick={() => setMenuOpen((prev) => !prev)}
-        >
+        <img
+          src={process.env.PUBLIC_URL + "/images/fitme.png"}
+          alt="Logo"
+          className="logo"
+        />
+
+        <button className="burger" onClick={() => setMenuOpen((prev) => !prev)}>
           <span className="burger-line" />
           <span className="burger-line" />
           <span className="burger-line" />
@@ -35,7 +36,9 @@ const Header = () => {
             <Link
               key={name}
               to={path}
-              className={`nav-link ${location.pathname === path ? "active" : ""}`}
+              className={`nav-link ${
+                location.pathname === path ? "active" : ""
+              }`}
               onClick={() => setMenuOpen(false)}
             >
               {name}

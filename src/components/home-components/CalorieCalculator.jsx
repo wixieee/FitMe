@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "../assets/variables.css";
+import "../../assets/variables.css";
 import "./calorieCalculator.css";
 
 const CalorieCalculator = () => {
@@ -9,7 +9,8 @@ const CalorieCalculator = () => {
   const [weight, setWeight] = useState();
   const [activity, setActivity] = useState();
   const [showSettings, setShowSettings] = useState(false);
-  const [unitSystem, setUnitSystem] = useState("metric");
+  const [unitSystem, setUnitSystem] = useState();
+  const [calorieSystem, setCalorieSystem] = useState();
 
   return (
     <section className="calculator-section">
@@ -44,6 +45,7 @@ const CalorieCalculator = () => {
                   checked={gender === "male"}
                   onChange={() => setGender("male")}
                 />
+                <span className="custom-radio" />
                 <span className="gender-span">Чоловік</span>
               </label>
               <label className="gender-label">
@@ -54,6 +56,7 @@ const CalorieCalculator = () => {
                   checked={gender === "female"}
                   onChange={() => setGender("female")}
                 />
+                <span className="custom-radio" />
                 <span className="gender-span">Жінка</span>
               </label>
             </div>
@@ -130,21 +133,23 @@ const CalorieCalculator = () => {
                 <label className="unit-label">
                   <input
                     type="radio"
-                    name="unit"
+                    name="calorieUnit"
                     value="calorie"
-                    checked={unitSystem === "calorie"}
-                    onChange={() => setUnitSystem("calorie")}
+                    checked={calorieSystem === "calorie"}
+                    onChange={() => setCalorieSystem("calorie")}
                   />
+                  <span className="custom-radio" />
                   <span className="unit-span">Калорії</span>
                 </label>
                 <label className="unit-label">
                   <input
                     type="radio"
-                    name="unit"
+                    name="calorieUnit"
                     value="kjoule"
-                    checked={unitSystem === "kjoule"}
-                    onChange={() => setUnitSystem("kjoule")}
+                    checked={calorieSystem === "kjoule"}
+                    onChange={() => setCalorieSystem("kjoule")}
                   />
+                  <span className="custom-radio" />
                   <span className="unit-span">Кілоджоулі</span>
                 </label>
               </div>
@@ -152,21 +157,23 @@ const CalorieCalculator = () => {
                 <label className="unit-label">
                   <input
                     type="radio"
-                    name="unit"
+                    name="lengthUnit"
                     value="metric"
                     checked={unitSystem === "metric"}
                     onChange={() => setUnitSystem("metric")}
                   />
+                  <span className="custom-radio" />
                   <span className="unit-span">Метрична (кг, см)</span>
                 </label>
                 <label className="unit-label">
                   <input
                     type="radio"
-                    name="unit"
+                    name="lengthUnit"
                     value="imperial"
                     checked={unitSystem === "imperial"}
                     onChange={() => setUnitSystem("imperial")}
                   />
+                  <span className="custom-radio" />
                   <span className="unit-span">Американська (lbs, inches)</span>
                 </label>
               </div>
