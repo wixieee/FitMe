@@ -4,12 +4,12 @@ import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 
-import Header from "../components/Header";
-import WorkoutCard, { workoutData } from "../components/WorkoutCard";
-import RecipeSection from "../components/Home-RecepieSection";
-import ContactSection from "../components/ContactSection";
-import CalorieCalculator from "../components/CalorieCalculator";
-import Footer from "../components/Footer";
+import Header from "../components/general-components/Header";
+import WorkoutCard, { workoutData } from "../components/home-components/WorkoutCard";
+import RecipeSection from "../components/home-components/Home-RecepieSection";
+import ContactSection from "../components/general-components/ContactSection";
+import CalorieCalculator from "../components/home-components/CalorieCalculator";
+import Footer from "../components/general-components/Footer";
 
 import "../assets/variables.css";
 import "./home.css";

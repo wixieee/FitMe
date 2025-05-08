@@ -1,6 +1,7 @@
 import React from "react";
-import "../assets/variables.css";
+import "../../assets/variables.css";
 import "./workoutCard.css";
+import { useNavigate } from "react-router-dom";
 
 export const workoutData = [
   {
@@ -26,17 +27,18 @@ export const workoutData = [
 ];
 
 const WorkoutCard = ({ image, label }) => {
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/workouts/${encodeURIComponent(label)}`);
+  };
+
   return (
-    <div className="workout-card">
-      <div
-        className="card-image"
-        style={{ backgroundImage: `url(${image})` }}
-      >
+    <div className="workout-card" onClick={handleClick}>
+      <div className="card-image" style={{ backgroundImage: `url(${image})` }}>
         <div className="label">{label}</div>
       </div>
-      <button className="start-button">
-        Розпочати
-      </button>
+      <button className="start-button">Розпочати</button>
     </div>
   );
 };

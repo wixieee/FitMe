@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
+import { Link } from "react-router-dom";
 
 import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
-import "../assets/variables.css";
+import "../../assets/variables.css";
 import "./Home-RecipeSection.css";
 
 function RecipeSection() {
@@ -24,18 +25,22 @@ function RecipeSection() {
     {
       img: "/images/recipe1.png",
       title: "Рецепти з високим вмістом білка",
+      link: "/recipes/high-protein",
     },
     {
       img: "/images/recipe2.png",
       title: "Рецепти з низьким вмістом вуглеводів",
+      link: "/recipes/low-carb",
     },
     {
       img: "/images/recipe3.png",
       title: "Рецепти без молока",
+      link: "/recipes/dairy-free",
     },
     {
       img: "/images/recipe4.png",
       title: "Вегетаріанські рецепти",
+      link: "/recipes/vegetarian",
     },
   ];
 
@@ -58,7 +63,7 @@ function RecipeSection() {
             <p>
               Барвиста страва, насичена протеїном, наповнена ароматним м’ясним
               ситним тофу на грилі та набором яскравих овочів на ложі з пухкої
-              кіноа.Доповнюється корисним і смачним соусом сатай та подрібненим
+              кіноа. Доповнюється корисним і смачним соусом сатай та подрібненим
               смаженим арахісом. Дуже смачно!
             </p>
             <button className="view-full-btn">
@@ -82,14 +87,14 @@ function RecipeSection() {
             >
               {recipes.map((r, index) => (
                 <SwiperSlide key={index}>
-                  <div className="small-recipe-slide">
+                  <Link to={r.link} className="small-recipe">
                     <img
                       className="small-recipe-img"
                       src={process.env.PUBLIC_URL + r.img}
-                      alt=""
+                      alt={r.title}
                     />
                     <p className="small-recipe-title">{r.title}</p>
-                  </div>
+                  </Link>
                 </SwiperSlide>
               ))}
             </Swiper>
@@ -97,12 +102,14 @@ function RecipeSection() {
             <ul>
               {recipes.map((r, index) => (
                 <li key={index}>
-                  <img
-                    className="small-recipe-img"
-                    src={process.env.PUBLIC_URL + r.img}
-                    alt=""
-                  />
-                  {r.title}
+                  <Link to={r.link} className="small-recipe">
+                    <img
+                      className="small-recipe-img"
+                      src={process.env.PUBLIC_URL + r.img}
+                      alt={r.title}
+                    />
+                    <p className="small-recipe-title">{r.title}</p>
+                  </Link>
                 </li>
               ))}
             </ul>
