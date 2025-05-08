@@ -46,11 +46,6 @@ function RecipeSection() {
 
   return (
     <>
-      <div className="recipe-container">
-        <h2 className="recipe-section-title">/// Рецепти</h2>
-        <button className="view-more-btn">Переглянути більше рецептів</button>
-      </div>
-
       <section className="recipe-section">
         <div className="recipe-main">
           <img
