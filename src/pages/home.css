@@ -1,11 +1,10 @@
 /* Hero styles */
 
 .hero {
-  margin-top: 4rem;
+  padding: 8rem 4rem 0 4rem;
   display: flex;
   background-color: black;
   color: white;
-  padding: 4rem 4rem;
   align-items: center;
   justify-content: space-between;
   flex-wrap: wrap;
@@ -106,6 +105,7 @@
     background-repeat: no-repeat;
     background-position: right center;
     background-size: cover;
+    padding-bottom: 4rem;
   }
 
   .hero-image {
@@ -114,7 +114,7 @@
 }
 
 @media screen and (max-width: 440px) {
-  .programs-section{
+  .programs-section {
     padding: 4rem 0.5rem;
   }
 
@@ -123,7 +123,6 @@
   }
 
   .hero {
-    padding: 4rem 0.5rem;
+    padding: 10rem 0.5rem 4rem 0.5rem;
   }
-
 }

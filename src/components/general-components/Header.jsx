@@ -25,12 +25,15 @@ const Header = () => {
           className="logo"
         />
 
-        <button className="burger" onClick={() => setMenuOpen((prev) => !prev)}>
+        <button
+          className={`burger ${menuOpen ? "open" : ""}`}
+          onClick={() => setMenuOpen((prev) => !prev)}
+        >
           <span className="burger-line" />
           <span className="burger-line" />
           <span className="burger-line" />
         </button>
-
+        
         <nav className={`nav ${menuOpen ? "open" : ""}`}>
           {navItems.map(({ name, path }) => (
             <Link

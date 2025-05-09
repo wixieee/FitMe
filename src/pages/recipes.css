@@ -6,19 +6,54 @@
 
 .recipes-section h2 {
   font-size: 2rem;
-  font-weight: bold;
+  font-weight: var(--font-bold);
   margin-bottom: 1rem;
 }
 
 .recipes-section p {
-  font-size: 1rem;
+  font-size: 1.1rem;
   color: #bbb;
   margin-bottom: 2rem;
 }
 
 .recipes-container {
-  padding-top: 8rem;
-  padding-left: 4rem;
+  padding: 10rem 4rem 0rem 4rem;
   color: white;
   background-color: #000;
+}
+
+.recipe-card-slide {
+  width: 100%;
+}
+
+@media screen and (max-width: 560px) {
+  .recipes-section {
+    padding: 4rem 0.5rem;
+  }
+
+  .recipe-card-slide {
+    padding: 0 2.5rem;
+    box-sizing: border-box;
+  }
+}
+
+@media screen and (max-width: 440px) {
+  .recipes-container {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}
+
+@media screen and (max-width: 334px){
+  .recipes-section-title{
+    font-size: 1.8rem;
+  }
+
+  .recipes-section h2{
+    font-size: 1.8rem;
+  }
+
+    .recipes-section p{
+    font-size: 0.9rem;
+  }
 }
