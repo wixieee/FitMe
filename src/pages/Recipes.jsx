@@ -213,14 +213,19 @@ function RecipeCategorySection({ title, description, recipes }) {
         navigation
         spaceBetween={20}
         slidesPerView={1}
+        loop={true}
         breakpoints={{
-          768: { slidesPerView: 2 },
-          1024: { slidesPerView: 4 },
+          0: { slidesPerView: 1 },
+          1000: { slidesPerView: 2 },
+          1400: { slidesPerView: 3 },
+          1800: { slidesPerView: 4 },
         }}
       >
         {recipes.map((recipe, index) => (
           <SwiperSlide key={index}>
-            <RecipeCard {...recipe} />
+            <div className="recipe-card-slide">
+              <RecipeCard {...recipe} />
+            </div>
           </SwiperSlide>
         ))}
       </Swiper>

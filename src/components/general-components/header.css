@@ -70,6 +70,19 @@
   height: 0.2rem;
   background-color: white;
   border-radius: 5px;
+  transition: all 0.3s ease;
+}
+
+.burger.open .burger-line:nth-child(1) {
+  transform: rotate(45deg) translate(6px, 8px);
+}
+
+.burger.open .burger-line:nth-child(2) {
+  opacity: 0;
+}
+
+.burger.open .burger-line:nth-child(3) {
+  transform: rotate(-45deg) translate(3px, -5px);
 }
 
 @media (max-width: 1200px) {
@@ -97,6 +110,6 @@
 
 @media screen and (max-width: 440px) {
   .header-container {
-    padding: 1rem 0.5rem;
+    padding: 1rem 1rem;
   }
 }
