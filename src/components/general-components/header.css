@@ -6,7 +6,7 @@
   top: 0;
   left: 0;
   width: 100%;
-  z-index: 1000;
+  z-index: 998;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 1);
 }
 
@@ -52,6 +52,13 @@
   background-color: white;
 }
 
+.login-btn {
+  background-color: #000;
+  font-size: 1rem;
+  font-weight: var(--font-bold);
+  cursor: pointer;
+}
+
 .burger {
   display: none;
   flex-direction: column;
@@ -94,7 +101,7 @@
     flex-direction: column;
     align-items: flex-start;
     width: 100%;
-    padding: 1rem 2rem;
+    padding: 1rem 2rem 2rem 2rem;
     gap: 2rem;
     display: none;
   }

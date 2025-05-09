@@ -1,0 +1,243 @@
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.login-modal {
+  display: flex;
+  width: 900px;
+  max-width: calc(100% - 4rem);
+  margin: 0 2rem;
+  border-radius: 20px;
+  overflow: hidden;
+  background: black;
+  box-shadow: 0 0 20px rgba(251, 255, 0, 0.35);
+  position: relative;
+}
+
+.login-left {
+  flex: 1;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.login-left h2 {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: white;
+}
+
+.login-subtitle {
+  margin-bottom: 1rem;
+  color: white;
+  font-size: 1rem;
+}
+
+.register-title {
+  color: white;
+  font-size: 1rem;
+}
+
+.login-input {
+  padding: 1.1rem 16px;
+  border-radius: 30px;
+  border: 1px solid var(--yellow);
+  font-size: 14px;
+  background-color: black;
+  color: white;
+  margin-bottom: 1.3rem;
+}
+
+.options {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 1rem;
+  margin-bottom: 20px;
+  color: white;
+}
+
+.options a {
+  text-decoration: underline;
+  color: var(--yellow);
+}
+
+.options a:hover {
+  color: #fbc02d;
+}
+
+.options label {
+  display: flex;
+  gap: 3px;
+}
+
+.login-button {
+  background: var(--yellow);
+  height: 3rem;
+  border: none;
+  padding: 12px;
+  border-radius: 30px;
+  font-size: 1rem;
+  font-weight: var(--font-bold);
+  cursor: pointer;
+  margin-bottom: 20px;
+  transition: background 0.3s;
+}
+
+.login-button:hover {
+  background: #fbc02d;
+}
+
+.divider {
+  text-align: center;
+  font-size: 14px;
+  color: white;
+  margin: 1rem 0;
+}
+
+.google-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--yellow);
+  border-radius: 30px;
+  padding: 12px;
+  cursor: pointer;
+  background: transparent;
+  font-size: 1rem;
+  font-weight: var(--font-bold);
+  gap: 10px;
+  color: white;
+}
+
+.google-login img {
+  width: 25px;
+  height: 25px;
+}
+
+.google-login:hover {
+  background-color: var(--yellow);
+  color: #000;
+}
+
+.login-right {
+  flex: 1;
+  background: black;
+}
+
+.login-right img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.close-btn {
+  position: absolute;
+  top: -3px;
+  right: 13px;
+  font-size: 3rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: white;
+}
+
+.link-button {
+  background: none;
+  border: none;
+  color: var(--yellow);
+  cursor: pointer;
+  font-size: 1rem;
+  text-decoration: underline;
+  padding: 0;
+}
+
+.link-button:hover {
+  color: #fbc02d;
+}
+
+.register-section {
+  display: flex;
+  justify-content: space-between;
+}
+
+.custom-checkbox {
+  display: flex;
+  align-items: center;
+  color: white;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+.custom-checkbox input[type="checkbox"] {
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border: 2px solid var(--yellow);
+  border-radius: 4px;
+  background-color: transparent;
+  cursor: pointer;
+  position: relative;
+}
+
+.custom-checkbox input[type="checkbox"]:checked {
+  background-color: var(--yellow);
+}
+
+.custom-checkbox input[type="checkbox"]::after {
+  content: "";
+  position: absolute;
+  display: none;
+}
+
+.custom-checkbox input[type="checkbox"]:checked::after {
+  display: block;
+  position: absolute;
+  left: 3px;
+  top: -1px;
+  width: 4px;
+  height: 9px;
+  border: solid black;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+}
+
+@media screen and (max-width: 767px) {
+  .login-right {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 455px) {
+  .register-section {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .register-title {
+    text-align: center;
+  }
+}
+
+@media screen and (max-width: 425px) {
+  .options {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+}
+
+@media screen and (max-width: 345px) {
+  .login-left {
+    padding: 2rem 1rem 2rem 1rem;
+  }
+}
