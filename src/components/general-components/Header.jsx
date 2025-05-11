@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, useLocation } from "react-router-dom";
+import { Link, useLocation, useMatch } from "react-router-dom";
 import LoginModal from ".//LoginModal";
 import "../../assets/variables.css";
 import "./header.css";
@@ -8,6 +8,8 @@ const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const location = useLocation();
+
+  const isRecipePage = useMatch("/recipes/:id");
 
   const navItems = [
     { name: "Головна", path: "/" },
@@ -46,7 +48,7 @@ const Header = () => {
               <Link
                 key={name}
                 to={path}
-                className={`nav-link ${location.pathname === path ? "active" : ""}`}
+                className={`nav-link ${location.pathname === path || (path === "/recipes" && isRecipePage) ? "active" : ""}`}
                 onClick={() => setMenuOpen(false)}
               >
                 {name}

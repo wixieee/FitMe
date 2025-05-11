@@ -41,9 +41,10 @@
 
 .contact-subtitle {
   margin-bottom: 2rem;
-  max-width: 40rem;
+  max-width: 100%;
   line-height: 1.6;
   font-size: 0.95rem;
+  text-align: justify;
 }
 
 .contact-form input,
