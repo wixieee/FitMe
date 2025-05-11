@@ -1,0 +1,157 @@
+.container {
+  color: #fff;
+  background: #000000;
+}
+
+.header-image {
+  position: relative;
+  padding-top: 5rem;
+}
+
+.header-image img {
+  width: 100%;
+  height: clamp(300px, 50vw, 700px); /* Мінімум, адаптив, максимум */
+  object-fit: fill;
+}
+
+.prep-time {
+  position: absolute;
+  bottom: clamp(10px, 3vw, 30px);
+  left: clamp(10px, 3vw, 30px);
+  display: flex;
+  gap: clamp(5px, 2vw, 10px);
+}
+
+.prep-time span {
+  width: clamp(90px, 13vw, 120px);
+  height: clamp(90px, 13vw, 120px);
+  font-size: clamp(0.8rem, 2vw, 1rem);
+  padding: 0.75rem;
+  background: black;
+  border: 4px solid white;
+  border-radius: 50%;
+  font-weight: var(--font-bold);
+  color: white;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  line-height: 1.2;
+  box-sizing: border-box;
+}
+
+.content {
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  padding: 4rem 4rem;
+}
+
+.text {
+  max-width: 75%;
+  line-height: 1.5;
+  text-align: justify;
+}
+
+.text h2 {
+  margin-bottom: 1rem;
+}
+
+.video-section h3,
+.video-section li,
+.ingredients li,
+.ingredients h3 {
+  margin-bottom: 1rem;
+}
+
+.video-section {
+  padding: 0rem 4rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 2rem;
+  overflow: hidden;
+}
+
+.video-section iframe {
+  max-width: 75%;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 16 / 9;
+  border: none;
+}
+
+.instructions {
+  padding: 4rem 4rem 0rem 4rem;
+  line-height: 1.5;
+  text-align: justify;
+}
+
+.instructions h3 {
+  margin-bottom: 1rem;
+}
+
+.video-thumbnail {
+  position: relative;
+  width: 100%;
+  max-width: 75%;
+  aspect-ratio: 16 / 9;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.video-thumbnail img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.play-button {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 6rem;
+  color: white;
+  text-shadow: 0 0 10px rgba(0, 0, 0, 0.7);
+  pointer-events: none;
+}
+
+@media screen and (max-width: 1024px) {
+  .content {
+    flex-direction: column;
+  }
+
+  .text {
+    max-width: 100%;
+  }
+
+  .video-section {
+    flex-direction: column;
+  }
+
+  .video-section iframe {
+    max-width: 100%;
+  }
+  .video-thumbnail {
+    max-width: 100%;
+  }
+}
+
+@media screen and (max-width: 440px) {
+  .header-image {
+    padding-top: 7rem;
+  }
+
+  .content {
+    padding: 4rem 0.5rem;
+  }
+
+  .instructions {
+    padding: 4rem 0.5rem 0rem 0.5rem;
+  }
+
+  .video-section {
+    padding: 0rem 0.5rem;
+  }
+}

@@ -83,6 +83,7 @@
 
 .login-button {
   background: var(--yellow);
+  color: #000;
   height: 3rem;
   border: none;
   padding: 12px;
