@@ -68,6 +68,25 @@
   color: black;
 }
 
+.programs-section {
+  background: black;
+  padding: 4rem 4rem;
+  color: white;
+}
+
+.programs-section h2 {
+  margin-bottom: 2rem;
+  font-size: 2rem;
+  font-weight: var(--font-bold);
+}
+
+.workout-grid {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 3rem;
+}
+
 @media screen and (max-width: 1760px) {
   .workout-card {
     width: 15rem;
@@ -89,5 +108,15 @@
 
   .workout-card:hover .card-image {
     transform: none;
+  }
+}
+
+@media screen and (max-width: 440px) {
+  .programs-section {
+    padding: 4rem 0.5rem;
+  }
+
+  .programs-section h2 {
+    text-align: center;
   }
 }

@@ -1,17 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper/modules";
 
 import Header from "../components/general-components/Header";
-import WorkoutCard, { workoutData } from "../components/home-components/WorkoutCard";
 import RecipeSection from "../components/home-components/Home-RecipeSection";
 import ContactSection from "../components/general-components/ContactSection";
+import WorkoutSection from "../components/home-components/WorkoutSection";
+
 import CalorieCalculator from "../components/home-components/CalorieCalculator";
 import Footer from "../components/general-components/Footer";
 
 import "../assets/variables.css";
 import "./home.css";
-
 
 function Home() {
   const [isSlider, setIsSlider] = useState(window.innerWidth <= 1520);
@@ -27,7 +25,6 @@ function Home() {
 
   return (
     <>
-      <Header />
       <section className="hero">
         <div className="hero-text">
           <h1>
@@ -46,45 +43,14 @@ function Home() {
         </div>
       </section>
 
-      <section className="programs-section">
-        <h2>Програми тренуваннь</h2>
+      <WorkoutSection isSlider={isSlider} />
 
-        {isSlider ? (
-          <Swiper
-            modules={[Navigation]}
-            slidesPerView={1}
-            navigation
-            loop={true}
-            breakpoints={{
-              0: { slidesPerView: 1 },
-              800: { slidesPerView: 2 },
-              1200: { slidesPerView: 3 },
-              1400: { slidesPerView: 4 },
-            }}
-          >
-            {workoutData.map((card, index) => (
-              <SwiperSlide key={index}>
-                <WorkoutCard {...card} />
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        ) : (
-          <div className="workout-grid">
-            {workoutData.map((card, index) => (
-              <WorkoutCard key={index} {...card} />
-            ))}
-          </div>
-        )}
-      </section>
-      
       <div className="recipe-container">
         <h2 className="recipe-section-title">/// Рецепти</h2>
         <button className="view-more-btn">Переглянути більше рецептів</button>
       </div>
       <RecipeSection />
-      <CalorieCalculator/>
-      <ContactSection />
-      <Footer />
+      <CalorieCalculator />
     </>
   );
 }

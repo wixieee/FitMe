@@ -236,7 +236,6 @@ function RecipeCategorySection({ title, description, recipes }) {
 function Recipes() {
   return (
     <>
-      <Header />
       <div className="recipes-container">
         <h1 className="recipes-section-title">Відібрані рецепти</h1>
       </div>
@@ -249,8 +248,6 @@ function Recipes() {
           recipes={section.recipes}
         />
       ))}
-      <ContactSection />
-      <Footer />
     </>
   );
 }
