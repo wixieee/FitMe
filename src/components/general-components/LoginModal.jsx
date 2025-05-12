@@ -1,27 +1,93 @@
 import React, { useState, useEffect } from "react";
 import "./loginModal.css";
 import "../../assets/variables.css";
+import { auth, googleProvider } from "../../firebase";
+import { signInWithPopup } from "firebase/auth";
+import axios from "axios";
 
-const LoginModal = ({ onClose }) => {
+const LoginModal = ({ onClose, setUser }) => {
   const [isRegister, setIsRegister] = useState(false);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
   useEffect(() => {
     document.body.style.setProperty("overflow", "hidden", "important");
-    document.documentElement.style.setProperty(
-      "overflow",
-      "hidden",
-      "important"
-    );
+    document.documentElement.style.setProperty("overflow", "hidden", "important");
 
     return () => {
       document.body.style.setProperty("overflow", "auto", "important");
-      document.documentElement.style.setProperty(
-        "overflow",
-        "auto",
-        "important"
-      );
+      document.documentElement.style.setProperty("overflow", "auto", "important");
     };
   }, []);
+
+  const handleLogin = async () => {
+    try {
+      const response = await fetch("https://fitme-sever.onrender.com/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("Login success:", data);
+        setUser({ email });
+        onClose();
+      } else {
+        setErrorMessage(data.error || "Login failed");
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      setErrorMessage("Server error");
+    }
+  };
+
+  const handleRegister = async () => {
+    try {
+      const response = await fetch("https://fitme-sever.onrender.com/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        console.log("Registration success:", data);
+        setUser({ email });
+        onClose();
+      } else {
+        setErrorMessage(data.error || "Registration failed");
+      }
+    } catch (error) {
+      console.error("Registration error:", error);
+      setErrorMessage("Server error");
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    try {
+      const result = await signInWithPopup(auth, googleProvider);
+      const idToken = await result.user.getIdToken();
+
+      const response = await axios.post("https://fitme-sever.onrender.com/google-login", {
+        idToken,
+      });
+
+      if (response.status === 200) {
+        console.log("Google login success:", response.data);
+        setUser({ email: result.user.email });
+        onClose();
+      } else {
+        setErrorMessage("Google login failed");
+      }
+    } catch (error) {
+      console.error("Google login error:", error);
+      setErrorMessage("Помилка при вході через Google");
+    }
+  };
 
   return (
     <div className="modal-overlay">
@@ -41,16 +107,25 @@ const LoginModal = ({ onClose }) => {
               placeholder="Введіть ваше ім'я"
             />
           )}
+
           <input
             className="login-input"
             type="email"
             placeholder="Введіть пошту"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
           />
           <input
             className="login-input"
             type="password"
             placeholder="Введіть пароль"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
           />
+
+          {errorMessage && (
+            <p className="error-text" style={{ color: "red" }}>{errorMessage}</p>
+          )}
 
           <div className="options">
             {!isRegister && (
@@ -65,7 +140,7 @@ const LoginModal = ({ onClose }) => {
             )}
           </div>
 
-          <button className="login-button">
+          <button className="login-button" onClick={isRegister ? handleRegister : handleLogin}>
             {isRegister ? "Зареєструватись" : "Увійти"}
           </button>
 
@@ -83,7 +158,7 @@ const LoginModal = ({ onClose }) => {
 
           <div className="divider">або</div>
 
-          <button className="google-login">
+          <button className="google-login" onClick={handleGoogleLogin}>
             <img
               src={process.env.PUBLIC_URL + "/images/google.png"}
               alt="Google"
