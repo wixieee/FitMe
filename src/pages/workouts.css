@@ -1,0 +1,59 @@
+.workout-section {
+  padding: 4rem 4rem;
+  background-color: #000;
+  color: white;
+}
+
+.workout-section h2 {
+  font-size: 2rem;
+  font-weight: var(--font-bold);
+  margin-bottom: 1rem;
+}
+
+.workout-section p {
+  font-size: 1.1rem;
+  color: #bbb;
+  margin-bottom: 2rem;
+}
+
+.workout-container {
+  padding-top: 5rem;
+  color: white;
+  background-color: #000;
+}
+
+.workout-card-slide {
+  width: 100%;
+}
+
+@media screen and (max-width: 560px) {
+  .workout-section {
+    padding: 4rem 0.5rem;
+  }
+
+  .workout-card-slide {
+    padding: 0 2.5rem;
+    box-sizing: border-box;
+  }
+}
+
+@media screen and (max-width: 440px) {
+  .workout-container {
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+  }
+}
+
+@media screen and (max-width: 334px){
+  .workout-section-title{
+    font-size: 1.8rem;
+  }
+
+  .workout-section h2{
+    font-size: 1.8rem;
+  }
+
+    .workout-section p{
+    font-size: 0.9rem;
+  }
+}
