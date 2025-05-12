@@ -7,14 +7,28 @@ import ContactSection from "../components/general-components/ContactSection";
 
 const Recipe = () => {
   const [loadVideo, setLoadVideo] = useState(false);
+  const [isIOS, setIsIOS] = useState(false);
 
   useEffect(() => {
-    const prevScrollBehavior = document.documentElement.style.scrollBehavior;
-    document.documentElement.style.scrollBehavior = "auto";
+    const html = document.documentElement;
+
+    const hadSmooth = getComputedStyle(html).scrollBehavior === "smooth";
+
+    html.style.scrollBehavior = "auto";
     window.scrollTo(0, 0);
+
     setTimeout(() => {
-      document.documentElement.style.scrollBehavior = prevScrollBehavior;
+      if (hadSmooth) {
+        html.style.scrollBehavior = "smooth";
+      } else {
+        html.style.scrollBehavior = "";
+      }
     }, 100);
+
+    // Перевірка на iOS
+    const userAgent = window.navigator.userAgent;
+    const iOS = /iPad|iPhone|iPod/.test(userAgent);
+    setIsIOS(iOS);
   }, []);
   return (
     <>
@@ -84,12 +98,14 @@ const Recipe = () => {
                 alt="Watch video"
               />
               <div className="play-button">
-                <i class="bx bx-play"></i>
+                <i className="bx bx-play"></i>
               </div>
             </div>
           ) : (
             <iframe
-              src="https://www.youtube.com/embed/r1ZLSbQ0r0I?autoplay=1&controls=1&modestbranding=1&rel=0"
+              src={`https://www.youtube.com/embed/r1ZLSbQ0r0I?autoplay=1&controls=1&modestbranding=1&rel=0${
+                isIOS ? "&mute=1" : ""
+              }`}
               title="YouTube video player"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowFullScreen

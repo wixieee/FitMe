@@ -29,6 +29,7 @@
   margin-top: 1.5rem;
   line-height: 1.6;
   font-size: 1.2rem;
+  text-align: justify;
 }
 
 .cta-button {
@@ -110,6 +111,10 @@
 
   .hero-image {
     display: none;
+  }
+
+  .hero-text p {
+    text-align: center;
   }
 }
 
