@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useMatch } from "react-router-dom";
 import LoginModal from "./LoginModal";
 import "../../assets/variables.css";
@@ -6,6 +6,7 @@ import "./header.css";
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [user, setUser] = useState(() => {
     const savedUser = localStorage.getItem("user");
@@ -34,6 +35,24 @@ const Header = () => {
     setMenuOpen(false);
   };
 
+  const profileMenuRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (
+        profileMenuRef.current &&
+        !profileMenuRef.current.contains(event.target)
+      ) {
+        setProfileMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
+
   return (
     <>
       <header className="header">
@@ -58,7 +77,12 @@ const Header = () => {
               <Link
                 key={name}
                 to={path}
-                className={`nav-link ${location.pathname === path || (path === "/recipes" && isRecipePage) ? "active" : ""}`}
+                className={`nav-link ${
+                  location.pathname === path ||
+                  (path === "/recipes" && isRecipePage)
+                    ? "active"
+                    : ""
+                }`}
                 onClick={() => setMenuOpen(false)}
               >
                 {name}
@@ -66,15 +90,49 @@ const Header = () => {
             ))}
 
             {user ? (
-              <Link
-                to="/profile"
-                className="nav-link"
-                onClick={() => setMenuOpen(false)}
-              >
-                Мій профіль
-              </Link>
+              <div className="profile-menu-container" ref={profileMenuRef}>
+                <div className="profile-wrapper">
+                  <div className="profile-toggle">
+                    <Link
+                      to="/profile"
+                      className="nav-link profile-link"
+                      onClick={() => setMenuOpen(false)}
+                    >
+                      Мій профіль
+                    </Link>
+                    <button
+                      className="arrow-btn"
+                      onClick={(e) => {
+                        e.stopPropagation(); // щоб не закривалося через обробник outside-click
+                        setProfileMenuOpen((prev) => !prev);
+                      }}
+                    >
+                      <span
+                        className={`arrow ${profileMenuOpen ? "up" : "down"}`}
+                      />
+                    </button>
+                  </div>
+                  {profileMenuOpen && (
+                    <div className="dropdown-menu">
+                      <div className="dropdown-item">{user.email}</div>
+                      <Link
+                        to="/settings"
+                        className="dropdown-item settings-btn"
+                      >
+                        Налаштування
+                      </Link>
+                      <button className="dropdown-item logout-btn">
+                        Вийти
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
             ) : (
-              <button className="nav-link login-btn" onClick={handleModalToggle}>
+              <button
+                className="nav-link login-btn"
+                onClick={handleModalToggle}
+              >
                 Увійти / Зареєструватися
               </button>
             )}
@@ -82,7 +140,9 @@ const Header = () => {
         </div>
       </header>
 
-      {isModalOpen && <LoginModal onClose={() => setIsModalOpen(false)} setUser={setUser} />}
+      {isModalOpen && (
+        <LoginModal onClose={() => setIsModalOpen(false)} setUser={setUser} />
+      )}
     </>
   );
 };
