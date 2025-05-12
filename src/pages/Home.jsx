@@ -1,12 +1,9 @@
 import React, { useEffect, useState } from "react";
 
-import Header from "../components/general-components/Header";
 import RecipeSection from "../components/home-components/Home-RecipeSection";
-import ContactSection from "../components/general-components/ContactSection";
 import WorkoutSection from "../components/home-components/WorkoutSection";
 
 import CalorieCalculator from "../components/home-components/CalorieCalculator";
-import Footer from "../components/general-components/Footer";
 
 import "../assets/variables.css";
 import "./home.css";
