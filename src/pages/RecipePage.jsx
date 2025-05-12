@@ -78,7 +78,6 @@ const Recipe = () => {
 
   return (
     <>
-      <Header />
       <div className="container">
         <div className="header-image">
           <img src={imageUrl} alt={title} />
@@ -102,7 +101,6 @@ const Recipe = () => {
         </div>
 
         <div className="content">
-          {/* LEFT block: опис + відео */}
           <div className="description-video">
             <div className="text">
               <h2>{title}</h2>
@@ -136,7 +134,6 @@ const Recipe = () => {
             </div>
           </div>
 
-          {/* RIGHT block: інгредієнти + час */}
           <div className="ingredients-info">
             <div className="ingredients">
               <h3>Інгредієнти ({servings} порції)</h3>
@@ -165,8 +162,6 @@ const Recipe = () => {
 </div>
 
       </div>
-      <ContactSection />
-      <Footer />
     </>
   );
 };

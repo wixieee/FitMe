@@ -60,27 +60,6 @@
   height: auto;
 }
 
-/* Programs Section */
-
-.programs-section {
-  background: black;
-  padding: 4rem 4rem;
-  color: white;
-}
-
-.programs-section h2 {
-  margin-bottom: 2rem;
-  font-size: 2rem;
-  font-weight: var(--font-bold);
-}
-
-.workout-grid {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 3rem;
-}
-
 /* Swiper Styles */
 .swiper-button-prev,
 .swiper-button-next {

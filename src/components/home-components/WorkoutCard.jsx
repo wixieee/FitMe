@@ -1,6 +1,5 @@
 import React from "react";
 import "../../assets/variables.css";
-import "./workoutCard.css";
 import { useNavigate } from "react-router-dom";
 
 export const workoutData = [
