@@ -114,9 +114,10 @@ const Recipe = () => {
         </div>
 
         <div className="instructions">
-          <h3>Як приготувати {title}</h3>
-          {instructions.map((step, idx) => <p key={idx}>{step}</p>)}
-        </div>
+  <h3>Як приготувати {title}</h3>
+  <p>{instructions}</p>
+</div>
+
       </div>
       <ContactSection />
       <Footer />
