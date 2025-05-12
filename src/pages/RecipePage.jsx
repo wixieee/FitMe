@@ -1,9 +1,7 @@
 import React, { useState, useEffect } from "react";
 import "./recipePage.css";
 import "../assets/variables.css";
-import Header from "../components/general-components/Header";
-import Footer from "../components/general-components/Footer";
-import ContactSection from "../components/general-components/ContactSection";
+
 import { useSearchParams } from "react-router-dom";
 
 const Recipe = () => {
@@ -27,7 +25,7 @@ const Recipe = () => {
     const title = searchParams.get("title");
     if (title) {
       fetch(
-        `http://localhost:5000/recipe?title=${encodeURIComponent(
+        `https://course-server-r9ml.onrender.com/recipe?title=${encodeURIComponent(
           title
         )}`
       )

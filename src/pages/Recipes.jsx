@@ -4,16 +4,13 @@ import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 
-import Header from "../components/general-components/Header";
-import ContactSection from "../components/general-components/ContactSection";
-import Footer from "../components/general-components/Footer";
 import RecipeCard from "../components/recipe-components/RecipeCard";
 import RecipeSection from "../components/home-components/Home-RecipeSection";
 
 import "../assets/variables.css";
 import "./recipes.css";
 
-const API_URL = "http://localhost:5000/recipes/by-category";
+const API_URL = "https://course-server-r9ml.onrender.com/recipes/by-category";
 
 function RecipeCategorySection({ title, description, recipes }) {
   return (
