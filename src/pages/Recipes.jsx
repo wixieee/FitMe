@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
@@ -13,195 +13,7 @@ import RecipeSection from "../components/home-components/Home-RecipeSection";
 import "../assets/variables.css";
 import "./recipes.css";
 
-const recipeSections = [
-  {
-    title: "Рецепти з високим вмістом білка",
-    description:
-      "Почніть свій день з білкових сніданків — ситно, корисно та смачно.",
-    recipes: [
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "30–40 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "30–40 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "30–40 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "30–40 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "30–40 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "30–40 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-    ],
-  },
-  {
-    title: "Рецепти з низьким вмістом вуглеводів",
-    description: "Збалансоване харчування без надлишку вуглеводів.",
-    recipes: [
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "25 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "30–40 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "30–40 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "30–40 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "30–40 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "30–40 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "30–40 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-    ],
-  },
-  {
-    title: "Рецепти без молока",
-    description: "Смачні страви для тих, хто уникає лактози.",
-    recipes: [
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "20 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "30–40 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "30–40 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "30–40 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "30–40 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "30–40 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "30–40 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-    ],
-  },
-  {
-    title: "Вегетаріанські рецепти",
-    description: "Здорові, яскраві страви без м'яса.",
-    recipes: [
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "15 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "30–40 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "30–40 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "30–40 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "30–40 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "30–40 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/recipe5.png",
-        time: "30–40 хв",
-        calories: "2048 ккал",
-        link: "/recipes/1",
-      },
-    ],
-  },
-];
+const API_URL = "http://localhost:5000/recipes/by-category";
 
 function RecipeCategorySection({ title, description, recipes }) {
   return (
@@ -234,20 +46,33 @@ function RecipeCategorySection({ title, description, recipes }) {
 }
 
 function Recipes() {
+  const [highProteinRecipes, setHighProteinRecipes] = useState([]);
+
+  useEffect(() => {
+    async function fetchHighProteinRecipes() {
+      try {
+        const response = await fetch(`${API_URL}?category=Рецепти з високим вмістом білка`);
+        const data = await response.json();
+        setHighProteinRecipes(data.recipes);
+      } catch (error) {
+        console.error("Error fetching high protein recipes:", error);
+      }
+    }
+
+    fetchHighProteinRecipes();
+  }, []);
+
   return (
     <>
       <div className="recipes-container">
         <h1 className="recipes-section-title">Відібрані рецепти</h1>
       </div>
       <RecipeSection />
-      {recipeSections.map((section, index) => (
-        <RecipeCategorySection
-          key={index}
-          title={section.title}
-          description={section.description}
-          recipes={section.recipes}
-        />
-      ))}
+      <RecipeCategorySection
+        title="Рецепти з високим вмістом білка"
+        description="Почніть свій день з білкових сніданків — ситно, корисно та смачно."
+        recipes={highProteinRecipes}
+      />
     </>
   );
 }

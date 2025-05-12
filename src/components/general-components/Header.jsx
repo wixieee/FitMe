@@ -14,7 +14,7 @@ const Header = () => {
   });
 
   const location = useLocation();
-  const isRecipePage = useMatch("/recipes/:id");
+  const isRecipePage = useMatch("/recipe");
   useEffect(() => {
     if (user) {
       localStorage.setItem("user", JSON.stringify(user));

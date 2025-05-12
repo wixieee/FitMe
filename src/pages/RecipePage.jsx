@@ -24,10 +24,10 @@ const Recipe = () => {
 
     setIsIOS(/iPad|iPhone|iPod/.test(window.navigator.userAgent));
 
-    const title = "Шакшука з фетою та зеленню";
+    const title = searchParams.get("title");
     if (title) {
       fetch(
-        `https://fitme-sever.onrender.com/recipe?title=${encodeURIComponent(
+        `http://localhost:5000/recipe?title=${encodeURIComponent(
           title
         )}`
       )
@@ -83,17 +83,17 @@ const Recipe = () => {
           <img src={imageUrl} alt={title} />
           <div className="prep-time">
             <span>
-              {nutrients["білки"].match(/\((.*?)\)/)?.[1]}
+              {nutrients["білки"]}
               <br />
               Білки
             </span>
             <span>
-              {nutrients["жири"].match(/\((.*?)\)/)?.[1]}
+              {nutrients["жири"]}
               <br />
               Жири
             </span>
             <span>
-              {nutrients["вуглеводи"].match(/\((.*?)\)/)?.[1]}
+              {nutrients["вуглеводи"]}
               <br />
               Вуглеводи
             </span>
@@ -155,12 +155,10 @@ const Recipe = () => {
             </div>
           </div>
         </div>
-        
         <div className="instructions">
-  <h3>Як приготувати {title}</h3>
-  <p>{instructions}</p>
-</div>
-
+          <h3>Як приготувати {title}</h3>
+          <p>{instructions}</p>
+        </div>
       </div>
     </>
   );
