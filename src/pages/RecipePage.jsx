@@ -26,7 +26,7 @@ const Recipe = () => {
 
     const title = "Шакшука з фетою та зеленню";
     if (title) {
-      fetch(`http://localhost:5000/recipe?title=${encodeURIComponent(title)}`)
+      fetch(`https://fitme-sever.onrender.com/recipe?title=${encodeURIComponent(title)}`)
         .then(res => res.json())
         .then(data => {
           if (data.recipe) {
