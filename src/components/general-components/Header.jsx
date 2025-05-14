@@ -34,6 +34,11 @@ const Header = () => {
     setIsModalOpen(true);
     setMenuOpen(false);
   };
+  const handleLogout = () => {
+  setUser(null);
+  localStorage.removeItem("user");
+  setProfileMenuOpen(false);
+};
 
   const profileMenuRef = useRef(null);
 
@@ -113,19 +118,20 @@ const Header = () => {
                     </button>
                   </div>
                   {profileMenuOpen && (
-                    <div className="dropdown-menu">
-                      <div className="dropdown-item">{user.email}</div>
-                      <Link
-                        to="/settings"
-                        className="dropdown-item settings-btn"
-                      >
-                        Налаштування
-                      </Link>
-                      <button className="dropdown-item logout-btn">
-                        Вийти
-                      </button>
-                    </div>
-                  )}
+  <div className="dropdown-menu">
+    <div className="dropdown-item">{user.email}</div>
+    <Link
+      to="/settings"
+      className="dropdown-item settings-btn"
+    >
+      Налаштування
+    </Link>
+    <button className="dropdown-item logout-btn" onClick={handleLogout}>
+      Вийти
+    </button>
+  </div>
+)}
+
                 </div>
               </div>
             ) : (

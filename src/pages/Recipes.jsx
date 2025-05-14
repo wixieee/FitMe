@@ -44,19 +44,23 @@ function RecipeCategorySection({ title, description, recipes }) {
 
 function Recipes() {
   const [highProteinRecipes, setHighProteinRecipes] = useState([]);
+  const [dairyFreeRecipes, setDairyFreeRecipes] = useState([]);
+  const [vegetarianRecipes, setVegetarianRecipes] = useState([]);
 
   useEffect(() => {
-    async function fetchHighProteinRecipes() {
+    async function fetchRecipes(category, setter) {
       try {
-        const response = await fetch(`${API_URL}?category=Рецепти з високим вмістом білка`);
+        const response = await fetch(`${API_URL}?category=${encodeURIComponent(category)}`);
         const data = await response.json();
-        setHighProteinRecipes(data.recipes);
+        setter(data.recipes);
       } catch (error) {
-        console.error("Error fetching high protein recipes:", error);
+        console.error(`Error fetching recipes for ${category}:`, error);
       }
     }
 
-    fetchHighProteinRecipes();
+    fetchRecipes("Рецепти з високим вмістом білка", setHighProteinRecipes);
+    fetchRecipes("Рецепти без молока", setDairyFreeRecipes);
+    fetchRecipes("Вегетеріанські рецепти", setVegetarianRecipes);
   }, []);
 
   return (
@@ -69,6 +73,16 @@ function Recipes() {
         title="Рецепти з високим вмістом білка"
         description="Почніть свій день з білкових сніданків — ситно, корисно та смачно."
         recipes={highProteinRecipes}
+      />
+      <RecipeCategorySection
+        title="Рецепти без молока"
+        description="Ідеально для тих, хто уникає лактози або дотримується безмолочної дієти."
+        recipes={dairyFreeRecipes}
+      />
+      <RecipeCategorySection
+        title="Вегетаріанські рецепти"
+        description="Смачні страви без м’яса — для здорового та збалансованого харчування."
+        recipes={vegetarianRecipes}
       />
     </>
   );
