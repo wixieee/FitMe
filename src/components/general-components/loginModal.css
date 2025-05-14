@@ -67,15 +67,6 @@
   color: white;
 }
 
-.options a {
-  text-decoration: underline;
-  color: var(--yellow);
-}
-
-.options a:hover {
-  color: #fbc02d;
-}
-
 .options label {
   display: flex;
   gap: 3px;
@@ -153,6 +144,7 @@
   color: white;
 }
 
+.forgot-password,
 .link-button {
   background: none;
   border: none;
@@ -162,7 +154,7 @@
   text-decoration: underline;
   padding: 0;
 }
-
+.forgot-password:hover,
 .link-button:hover {
   color: #fbc02d;
 }
@@ -212,6 +204,8 @@
   border-width: 0 2px 2px 0;
   transform: rotate(45deg);
 }
+
+
 
 @media screen and (max-width: 767px) {
   .login-right {
