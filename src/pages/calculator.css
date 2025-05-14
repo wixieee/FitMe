@@ -1,0 +1,214 @@
+.calorie-container {
+  background-color: black;
+  padding: 8rem 4rem 4rem 4rem;
+  color: white;
+}
+
+.calculator-description h1 {
+  font-size: 2rem;
+  color: white;
+  margin-bottom: 0.5rem;
+}
+
+.calculator-description p {
+  font-size: 1.1rem;
+  color: #ccc;
+}
+
+.calorie-content {
+  margin-top: 4rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 3rem;
+}
+
+.left-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Круговий індикатор */
+.circle {
+  width: clamp(300px, 71vw, 400px); /* адаптивно */
+  height: clamp(300px, 71vw, 400px);
+  position: relative;
+}
+
+.progress {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: background 1s ease;
+}
+
+.inner-ring {
+  width: 60%;
+  height: 60%;
+  background-color: black;
+  border-radius: 50%;
+  position: absolute;
+  z-index: 1;
+}
+
+.center-text {
+  position: absolute;
+  text-align: center;
+  font-size: 1.2rem;
+  color: white;
+  z-index: 2;
+}
+
+.center-text span {
+  font-weight: bold;
+  font-size: 1.5rem;
+  color: white;
+}
+
+.center-text small {
+  display: block;
+  font-size: 1rem;
+  margin-top: 4px;
+}
+
+/* Права панель */
+.side-panel {
+  display: flex;
+  gap: 2rem;
+  flex: 1;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+/* Секція їжі і тренувань */
+.food-section,
+.workouts-section {
+  background-color: #1a1a1a;
+  padding: 1.5rem;
+  border-radius: 12px;
+  flex: 1;
+}
+
+.food-section h2,
+.workouts-section h2 {
+  margin-bottom: 1rem;
+  font-size: 1.3rem;
+  color: var(--yellow);
+}
+
+.food-search,
+.workout-search {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  background-color: black;
+  color: #fff;
+}
+
+/* Списки їжі та тренувань */
+.food-list,
+.workout-list {
+  list-style: none;
+  padding: 0;
+  margin-top: 1rem;
+}
+
+.food-item,
+.workout-item {
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #333;
+  gap: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+  color: #eee;
+}
+
+.item-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.calories,
+.burned {
+  color: var(--yellow);
+  font-weight: bold;
+}
+
+.delete-button {
+  background: none;
+  border: none;
+  color: #ff4d4d;
+  font-size: 1.2rem;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s ease;
+}
+
+.delete-button:hover {
+  color: #ff1a1a;
+}
+
+.macros-summary {
+  margin-top: 1.5rem;
+  width: 100%;
+  display: flex;
+  justify-content: space-around;
+  background-color: #1a1a1a;
+  padding: 1rem;
+  border-radius: 12px;
+}
+.macro {
+  text-align: center;
+}
+
+.macro-label {
+  display: block;
+  font-size: 1rem;
+  color: #fff;
+}
+
+.macro-value {
+  font-weight: bold;
+  font-size: 1.2rem;
+  color: var(--yellow);
+}
+
+@media screen and (max-width: 1260px) {
+  .side-panel {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .food-section,
+  .workouts-section {
+    width: 100%;
+  }
+}
+
+@media screen and (max-width: 930px) {
+  .calorie-content {
+    flex-direction: column;
+  }
+
+  .left-panel {
+    align-items: center;
+    margin: auto;
+  }
+}
+
+@media screen and (max-width: 440px) {
+  .calorie-container {
+    padding: 8rem 0.5rem 4rem 0.5rem;
+  }
+}

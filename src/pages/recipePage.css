@@ -91,6 +91,9 @@
 .instructions {
   padding: 4rem 4rem 0rem 4rem;
   line-height: 1.5;
+}
+
+.instructions p {
   text-align: justify;
 }
 
@@ -140,8 +143,8 @@
   }
 }
 
-@media screen and (max-width:600px){
-    .ingredients-info {
+@media screen and (max-width: 600px) {
+  .ingredients-info {
     flex-direction: column;
     gap: 2rem;
   }
