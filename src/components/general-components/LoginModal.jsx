@@ -4,6 +4,7 @@ import "../../assets/variables.css";
 import { auth, googleProvider } from "../../firebase";
 import { signInWithPopup } from "firebase/auth";
 import axios from "axios";
+import { sendPasswordResetEmail } from "firebase/auth";
 
 const LoginModal = ({ onClose, setUser }) => {
   const [isRegister, setIsRegister] = useState(false);
@@ -83,27 +84,28 @@ const LoginModal = ({ onClose, setUser }) => {
     }
   };
 
-  const handleForgotPassword = async () => {
-    try {
-      const response = await fetch("https://fitme-sever.onrender.com/forgot-password", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        setSuccessMessage("Інструкції надіслано на пошту");
-        setErrorMessage("");
-      } else {
-        setErrorMessage(data.error || "Помилка при відновленні");
-        setSuccessMessage("");
-      }
-    } catch (error) {
-      console.error("Forgot password error:", error);
-      setErrorMessage("Серверна помилка");
-      setSuccessMessage("");
+const handleForgotPassword = async () => {
+  if (!email) {
+    setErrorMessage("Введіть email для відновлення");
+    return;
+  }
+
+  try {
+    await sendPasswordResetEmail(auth, email);
+    setSuccessMessage("Інструкції для скидання пароля надіслано на пошту");
+    setErrorMessage("");
+  } catch (error) {
+    console.error("Firebase forgot password error:", error);
+    let message = "Помилка при відновленні пароля";
+    if (error.code === "auth/user-not-found") {
+      message = "Користувача з такою поштою не знайдено";
+    } else if (error.code === "auth/invalid-email") {
+      message = "Некоректний формат email";
     }
-  };
+    setErrorMessage(message);
+    setSuccessMessage("");
+  }
+};
 
   return (
     <div className="modal-overlay">
