@@ -99,10 +99,6 @@
   align-items: center;
 }
 
-.profile-link {
-  padding-right: 8px;
-}
-
 .profile-btn {
   display: flex;
   align-items: center;
@@ -124,7 +120,6 @@
 
 .arrow {
   display: inline-block;
-  margin-left: 4px;
   border: solid currentColor;
   border-width: 0 2px 2px 0;
   padding: 3px;
