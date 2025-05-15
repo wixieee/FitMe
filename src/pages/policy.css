@@ -1,0 +1,97 @@
+.policy-container {
+  padding: 8rem 4rem 4rem 4rem;
+  background-color: black;
+  color: white;
+}
+
+#privacy-policy,
+#terms-of-use {
+  scroll-margin-top: 6rem;
+}
+
+.policy-container h1 {
+  font-size: 2.5rem;
+  margin-bottom: 2rem;
+  margin-top: 1rem;
+  color: var(--yellow);
+}
+
+.policy-container h2 {
+  font-size: 2rem;
+  margin-top: 1rem;
+  color: var(--yellow);
+}
+
+.policy-container h3 {
+  font-size: 1.5rem;
+  margin-top: 1rem;
+  color: var(--yellow);
+}
+
+.policy-container h4 {
+  font-size: 1.25rem;
+  margin-top: 1rem;
+  color: var(--yellow);
+}
+
+.policy-container p {
+  font-size: 1.125rem;
+  margin-top: 1rem;
+  line-height: 1.5;
+}
+
+.policy-container ul {
+  font-size: 1.125rem;
+  margin-top: 1rem;
+  line-height: 1.5;
+}
+
+.policy-container ul li {
+  margin-top: 0.5rem;
+}
+
+.policy-container a {
+  color: var(--yellow);
+  text-decoration: underline;
+}
+
+@media screen and (max-width: 440px) {
+  .policy-container {
+    padding: 8rem 0.5rem 2rem 0.5rem;
+  }
+
+  #privacy-policy,
+  #terms-of-use {
+    scroll-margin-top: 7rem;
+  }
+}
+
+@media screen and (max-width: 408px) {
+  .policy-container h1 {
+    font-size: 2rem;
+  }
+
+  .policy-container h2 {
+    font-size: 1.5rem;
+  }
+
+  .policy-container h3 {
+    font-size: 1.25rem;
+  }
+
+  .policy-container h4 {
+    font-size: 1rem;
+  }
+
+  .policy-container p {
+    font-size: 1rem;
+  }
+
+  .policy-container ul {
+    font-size: 1rem;
+  }
+
+  .policy-container a {
+    font-size: 1rem;
+  }
+}

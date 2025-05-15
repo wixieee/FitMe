@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import "../../assets/variables.css";
 import "./footer.css";
 
@@ -38,23 +39,37 @@ const Footer = () => {
             <h4>Ресурси</h4>
             <ul>
               <li>
-                <a href="/privacy">Політика конфіденційності</a>
+                <Link to="/policy#privacy-policy">
+                  Політика конфіденційності
+                </Link>
               </li>
               <li>
-                <a href="/terms">Умови використання</a>
+                <Link to="/policy#terms-of-use">Умови використання</Link>
               </li>
             </ul>
           </div>
           <div className="footer-social">
             <h4>Ми у соцмережах</h4>
             <div className="social-icons">
-              <a href="#">
+              <a
+                href="https://www.instagram.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <i className="bx bxl-instagram-alt"></i>
               </a>
-              <a href="#">
+              <a
+                href="https://www.facebook.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <i className="bx bxl-facebook-square"></i>
               </a>
-              <a href="#">
+              <a
+                href="https://www.youtube.com/"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
                 <i className="bx bxl-youtube"></i>
               </a>
             </div>

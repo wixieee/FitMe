@@ -12,14 +12,6 @@ const Recipe = () => {
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    const html = document.documentElement;
-    const hadSmooth = getComputedStyle(html).scrollBehavior === "smooth";
-    html.style.scrollBehavior = "auto";
-    window.scrollTo(0, 0);
-    setTimeout(() => {
-      html.style.scrollBehavior = hadSmooth ? "smooth" : "";
-    }, 100);
-
     setIsIOS(/iPad|iPhone|iPod/.test(window.navigator.userAgent));
 
     const title = searchParams.get("title");

@@ -1,5 +1,10 @@
-import React from "react";
-import { HashRouter as Router, Route, Routes } from "react-router-dom";
+import React, { useEffect } from "react";
+import {
+  HashRouter as Router,
+  Route,
+  Routes,
+  useLocation,
+} from "react-router-dom";
 import Home from "./pages/Home";
 import Recipes from "./pages/Recipes";
 import RecipePage from "./pages/RecipePage";
@@ -8,11 +13,23 @@ import Header from "./components/general-components/Header";
 import Footer from "./components/general-components/Footer";
 import ContactSection from "./components/general-components/ContactSection";
 import Calculator from "./pages/Calculator";
+import Policy from "./pages/Policy";
+
+const ScrollToTop = () => {
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+
+  return null;
+};
 
 function App() {
   return (
     <Router>
       <>
+        <ScrollToTop />
         <Header />
         <Routes>
           <Route path="/" element={<Home />} />
@@ -20,6 +37,7 @@ function App() {
           <Route path="/recipe" element={<RecipePage />} />
           <Route path="/workouts" element={<Workouts />} />
           <Route path="/calories" element={<Calculator />} />
+          <Route path="/policy" element={<Policy />} />
         </Routes>
         <ContactSection />
         <Footer />
