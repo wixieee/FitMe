@@ -14,6 +14,7 @@ import Footer from "./components/general-components/Footer";
 import ContactSection from "./components/general-components/ContactSection";
 import Calculator from "./pages/Calculator";
 import Policy from "./pages/Policy";
+import AboutUs from "./pages/AboutUs";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -38,6 +39,7 @@ function App() {
           <Route path="/workouts" element={<Workouts />} />
           <Route path="/calories" element={<Calculator />} />
           <Route path="/policy" element={<Policy />} />
+          <Route path="/about" element={<AboutUs />} />
         </Routes>
         <ContactSection />
         <Footer />
