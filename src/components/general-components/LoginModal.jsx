@@ -25,7 +25,7 @@ const LoginModal = ({ onClose, setUser }) => {
 
   const handleLogin = async () => {
     try {
-      const response = await fetch("https://fitme-sever.onrender.com/login", {
+      const response = await fetch("https://fitmesever-production.up.railway.app/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -46,7 +46,7 @@ const LoginModal = ({ onClose, setUser }) => {
 
   const handleRegister = async () => {
     try {
-      const response = await fetch("https://fitme-sever.onrender.com/register", {
+      const response = await fetch("https://fitmesever-production.up.railway.app/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -69,7 +69,7 @@ const LoginModal = ({ onClose, setUser }) => {
     try {
       const result = await signInWithPopup(auth, googleProvider);
       const idToken = await result.user.getIdToken();
-      const response = await axios.post("https://fitme-sever.onrender.com/google-login", { idToken });
+      const response = await axios.post("https://fitmesever-production.up.railway.app/google-login", { idToken });
 
       if (response.status === 200) {
         console.log("Google login success:", response.data);

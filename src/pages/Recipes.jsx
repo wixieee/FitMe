@@ -10,7 +10,7 @@ import RecipeSection from "../components/home-components/Home-RecipeSection";
 import "../assets/variables.css";
 import "./recipes.css";
 
-const API_URL = "https://fitme-sever.onrender.com/recipes/by-category";
+const API_URL = "https://fitmesever-production.up.railway.app/recipes/by-category";
 
 function RecipeCategorySection({ title, description, recipes }) {
   return (
