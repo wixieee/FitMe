@@ -46,6 +46,8 @@ function Recipes() {
   const [highProteinRecipes, setHighProteinRecipes] = useState([]);
   const [dairyFreeRecipes, setDairyFreeRecipes] = useState([]);
   const [vegetarianRecipes, setVegetarianRecipes] = useState([]);
+  const [highCarbRecipes, setHighCarbRecipes] = useState([]);
+  
 
   useEffect(() => {
     async function fetchRecipes(category, setter) {
@@ -61,6 +63,7 @@ function Recipes() {
     fetchRecipes("Рецепти з високим вмістом білка", setHighProteinRecipes);
     fetchRecipes("Рецепти без молока", setDairyFreeRecipes);
     fetchRecipes("Вегетеріанські рецепти", setVegetarianRecipes);
+    fetchRecipes("Рецепти з високим вмістом вуглеводів", setHighCarbRecipes);
   }, []);
 
   return (
@@ -83,6 +86,11 @@ function Recipes() {
         title="Вегетаріанські рецепти"
         description="Смачні страви без м’яса — для здорового та збалансованого харчування."
         recipes={vegetarianRecipes}
+      />
+      <RecipeCategorySection
+        title="Рецепти з високим вмістом вуглеводів"
+        description="Енергійні страви для спортсменів і тих, хто потребує додаткової енергії."
+        recipes={highCarbRecipes}
       />
     </>
   );
