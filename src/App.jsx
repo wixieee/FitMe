@@ -16,6 +16,7 @@ import Calculator from "./pages/Calculator";
 import Policy from "./pages/Policy";
 import AboutUs from "./pages/AboutUs";
 import Profile from "./pages/Profile";
+import Workout from "./pages/Workout";
 
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -38,10 +39,12 @@ function App() {
           <Route path="/recipes" element={<Recipes />} />
           <Route path="/recipe" element={<RecipePage />} />
           <Route path="/workouts" element={<Workouts />} />
+          <Route path="/workout" element={<Workout />} />
           <Route path="/calories" element={<Calculator />} />
           <Route path="/policy" element={<Policy />} />
           <Route path="/about" element={<AboutUs />} />
           <Route path="/profile" element={<Profile />} />
+
         </Routes>
         <ContactSection />
         <Footer />
