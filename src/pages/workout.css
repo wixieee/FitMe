@@ -1,0 +1,179 @@
+.workout-page {
+  display: flex;
+  padding: 8rem 2rem;
+  background-color: black;
+  color: white;
+  gap: 3rem;
+}
+
+.workout-left {
+  max-width: 30rem;
+  width: 100%;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.workout-Img {
+  width: 90%;
+  border-radius: 1rem;
+  object-fit: cover;
+}
+
+.image-container {
+  position: relative;
+  display: inline-block;
+}
+
+.timer {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+  color: var(--yellow);
+}
+
+.workout-right {
+  flex: 1;
+}
+
+.workout-right h2 {
+  margin-bottom: 1rem;
+}
+
+.exercise-block {
+  margin-bottom: 1rem;
+  padding: 1rem;
+  background-color: #1a1a1a;
+  border-radius: 1rem;
+}
+
+.exercise-block h3 {
+  color: var(--yellow);
+  margin-bottom: 0.5rem;
+}
+
+.set-inputs {
+  display: flex;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.set-inputs input {
+  padding: 0.5rem;
+  max-width: 120px;
+  width: 100%;
+  background-color: black;
+  color: white;
+  border: 1px solid var(--yellow);
+  border-radius: 0.4rem;
+}
+
+.remove-btn {
+  background-color: red;
+  border: none;
+  color: white;
+  font-weight: bold;
+  padding: 0 1rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+}
+
+.add-set-btn {
+  margin-top: 1rem;
+  height: 2.2rem;
+  background-color: var(--yellow);
+  color: black;
+  padding: 0.4rem 0.8rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.start-btn {
+  margin-top: 1rem;
+  background-color: var(--yellow);
+  color: black;
+  padding: 0.8rem 2rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.yt-link {
+  display: inline-block;
+  margin-top: 0.5rem;
+  color: #42a5f5;
+  text-decoration: underline;
+}
+
+.workout-title {
+  color: var(--yellow);
+  margin-bottom: 1rem;
+}
+
+.end-btn {
+  margin-top: 2rem;
+  background-color: red;
+  color: white;
+  padding: 0.8rem 2rem;
+  font-weight: bold;
+  border: none;
+  border-radius: 0.5rem;
+  cursor: pointer;
+}
+
+.end-summary {
+  margin-top: 2rem;
+  padding: 1rem;
+  border: 2px dashed var(--yellow);
+  border-radius: 0.5rem;
+  background-color: #1a1a1a;
+}
+
+.workout-star-icon {
+  position: absolute;
+  top: 15px;
+  right: 50px;
+  background-color: white;
+  border-radius: 50%;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  cursor: pointer;
+  transition: background-color 0.2s ease;
+  z-index: 2;
+}
+
+.workout-star-icon i {
+  color: black;
+  font-size: 1.4rem;
+}
+
+.workout-star-icon:hover i {
+  color: var(--yellow);
+}
+
+@media screen and (max-width: 920px) {
+  .workout-page {
+    flex-direction: column;
+  }
+
+  .workout-left,
+  .workout-right {
+    width: 100%;
+  }
+
+  .workout-left {
+    margin: auto;
+  }
+}
+
+@media screen and (max-width: 440px) {
+  .workout-page {
+    padding: 10rem 0.5rem 1rem 0.5rem;
+  }
+}

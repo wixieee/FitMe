@@ -71,6 +71,12 @@ const Recipe = () => {
       <div className="container">
         <div className="header-image">
           <img src={imageUrl} alt={title} />
+
+          <div className="page-star-icon">
+            <i className="bx bxs-star"></i>
+          </div>
+
+
           <div className="prep-time">
             <span>
               {nutrients["білки"]}

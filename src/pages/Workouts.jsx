@@ -6,6 +6,7 @@ import "swiper/css/navigation";
 
 import WorkoutPageCard from "../components/workout-components/WorkoutPageCard";
 import WorkoutSection from "../components/home-components/WorkoutSection";
+import WorkoutSearch from "../components/general-components/Search";
 
 import "../assets/variables.css";
 import "./workouts.css";
@@ -20,31 +21,31 @@ const workoutSections = [
         image: process.env.PUBLIC_URL + "/images/workout1.png",
         time: "30–40 хв",
         calories: "150–250 ккал",
-        link: "/workouts/1",
+        link: "/workout",
       },
       {
         image: process.env.PUBLIC_URL + "/images/workout1.png",
         time: "30–40 хв",
         calories: "150–250 ккал",
-        link: "/workouts/1",
+        link: "/workout",
       },
       {
         image: process.env.PUBLIC_URL + "/images/workout1.png",
         time: "30–40 хв",
         calories: "150–250 ккал",
-        link: "/workouts/1",
+        link: "/workout",
       },
       {
         image: process.env.PUBLIC_URL + "/images/workout1.png",
         time: "30–40 хв",
         calories: "150–250 ккал",
-        link: "/workouts/1",
+        link: "/workout",
       },
       {
         image: process.env.PUBLIC_URL + "/images/workout1.png",
         time: "30–40 хв",
         calories: "150–250 ккал",
-        link: "/workouts/1",
+        link: "/workout",
       },
     ],
   },
@@ -238,12 +239,26 @@ function Workouts() {
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
+
+  const workoutFilters = [
+    { label: "Калорії", key: "calories", defaultRange: [0, 1000] },
+    {
+      label: "Час тренування",
+      key: "workoutTime",
+      defaultRange: [5, 120],
+      unit: "хв",
+    },
+  ];
   return (
     <>
       <div className="workout-container">
         <WorkoutSection isSlider={isSlider} />
       </div>
-      <workoutsection />
+      <WorkoutSearch
+        filters={workoutFilters}
+        typeOptions={["Легко", "Середньо", "Складно"]}
+        onSearch={(data) => console.log("Workout search", data)}
+      />
       {workoutSections.map((section, index) => (
         <WorkoutCategorySection
           key={index}

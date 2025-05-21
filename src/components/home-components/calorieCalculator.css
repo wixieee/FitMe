@@ -74,7 +74,7 @@ input[type="number"] {
   font-weight: var(--font-regular);
 }
 
-select {
+.activity-section select {
   height: 2rem;
   width: 32rem;
   padding-left: 5px;
@@ -311,7 +311,7 @@ select {
     flex-direction: column;
   }
 
-  select {
+  .activity-section select {
     width: 100%;
     max-width: 32rem;
   }

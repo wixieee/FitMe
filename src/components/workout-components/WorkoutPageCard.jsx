@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import "./workoutPageCard.css";
 import "../../assets/variables.css";
 
-function WorkoutPageCard({ image, time, calories, link}) {
+function WorkoutPageCard({ image, time, calories, link }) {
   return (
     <Link to={link} className="workout-card-link">
       <div className="workoutPage-card">
@@ -11,12 +11,19 @@ function WorkoutPageCard({ image, time, calories, link}) {
           className="workout-image"
           style={{ backgroundImage: `url(${image})` }}
         >
+          <div className="star-icon">
+            <i className="bx bxs-star"></i>
+          </div>
           <div className="info-block">
             <div className="info-badge">
-              <span><i className="bx bxs-time"></i> {time}</span>
+              <span>
+                <i className="bx bxs-time"></i> {time}
+              </span>
             </div>
             <div className="info-badge">
-              <span><i className="bx bxs-hot"></i> {calories}</span>
+              <span>
+                <i className="bx bxs-hot"></i> {calories}
+              </span>
             </div>
           </div>
         </div>

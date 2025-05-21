@@ -2,7 +2,7 @@ import React from "react";
 import { Link } from "react-router-dom";
 import "./recipeCard.css";
 
-function RecipeCard({ image, time, calories, link}) {
+function RecipeCard({ image, time, calories, link }) {
   return (
     <Link to={link} className="recipe-card-link">
       <div className="recipe-card">
@@ -10,12 +10,19 @@ function RecipeCard({ image, time, calories, link}) {
           className="recipe-image"
           style={{ backgroundImage: `url(${image})` }}
         >
+          <div className="star-icon">
+            <i className="bx bxs-star"></i>
+          </div>
           <div className="info-block">
             <div className="info-badge">
-              <span><i className="bx bxs-time"></i> {time}</span>
+              <span>
+                <i className="bx bxs-time"></i> {time}
+              </span>
             </div>
             <div className="info-badge">
-              <span><i className="bx bxs-hot"></i> {calories}</span>
+              <span>
+                <i className="bx bxs-hot"></i> {calories}
+              </span>
             </div>
           </div>
         </div>

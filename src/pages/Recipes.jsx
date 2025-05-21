@@ -6,11 +6,13 @@ import "swiper/css/navigation";
 
 import RecipeCard from "../components/recipe-components/RecipeCard";
 import RecipeSection from "../components/home-components/Home-RecipeSection";
+import RecipeSearch from "../components/general-components/Search";
 
 import "../assets/variables.css";
 import "./recipes.css";
 
-const API_URL = "https://fitmesever-production.up.railway.app/recipes/by-category";
+const API_URL =
+  "https://fitmesever-production.up.railway.app/recipes/by-category";
 
 function RecipeCategorySection({ title, description, recipes }) {
   return (
@@ -47,12 +49,26 @@ function Recipes() {
   const [dairyFreeRecipes, setDairyFreeRecipes] = useState([]);
   const [vegetarianRecipes, setVegetarianRecipes] = useState([]);
   const [highCarbRecipes, setHighCarbRecipes] = useState([]);
-  
+
+  const recipeFilters = [
+    { label: "Калорії", key: "calories", defaultRange: [0, 1000] },
+    { label: "Білки", key: "protein", defaultRange: [0, 100] },
+    { label: "Жири", key: "fats", defaultRange: [0, 100] },
+    { label: "Вуглеводи", key: "carbs", defaultRange: [0, 100] },
+    {
+      label: "Час приготування",
+      key: "prepTime",
+      defaultRange: [5, 120],
+      unit: "хв",
+    },
+  ];
 
   useEffect(() => {
     async function fetchRecipes(category, setter) {
       try {
-        const response = await fetch(`${API_URL}?category=${encodeURIComponent(category)}`);
+        const response = await fetch(
+          `${API_URL}?category=${encodeURIComponent(category)}`
+        );
         const data = await response.json();
         setter(data.recipes);
       } catch (error) {
@@ -72,6 +88,11 @@ function Recipes() {
         <h1 className="recipes-section-title">Відібрані рецепти</h1>
       </div>
       <RecipeSection />
+      <RecipeSearch
+        filters={recipeFilters}
+        typeOptions={["Сніданок", "Обід", "Вечеря", "Перекус", "Десерт"]}
+        onSearch={(data) => console.log("Recipe search", data)}
+      />
       <RecipeCategorySection
         title="Рецепти з високим вмістом білка"
         description="Почніть свій день з білкових сніданків — ситно, корисно та смачно."
