@@ -15,8 +15,11 @@
 }
 
 .recipe-img {
-  width: 30rem;
+  width: 100%;
+  max-width: 30rem;
+  aspect-ratio: 3 / 4; /* Це те саме, що 30rem:40rem */
   border-radius: 1rem;
+  object-fit: cover;
 }
 
 .recipe-text {
@@ -78,6 +81,7 @@
   width: 9rem;
   height: 9rem;
   border-radius: 1rem;
+  object-fit: cover;
 }
 
 .recipe-container {
@@ -128,7 +132,7 @@
   border-radius: 14px;
 }
 
-.small-recipe:hover  {
+.small-recipe:hover {
   box-shadow: rgba(251, 255, 0, 0.35) 0px 5px 15px;
   transform: scale(1.03);
 }
@@ -230,7 +234,7 @@
     text-align: center;
   }
 
-  .recipe-text p{
+  .recipe-text p {
     text-align: center;
   }
 }
