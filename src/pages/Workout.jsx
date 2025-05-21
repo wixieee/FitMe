@@ -76,11 +76,16 @@ const Workout = () => {
   return (
     <div className="workout-page">
       <div className="workout-left">
-        <img
-          src={process.env.PUBLIC_URL + "/images/workout1.png"}
-          alt="Workout preview"
-          className="workout-Img"
-        />
+        <div className="image-container">
+          <img
+            src={process.env.PUBLIC_URL + "/images/workout1.png"}
+            alt="Workout preview"
+            className="workout-Img"
+          />
+          <div className="workout-star-icon">
+            <i className="bx bxs-star"></i>
+          </div>
+        </div>
         {started && <p className="timer">Час: {formatTime(timer)}</p>}
       </div>
 
@@ -131,10 +136,7 @@ const Workout = () => {
                 </div>
               ))}
             {started && (
-              <button
-                onClick={() => addSet(exIndex)}
-                className="add-set-btn"
-              >
+              <button onClick={() => addSet(exIndex)} className="add-set-btn">
                 + Додати підхід
               </button>
             )}
