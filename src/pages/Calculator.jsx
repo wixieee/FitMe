@@ -4,7 +4,7 @@ import "../assets/variables.css";
 
 const Calculator = () => {
   const totalCalories = 2100;
-  const consumedCalories = 375;
+  const consumedCalories = 2544;
 
   const [percentage, setPercentage] = useState(0);
 
@@ -19,7 +19,7 @@ const Calculator = () => {
   ]);
 
   useEffect(() => {
-    const target = Math.min((consumedCalories / totalCalories) * 100, 100);
+    const target = (consumedCalories / totalCalories) * 100;
     const timeout = setTimeout(() => {
       setPercentage(target);
     }, 100);
@@ -51,9 +51,10 @@ const Calculator = () => {
               className="progress"
               style={{
                 background: `conic-gradient(
-            var(--yellow) 0% ${percentage}%,
-            #1a1a1a ${percentage}% 100%
-          )`,
+                  ${percentage > 100 ? `#FF7F00 0% ${percentage - 100}%,` : ''}
+                  var(--yellow) ${percentage > 100 ? `${percentage - 100}%` : '0%'} ${percentage > 100 ? '100%' : `${percentage}%`},
+                  #1a1a1a ${percentage > 100 ? '100%' : `${percentage}%`} 100%
+                )`
               }}
             >
               <div className="inner-ring"></div>
