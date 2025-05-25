@@ -69,9 +69,43 @@ function Recipes() {
   useEffect(() => {
     async function fetchRecipes(category, setter) {
       try {
-        const response = await fetch(`${API_URL}?category=${encodeURIComponent(category)}`);
+        const response = await fetch(`${API_URL}?category=${encodeURIComponent(category)}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            // Додаємо заголовок, щоб отримати повні дані
+            'X-Request-Full-Data': 'true'
+          }
+        });
+        
         const data = await response.json();
-        setter(data.recipes);
+        
+        if (data.recipes && Array.isArray(data.recipes)) {
+          console.log(`Отримано ${data.recipes.length} рецептів для категорії ${category}`);
+          const sampleRecipe = data.recipes[0];
+          console.log('Структура рецепту:', {
+            title: sampleRecipe.title,
+            description: sampleRecipe.description,
+            ingredients: sampleRecipe.ingredients,
+            instructions: sampleRecipe.instructions,
+            nutrients: sampleRecipe.nutrients
+          });
+          
+          // Нормалізуємо дані рецептів
+          const normalizedRecipes = data.recipes.map(recipe => ({
+            ...recipe,
+            id: recipe.id || `${recipe.title}-${Math.random()}`,
+            description: recipe.description || '',
+            ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients : [],
+            instructions: recipe.instructions || '',
+            nutrients: recipe.nutrients || {},
+            category: recipe.category || category
+          }));
+          
+          setter(normalizedRecipes);
+        } else {
+          console.error('Неправильний формат даних для категорії', category, data);
+        }
       } catch (error) {
         console.error(`Error fetching recipes for ${category}:`, error);
       }
@@ -97,6 +131,15 @@ function Recipes() {
     }
   }, [location.hash]);
 
+  // Додаємо ефект для логування при зміні пошукового запиту
+  useEffect(() => {
+    if (searchTerm) {
+      console.log('Новий пошуковий запит:', searchTerm);
+      const allRecipes = getRecipesByCategory(selectedType);
+      console.log(`Всього рецептів для пошуку: ${allRecipes.length}`);
+    }
+  }, [searchTerm, selectedType]);
+
   function parseValue(value) {
     if (!value || value === "—") return undefined;
     const match = value.toString().match(/[\d,.]+/);
@@ -116,50 +159,50 @@ function Recipes() {
     return recipes.filter((recipe) => {
       if (!recipe || !recipe.title) return false;
 
-      const normalizedTitle = recipe.title.toLowerCase();
       const searchWords = searchTerm.toLowerCase().trim().split(/\s+/).filter(word => word.length > 0);
       
-      const titleMatch = searchWords.length === 0 || searchWords.every(word => 
-        normalizedTitle.includes(word)
+      if (searchWords.length === 0) return true;
+
+      // Перевіряємо часткові збіги в заголовку
+      const titleWords = recipe.title.toLowerCase().split(/\s+/);
+      const titleMatch = searchWords.every(searchWord => 
+        titleWords.some(titleWord => titleWord.includes(searchWord))
       );
 
-      let categoryMatch = true;
-      if (selectedType) {
-        if (selectedType === "Рецепти з високим вмістом білка") {
-          categoryMatch = highProteinRecipes.some(r => r.id === recipe.id);
-        } else if (selectedType === "Рецепти без молока") {
-          categoryMatch = dairyFreeRecipes.some(r => r.id === recipe.id);
-        } else if (selectedType === "Вегетеріанські рецепти") {
-          categoryMatch = vegetarianRecipes.some(r => r.id === recipe.id);
-        } else if (selectedType === "Рецепти з високим вмістом вуглеводів") {
-          categoryMatch = highCarbRecipes.some(r => r.id === recipe.id);
-        }
-      }
-    
-      const cal = parseValue(recipe.calories);
-      const protein = parseValue(recipe.nutrients?.["білки"]);
-      const fats = parseValue(recipe.nutrients?.["жири"]);
-      const carbs = parseValue(recipe.nutrients?.["вуглеводи"]);
-      const prepTime = parseValue(recipe.prepTime);
+      if (titleMatch) return true;
 
-      const inRange = {
-        calories: cal >= (filters.calories?.[0] ?? 0) && cal <= (filters.calories?.[1] ?? 1000),
-        protein: protein >= (filters.protein?.[0] ?? 0) && protein <= (filters.protein?.[1] ?? 100),
-        fats: fats >= (filters.fats?.[0] ?? 0) && fats <= (filters.fats?.[1] ?? 100),
-        carbs: carbs >= (filters.carbs?.[0] ?? 0) && carbs <= (filters.carbs?.[1] ?? 100),
-        prepTime: prepTime >= (filters.prepTime?.[0] ?? 5) && prepTime <= (filters.prepTime?.[1] ?? 120),
-      };
+      // Якщо не знайдено в заголовку, шукаємо точні збіги в інших полях
+      const otherContent = [
+        ...(Array.isArray(recipe.ingredients) ? recipe.ingredients : []),
+        recipe.category,
+        recipe.instructions,
+        Object.entries(recipe.nutrients || {}).map(([key, value]) => `${key} ${value}`).join(' ')
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+        .replace(/[.,!?;:()\[\]{}]/g, '');
 
-      return titleMatch && categoryMatch && Object.values(inRange).every(Boolean);
+      const contentWords = otherContent.split(/\s+/).filter(word => word.length > 0);
+
+      const otherFieldsMatch = searchWords.every(searchWord => 
+        contentWords.some(contentWord => contentWord === searchWord)
+      );
+
+      // Для налагодження
+      console.log('Пошук в рецепті:', {
+        title: recipe.title,
+        searchWords,
+        titleWords,
+        titleMatch,
+        otherFieldsMatch
+      });
+
+      return titleMatch || otherFieldsMatch;
     });
   }
 
-  const handleSearch = ({ searchTerm, selectedType, range }) => {
-    setSearchTerm(searchTerm);
-    setSelectedType(selectedType);
-    setFilters(range);
-  };
-
+  // Функція для отримання всіх рецептів відповідної категорії
   const getRecipesByCategory = (category) => {
     switch(category) {
       case "Рецепти з високим вмістом білка":
@@ -173,6 +216,12 @@ function Recipes() {
       default:
         return [...highProteinRecipes, ...dairyFreeRecipes, ...vegetarianRecipes, ...highCarbRecipes];
     }
+  };
+
+  const handleSearch = ({ searchTerm, selectedType, range }) => {
+    setSearchTerm(searchTerm);
+    setSelectedType(selectedType);
+    setFilters(range);
   };
 
   return (
