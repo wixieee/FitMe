@@ -144,26 +144,27 @@
 
 .search-dropdown {
   position: absolute;
-  top: 100%;
+  top: calc(100% + 5px);
   left: 0;
   right: 0;
   background-color: #1a1a1a;
-  border: 2px solid var(--yellow);
-  border-radius: 8px;
+  border: 1px solid #333;
+  border-radius: 12px;
   z-index: 1000;
-  margin-top: 4px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
+  overflow: hidden;
 }
 
 .search-item {
-  padding: 12px 15px;
+  padding: 14px 16px;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #333;
-  background-color: #1a1a1a;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: transparent;
 }
 
 .search-item:last-child {
@@ -171,41 +172,51 @@
 }
 
 .search-item:hover {
-  background-color: #2a2a2a;
-  transform: translateX(5px);
+  background-color: rgba(255, 255, 255, 0.05);
 }
 
 .search-item-title {
   color: #fff;
   flex: 1;
   margin-right: 10px;
+  font-size: 0.95rem;
 }
 
 .search-item-calories {
   color: var(--yellow);
-  font-weight: bold;
+  font-weight: 500;
   white-space: nowrap;
-  padding-left: 10px;
-  border-left: 1px solid #333;
+  padding-left: 15px;
+  position: relative;
+}
+
+.search-item-calories::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 1px;
+  height: 70%;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .food-search {
   width: 100%;
-  padding: 12px 15px;
-  border: 2px solid #333;
-  border-radius: 8px;
-  background-color: black;
+  padding: 14px 16px;
+  border: 1px solid #333;
+  border-radius: 12px;
+  background-color: #1a1a1a;
   color: #fff;
   margin-bottom: 10px;
-  font-size: 1rem;
-  transition: all 0.3s ease;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
 }
 
 .food-search:focus {
   outline: none;
   border-color: var(--yellow);
-  box-shadow: 0 0 0 1px var(--yellow);
-  background-color: #1a1a1a;
+  background-color: #242424;
 }
 
 .workout-search {
