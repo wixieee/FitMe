@@ -137,7 +137,77 @@
   color: var(--yellow);
 }
 
-.food-search,
+.search-container {
+  position: relative;
+  width: 100%;
+}
+
+.search-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: #1a1a1a;
+  border: 2px solid var(--yellow);
+  border-radius: 8px;
+  z-index: 1000;
+  margin-top: 4px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+.search-item {
+  padding: 12px 15px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #333;
+  background-color: #1a1a1a;
+}
+
+.search-item:last-child {
+  border-bottom: none;
+}
+
+.search-item:hover {
+  background-color: #2a2a2a;
+  transform: translateX(5px);
+}
+
+.search-item-title {
+  color: #fff;
+  flex: 1;
+  margin-right: 10px;
+}
+
+.search-item-calories {
+  color: var(--yellow);
+  font-weight: bold;
+  white-space: nowrap;
+  padding-left: 10px;
+  border-left: 1px solid #333;
+}
+
+.food-search {
+  width: 100%;
+  padding: 12px 15px;
+  border: 2px solid #333;
+  border-radius: 8px;
+  background-color: black;
+  color: #fff;
+  margin-bottom: 10px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+}
+
+.food-search:focus {
+  outline: none;
+  border-color: var(--yellow);
+  box-shadow: 0 0 0 1px var(--yellow);
+  background-color: #1a1a1a;
+}
+
 .workout-search {
   width: 100%;
   padding: 0.6rem 1rem;
@@ -147,6 +217,18 @@
   outline: none;
   background-color: black;
   color: #fff;
+  margin-bottom: 10px;
+}
+
+.workout-search:focus {
+  outline: none;
+  background-color: black;
+  color: #fff;
+}
+
+.food-search::placeholder,
+.workout-search::placeholder {
+  color: #888;
 }
 
 /* Списки їжі та тренувань */
