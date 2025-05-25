@@ -10,7 +10,7 @@ const Calculator = () => {
   const searchContainerRef = useRef(null);
   const [baseCalories, setBaseCalories] = useState(2100); // з Firestore
   const [totalCalories, setTotalCalories] = useState(2100); // фактичне (з урахуванням опції)
-  const [consumedCalories, setConsumedCalories] = useState(4000);
+  const [consumedCalories, setConsumedCalories] = useState(2000);
   const [percentage, setPercentage] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
@@ -27,6 +27,13 @@ const Calculator = () => {
 
   const auth = getAuth();
   const userId = auth.currentUser?.uid;
+
+useEffect(() => {
+  const savedFoods = localStorage.getItem("foods");
+  if (savedFoods) {
+    setFoods(JSON.parse(savedFoods));
+  }
+}, []);
 
 useEffect(() => {
   // 🔹 1. Спочатку зчитуємо з localStorage, щоб миттєво показати користувачу
@@ -67,27 +74,57 @@ useEffect(() => {
   return () => unsubscribe();
 }, [userId]);
 
+let adjustedCalories = baseCalories;
   // 🔁 Оновлюємо totalCalories при зміні selectedOption або baseCalories
   useEffect(() => {
-    let adjustedCalories = baseCalories;
+
     if (selectedOption === "weightLose") {
-      adjustedCalories = baseCalories - 400;
+      adjustedCalories = baseCalories - 429;
     } else if (selectedOption === "weightGain") {
-      adjustedCalories = baseCalories + 400;
+      adjustedCalories = baseCalories + 497;
     }
     setTotalCalories(adjustedCalories);
   }, [selectedOption, baseCalories]);
 
   // 🔁 Оновлюємо процент кільця
-  useEffect(() => {
-    if (totalCalories > 0) {
-      const target = (consumedCalories / totalCalories) * 100;
-      const timeout = setTimeout(() => {
-        setPercentage(target);
-      }, 100);
-      return () => clearTimeout(timeout);
-    }
-  }, [consumedCalories, totalCalories]);
+useEffect(() => {
+  if (totalCalories > 0 && typeof consumedCalories === "number" && !isNaN(consumedCalories)) {
+    const target = (consumedCalories / totalCalories) * 100;
+    const timeout = setTimeout(() => {
+      setPercentage(Math.max(0, target)); // захист від від’ємних %
+    }, 100);
+    return () => clearTimeout(timeout);
+  } else {
+    setPercentage(0);
+  }
+}, [consumedCalories, totalCalories]);
+
+useEffect(() => {
+  if (
+    typeof consumedCalories === "number" &&
+    typeof totalCalories === "number" &&
+    totalCalories > 0
+  ) {
+    const target = (consumedCalories / totalCalories) * 100;
+    setPercentage(target);
+  } else {
+    setPercentage(0);
+  }
+}, [consumedCalories, totalCalories]);
+
+useEffect(() => {
+  const totalFoodCalories = Array.isArray(foods)
+    ? foods.reduce((sum, food) => sum + (Number(food.calories) || 0), 0)
+    : 0;
+
+  const totalWorkoutCalories = Array.isArray(workouts)
+    ? workouts.reduce((sum, workout) => sum + (Number(workout.burned) || 0), 0)
+    : 0;
+
+  const result = totalFoodCalories - totalWorkoutCalories;
+
+  setConsumedCalories(result >= 0 ? result : 0);
+}, [foods, workouts]);
 
   // Додаємо обробник кліку поза межами випадаючого списку
   useEffect(() => {
@@ -102,10 +139,6 @@ useEffect(() => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-
-  const handleDeleteFood = (index) => {
-    setFoods((prev) => prev.filter((_, i) => i !== index));
-  };
 
   const handleDeleteWorkout = (index) => {
     setWorkouts((prev) => prev.filter((_, i) => i !== index));
@@ -163,14 +196,28 @@ useEffect(() => {
   };
 
   // Обробник вибору страви з випадаючого списку
-  const handleFoodSelect = (recipe) => {
-    setFoods(prev => [...prev, { 
-      name: recipe.title, 
-      calories: recipe.calories || 0
-    }]);
-    setSearchTerm("");
-    setShowDropdown(false);
+const handleFoodSelect = (recipe) => {
+  const newFood = { 
+    name: recipe.title, 
+   calories: parseInt(recipe.calories?.toString().replace(/[^\d]/g, ""), 10) || 0
   };
+
+  const updatedFoods = [...foods, newFood];
+  setFoods(updatedFoods);
+  setSearchTerm("");
+  setShowDropdown(false);
+
+  // 💾 Зберегти в localStorage
+  localStorage.setItem("foods", JSON.stringify(updatedFoods));
+};
+
+const handleDeleteFood = (index) => {
+  const updatedFoods = foods.filter((_, i) => i !== index);
+  setFoods(updatedFoods);
+
+  // 💾 Оновити в localStorage
+  localStorage.setItem("foods", JSON.stringify(updatedFoods));
+};
 
   return (
     
@@ -246,15 +293,15 @@ useEffect(() => {
           <div className="macros-summary">
             <div className="macro">
               <span className="macro-label">Білки</span>
-              <span className="macro-value">10/110 г</span>
+              <span className="macro-value">10/{parseInt(adjustedCalories * 0.45)} г</span>
             </div>
             <div className="macro">
               <span className="macro-label">Жири</span>
-              <span className="macro-value">10/70 г</span>
+              <span className="macro-value">10/{parseInt(adjustedCalories * 0.35)} г</span>
             </div>
             <div className="macro">
               <span className="macro-label">Вуглеводи</span>
-              <span className="macro-value">10/220 г</span>
+              <span className="macro-value">10/{parseInt(adjustedCalories * 0.2)} г</span>
             </div>
           </div>
         </div>
@@ -292,7 +339,7 @@ useEffect(() => {
                 <li key={index} className="food-item">
                   <span>{food.name}</span>
                   <div className="item-right">
-                    <span className="calories">{food.calories} </span>
+                    <span className="calories">{food.calories} ккал</span>
                     <button
                       className="delete-button"
                       onClick={() => handleDeleteFood(index)}
