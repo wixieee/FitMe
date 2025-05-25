@@ -1,17 +1,17 @@
 {
   "files": {
-    "main.css": "/FitMe/static/css/main.98638b99.css",
-    "main.js": "/FitMe/static/js/main.7b64e324.js",
+    "main.css": "/FitMe/static/css/main.115dc11b.css",
+    "main.js": "/FitMe/static/js/main.51c5866b.js",
     "static/js/453.bd7158d4.chunk.js": "/FitMe/static/js/453.bd7158d4.chunk.js",
     "static/media/about-us.png": "/FitMe/static/media/about-us.2fa4fe252b3b02c7926d.png",
     "static/media/gym.png": "/FitMe/static/media/gym.a582c73f6015236802b4.png",
     "index.html": "/FitMe/index.html",
-    "main.98638b99.css.map": "/FitMe/static/css/main.98638b99.css.map",
-    "main.7b64e324.js.map": "/FitMe/static/js/main.7b64e324.js.map",
+    "main.115dc11b.css.map": "/FitMe/static/css/main.115dc11b.css.map",
+    "main.51c5866b.js.map": "/FitMe/static/js/main.51c5866b.js.map",
     "453.bd7158d4.chunk.js.map": "/FitMe/static/js/453.bd7158d4.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.98638b99.css",
-    "static/js/main.7b64e324.js"
+    "static/css/main.115dc11b.css",
+    "static/js/main.51c5866b.js"
   ]
 }
