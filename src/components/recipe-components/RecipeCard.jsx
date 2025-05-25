@@ -5,7 +5,7 @@ import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firest
 import { db } from "../../firebase";
 import "./recipeCard.css";
 
-function RecipeCard({ recipeId, title, imageUrl, prepTime, calories, link }) {
+function RecipeCard({ recipeId, title, imageUrl, prepTime, calories, link, onFavoriteChange }) {
   const [isFavorite, setIsFavorite] = useState(false);
   const auth = getAuth();
   const user = auth.currentUser;
@@ -28,8 +28,6 @@ function RecipeCard({ recipeId, title, imageUrl, prepTime, calories, link }) {
     e.preventDefault(); // блокує перехід за посиланням
     e.stopPropagation(); // зупиняє спливання
 
-    console.log("Recipe ID:", recipeId);
-
     if (!user) {
       alert("Увійдіть в систему, щоб додати до обраного");
       return;
@@ -42,7 +40,13 @@ function RecipeCard({ recipeId, title, imageUrl, prepTime, calories, link }) {
           ? arrayRemove(recipeId)
           : arrayUnion(recipeId),
       });
-      setIsFavorite(!isFavorite);
+      const newFavoriteState = !isFavorite;
+      setIsFavorite(newFavoriteState);
+      
+      // Викликаємо callback якщо він існує
+      if (onFavoriteChange) {
+        onFavoriteChange(recipeId, newFavoriteState);
+      }
     } catch (error) {
       console.error("Помилка збереження обраного рецепта:", error);
     }
@@ -56,7 +60,7 @@ function RecipeCard({ recipeId, title, imageUrl, prepTime, calories, link }) {
           style={{ backgroundImage: `url(${imageUrl})` }}
         >
           <div className="star-icon" onClick={toggleFavorite}>
-            <i className={isFavorite ? "bx bxs-star active" : "bx bx-star"}></i>
+            <i className={`bx ${isFavorite ? "bxs-star active" : "bx-star"}`}></i>
           </div>
           <div className="info-block">
             <div className="info-badge">
