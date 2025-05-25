@@ -14,8 +14,8 @@ const Header = () => {
   });
 
   const location = useLocation();
-  const isRecipePage = useMatch("/recipe");
   const navigate = useNavigate();
+  const isRecipePage = useMatch("/recipe");
 
   useEffect(() => {
     if (user) {
@@ -24,6 +24,7 @@ const Header = () => {
       localStorage.removeItem("user");
     }
   }, [user]);
+
   const navItems = [
     { name: "Головна", path: "/" },
     { name: "Тренування", path: "/workouts" },
@@ -36,6 +37,7 @@ const Header = () => {
     setIsModalOpen(true);
     setMenuOpen(false);
   };
+
   const handleLogout = () => {
     setUser(null);
     localStorage.removeItem("user");
@@ -121,19 +123,19 @@ const Header = () => {
                     </button>
                   </div>
                   {profileMenuOpen && (
-                    <div className="dropdown-menu">
-                      <div className="dropdown-item">{user.email}</div>
-                      <Link
-                        to="/settings"
-                        className="dropdown-item settings-btn"
-                      >
-                        Налаштування
-                      </Link>
-                      <button className="dropdown-item logout-btn" onClick={handleLogout}>
-                        Вийти
-                      </button>
-                    </div>
-                  )}
+  <div className="dropdown-menu">
+    <div className="dropdown-item">{user.email}</div>
+    <Link
+      to="/settings"
+      className="dropdown-item settings-btn"
+    >
+      Налаштування
+    </Link>
+    <button className="dropdown-item logout-btn" onClick={handleLogout}>
+      Вийти
+    </button>
+  </div>
+)}
 
                 </div>
               </div>
