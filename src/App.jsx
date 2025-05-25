@@ -1,4 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useEffect,useState } from "react";
+import { getAuth } from "firebase/auth";
+
 import {
   HashRouter as Router,
   Route,
@@ -27,8 +29,12 @@ const ScrollToTop = () => {
 
   return null;
 };
+const auth = getAuth();
+const user = auth.currentUser;
 
 function App() {
+  const [user, setUser] = useState(null); // 🔸 Зберігаємо логіненого користувача
+
   return (
     <Router>
       <>
@@ -43,8 +49,7 @@ function App() {
           <Route path="/calories" element={<Calculator />} />
           <Route path="/policy" element={<Policy />} />
           <Route path="/about" element={<AboutUs />} />
-          <Route path="/profile" element={<Profile />} />
-
+          <Route path="/profile" element={<Profile user={user} />} /> {/* ✅ передаємо user */}
         </Routes>
         <ContactSection />
         <Footer />

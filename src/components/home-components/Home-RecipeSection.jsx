@@ -27,7 +27,7 @@ function RecipeSection() {
   useEffect(() => {
     const fetchRecipe = async () => {
       try {
-        const response = await fetch("https://fitmesever-production.up.railway.app/recipe/of-the-day");
+        const response = await fetch("https://fitme-sever.onrender.com/recipe/of-the-day");
         const data = await response.json();
         setRecipeOfTheDay(data.recipe);
       } catch (error) {
@@ -41,20 +41,18 @@ function RecipeSection() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get("https://fitmesever-production.up.railway.app/recipe/categories-preview");
-        const categoriesWithIds = response.data.categories.map(category => {
-          const idMap = {
-            "Рецепти з високим вмістом білка": "high-protein",
-            "Рецепти без молока": "dairy-free",
-            "Вегетеріанські рецепти": "vegetarian",
-            "Рецепти з високим вмістом вуглеводів": "high-carb"
-          };
-          return {
-            ...category,
-            id: idMap[category.title]
-          };
-        });
-        setCategoryRecipes(categoriesWithIds || []);
+        const response = await axios.get("https://fitme-sever.onrender.com/recipe/categories-preview");
+        const idMap = {
+          "Рецепти з високим вмістом білка": "high-protein",
+          "Рецепти без молока": "dairy-free",
+          "Вегетеріанські рецепти": "vegetarian",
+          "Рецепти з високим вмістом вуглеводів": "high-carb"
+        };
+        const categoriesWithIds = (response.data.categories || []).map(category => ({
+          ...category,
+          id: idMap[category.title] || ""
+        }));
+        setCategoryRecipes(categoriesWithIds);
       } catch (error) {
         console.error("Не вдалося завантажити категорії рецептів", error);
       }
@@ -87,7 +85,6 @@ function RecipeSection() {
         {isMobile ? (
           <Swiper
             modules={[Navigation]}
-            slidesPerView={1}
             navigation
             loop={true}
             breakpoints={{
@@ -98,11 +95,7 @@ function RecipeSection() {
           >
             {categoryRecipes.map((r, index) => (
               <SwiperSlide key={index}>
-                <Link to={`/recipes#${r.title === "Рецепти з високим вмістом вуглеводів" ? "high-carb" : 
-                           r.title === "Рецепти з високим вмістом білка" ? "high-protein" :
-                           r.title === "Рецепти без молока" ? "dairy-free" :
-                           r.title === "Вегетеріанські рецепти" ? "vegetarian" : ""}`} 
-                     className="small-recipe">
+                <Link to={`/recipes#${r.id}`} className="small-recipe">
                   <img className="small-recipe-img" src={r.img} alt={r.title} />
                   <p className="small-recipe-title">{r.title}</p>
                 </Link>
@@ -113,11 +106,7 @@ function RecipeSection() {
           <ul>
             {categoryRecipes.map((r, index) => (
               <li key={index}>
-                <Link to={`/recipes#${r.title === "Рецепти з високим вмістом вуглеводів" ? "high-carb" : 
-                           r.title === "Рецепти з високим вмістом білка" ? "high-protein" :
-                           r.title === "Рецепти без молока" ? "dairy-free" :
-                           r.title === "Вегетеріанські рецепти" ? "vegetarian" : ""}`} 
-                     className="small-recipe">
+                <Link to={`/recipes#${r.id}`} className="small-recipe">
                   <img className="small-recipe-img" src={r.img} alt={r.title} />
                   <p className="small-recipe-title">{r.title}</p>
                 </Link>
