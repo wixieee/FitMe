@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import RecipeSection from "../components/home-components/Home-RecipeSection";
 import WorkoutSection from "../components/home-components/WorkoutSection";
@@ -10,6 +11,7 @@ import "./home.css";
 
 function Home() {
   const [isSlider, setIsSlider] = useState(window.innerWidth <= 1520);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleResize = () => {
@@ -29,8 +31,8 @@ function Home() {
             <span>СВОЄЇ МРІЇ</span>
           </h1>
           <p>
-            Фізична активність покращує ваше здоров’я, допомагає контролювати
-            вагу, зменшує ризик захворювань, зміцнює кістки та м’язи та покращує
+            Фізична активність покращує ваше здоров'я, допомагає контролювати
+            вагу, зменшує ризик захворювань, зміцнює кістки та м'язи та покращує
             вашу здатність займатися повсякденною діяльністю.
           </p>
           <button className="cta-button">Розпочати</button>
@@ -44,7 +46,7 @@ function Home() {
 
       <div className="recipe-container">
         <h2 className="recipe-section-title">/// Рецепти</h2>
-        <button className="view-more-btn">Переглянути більше рецептів</button>
+        <button onClick={() => navigate('/recipes#recipe-search')} className="view-more-btn">Переглянути більше рецептів</button>
       </div>
       <RecipeSection />
       <CalorieCalculator />

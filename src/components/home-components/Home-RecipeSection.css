@@ -252,3 +252,25 @@
     height: 4rem;
   }
 }
+
+.view-all-recipes-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 24px;
+  background-color: var(--primary-color);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  margin-top: 20px;
+  font-weight: 600;
+  transition: background-color 0.3s ease;
+}
+
+.view-all-recipes-btn:hover {
+  background-color: var(--primary-color-dark);
+}
+
+.view-all-recipes-btn i {
+  font-size: 20px;
+}
