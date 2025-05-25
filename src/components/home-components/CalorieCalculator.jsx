@@ -1,8 +1,44 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "../../assets/variables.css";
 import "./calorieCalculator.css";
+import { auth } from "../../firebase";
+import { onAuthStateChanged } from "firebase/auth";
+import "../../firebase"
+import { setDoc, doc } from "firebase/firestore";
+import { db } from "../../firebase"; 
+
+
+const saveCaloriesToFirestore = async (userId, calories) => {
+  try {
+    await setDoc(
+      doc(db, "users", userId),
+      {
+        calories: parseInt(calories),
+        weightLoss: (parseInt(calories - calories*0.18)),
+        weightGain: (parseInt(calories + calories*0.18))
+      },
+      { merge: true } // щоб не перезаписати інші поля
+    );
+    console.log("Калорії збережено в документ users/" + userId);
+  } catch (error) {
+    console.error("Помилка при збереженні калорій:", error);
+  }
+};
 
 const CalorieCalculator = () => {
+  useEffect(() => {
+  const unsubscribe = onAuthStateChanged(auth, (user) => {
+    if (user) {
+      console.log("User UID:", user.uid);
+    }
+    else{
+      console.log("ne regae");
+    }
+  });
+
+  return () => unsubscribe();
+}, []);
+  
   const [age, setAge] = useState();
   const [gender, setGender] = useState();
   const [height, setHeight] = useState();
@@ -11,7 +47,80 @@ const CalorieCalculator = () => {
   const [showSettings, setShowSettings] = useState(false);
   const [unitSystem, setUnitSystem] = useState();
   const [calorieSystem, setCalorieSystem] = useState();
+  const [calories, setCalories] = useState(0);
+   
+  const calculateCalories = () => {
+  if (!age || !gender || !height || !weight || !activity) {
+    alert("Будь ласка, заповніть усі поля.");
+    return;
+  }
 
+  // Переводимо значення у числа
+  const w = parseFloat(weight);
+  const h = parseFloat(height);
+  const a = parseFloat(age);
+
+  // Обчислення базового метаболізму (BMR)
+  let BMR;
+  if (gender === "male") {
+    BMR = 10 * w + 6.25 * h - 5 * a + 5;
+  } else if (gender === "female") {
+    BMR = 10 * w + 6.25 * h - 5 * a - 161;
+  } else {
+    alert("Будь ласка, виберіть стать.");
+    return;
+  }
+
+  // Коефіцієнт активності
+  const activityFactors = {
+    sedentary: 1.2,
+    light: 1.375,
+    moderate: 1.55,
+    active: 1.725,
+    very_active: 1.9,
+  };
+
+  const activityFactor = activityFactors[activity];
+  const totalCalories = BMR * activityFactor;
+
+  // Показати результат в обраній одиниці
+  let result;
+  if (calorieSystem === "kjoule") {
+    result = totalCalories * 4.184;
+  } else {
+    result = totalCalories;
+  }
+  setCalories(result);
+    const user = auth.currentUser;
+if (user) {
+  saveCaloriesToFirestore(user.uid, result);
+} else {
+  console.log("Користувач не авторизований");
+}
+};
+
+const handleUnitSystemChange = (newUnit) => {
+  if (newUnit === "imperial" && unitSystem !== "imperial") {
+    setWeight((prev) => (prev ? (parseFloat(prev) * 2.20462).toFixed(1) : ""));
+    setHeight((prev) => (prev ? (parseFloat(prev) / 2.54).toFixed(1) : ""));
+  } else if (newUnit === "metric" && unitSystem !== "metric") {
+    setWeight((prev) => (prev ? (parseFloat(prev) / 2.20462).toFixed(1) : ""));
+    setHeight((prev) => (prev ? (parseFloat(prev) * 2.54).toFixed(1) : ""));
+  }
+  setUnitSystem(newUnit);
+};
+
+  const clearForm = () => {
+    setAge("");
+    setGender("");
+    setHeight("");
+    setWeight("");
+    setActivity("");
+    setShowSettings(false);
+    setUnitSystem("metric");
+    setCalorieSystem("calorie");
+  };
+  
   return (
     <section className="calculator-section">
       <div className="calculator-header">
@@ -73,7 +182,7 @@ const CalorieCalculator = () => {
                 value={height}
                 onChange={(e) => setHeight(e.target.value)}
               />
-              <span className="input-annotation">см</span>
+              <span className="input-annotation">{unitSystem === "imperial" ? "inches" : "см"}</span>
             </div>
           </div>
 
@@ -88,7 +197,7 @@ const CalorieCalculator = () => {
                 value={weight}
                 onChange={(e) => setWeight(e.target.value)}
               />
-              <span className="input-annotation">кг</span>
+              <span className="input-annotation">{unitSystem === "imperial" ? "lbs" : "кг"}</span>
             </div>
           </div>
 
@@ -160,7 +269,7 @@ const CalorieCalculator = () => {
                     name="lengthUnit"
                     value="metric"
                     checked={unitSystem === "metric"}
-                    onChange={() => setUnitSystem("metric")}
+                    onChange={() => handleUnitSystemChange("metric")}
                   />
                   <span className="custom-radio" />
                   <span className="unit-span">Метрична (кг, см)</span>
@@ -171,7 +280,7 @@ const CalorieCalculator = () => {
                     name="lengthUnit"
                     value="imperial"
                     checked={unitSystem === "imperial"}
-                    onChange={() => setUnitSystem("imperial")}
+                    onChange={() => handleUnitSystemChange("imperial")}
                   />
                   <span className="custom-radio" />
                   <span className="unit-span">Американська (lbs, inches)</span>
@@ -181,13 +290,14 @@ const CalorieCalculator = () => {
           )}
 
           <div className="buttons">
-            <button className="calculate">Розрахувати</button>
-            <button className="clear">Очистити</button>
+            <button className="calculate" onClick={calculateCalories}>Розрахувати</button>
+            <button className="clear" onClick={clearForm}>Очистити</button>
           </div>
         </div>
 
         <div className="results-container">
           <div className="results-header">Результат</div>
+          
           <p className="results-description">
             Результати показують низку щоденних оцінок калорій, які можна
             використовувати як орієнтир, скільки калорій потрібно споживати
@@ -198,27 +308,27 @@ const CalorieCalculator = () => {
             <div className="result-item">
               <p className="result-label">Підтримувати вагу</p>
               <p className="result-value">
-                2,425 <span className="result-unit">Калорій/день</span>
+                {parseInt(calories)} <span className="result-unit">{calorieSystem === "kjoule" ? "Кілоджоулів/день" : "Калорій/день"}</span>
               </p>
             </div>
             <div className="result-item">
               <p className="result-label small">
                 Схуднення
                 <br />
-                <span className="subtext">0.5 кг/тиждень</span>
+                <span className="subtext">{unitSystem === "imperial" ? "1 lbs" : " 0,5 кг"}/тиждень</span>
               </p>
               <p className="result-value">
-                1,925 <span className="result-unit">Калорій/день</span>
+                {parseInt(calories - calories* 0.18)}   <span className="result-unit">{calorieSystem === "kjoule" ? "Кілоджоулів/день" : "Калорій/день"}</span>
               </p>
             </div>
             <div className="result-item">
               <p className="result-label small">
                 Збільшення ваги
                 <br />
-                <span className="subtext">0.5 кг/тиждень</span>
+                <span className="subtext">{unitSystem === "imperial" ? "1 lbs" : " 0,5 кг"}/тиждень</span>
               </p>
               <p className="result-value">
-                1,925 <span className="result-unit">Калорій/день</span>
+                {parseInt(calories+ calories* 0.18)} <span className="result-unit">{calorieSystem === "kjoule" ? "Кілоджоулів/день" : "Калорій/день"}</span>
               </p>
             </div>
           </div>

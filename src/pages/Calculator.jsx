@@ -1,11 +1,15 @@
 import React, { useEffect, useState } from "react";
 import "./calculator.css";
 import "../assets/variables.css";
+import { doc, getDoc } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
+import { db } from "../firebase";  
 
 const Calculator = () => {
-  const totalCalories = 2100;
-  const consumedCalories = 2544;
-
+   const [selectedOption, setSelectedOption] = useState("calories");
+  const [baseCalories, setBaseCalories] = useState(2100); // з Firestore
+  const [totalCalories, setTotalCalories] = useState(2100); // фактичне (з урахуванням опції)
+  const [consumedCalories, setConsumedCalories] = useState(4000);
   const [percentage, setPercentage] = useState(0);
 
   const [foods, setFoods] = useState([
@@ -18,13 +22,58 @@ const Calculator = () => {
     { name: "Cилові вправи", burned: 180 },
   ]);
 
-  useEffect(() => {
-    const target = (consumedCalories / totalCalories) * 100;
-    const timeout = setTimeout(() => {
-      setPercentage(target);
-    }, 100);
+  const auth = getAuth();
+  const userId = auth.currentUser?.uid;
 
-    return () => clearTimeout(timeout);
+  useEffect(() => {
+    const fetchCalories = async () => {
+      try {
+        if (!userId) {
+          console.warn("userId не передано");
+          return;
+        }
+
+        const docRef = doc(db, "users", userId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.calories !== undefined) {
+            setBaseCalories(data.calories); // зберігаємо базове
+          } else {
+            console.warn("Поле 'calories' не знайдено в документі.");
+          }
+        } else {
+          console.warn("Документ не існує.");
+        }
+      } catch (error) {
+        console.error("Помилка при отриманні калорій з Firestore:", error);
+      }
+    };
+
+    fetchCalories();
+  }, [userId]);
+
+  // 🔁 Оновлюємо totalCalories при зміні selectedOption або baseCalories
+  useEffect(() => {
+    let adjustedCalories = baseCalories;
+    if (selectedOption === "weightLose") {
+      adjustedCalories = baseCalories - 400;
+    } else if (selectedOption === "weightGain") {
+      adjustedCalories = baseCalories + 400;
+    }
+    setTotalCalories(adjustedCalories);
+  }, [selectedOption, baseCalories]);
+
+  // 🔁 Оновлюємо процент кільця
+  useEffect(() => {
+    if (totalCalories > 0) {
+      const target = (consumedCalories / totalCalories) * 100;
+      const timeout = setTimeout(() => {
+        setPercentage(target);
+      }, 100);
+      return () => clearTimeout(timeout);
+    }
   }, [consumedCalories, totalCalories]);
 
   const handleDeleteFood = (index) => {
@@ -34,8 +83,8 @@ const Calculator = () => {
   const handleDeleteWorkout = (index) => {
     setWorkouts((prev) => prev.filter((_, i) => i !== index));
   };
-
   return (
+    
     <div className="calorie-container">
       <div className="calculator-description">
         <h1>Калькулятор калорій</h1>
@@ -46,6 +95,43 @@ const Calculator = () => {
       </div>
       <div className="calorie-content">
         <div className="left-panel">
+          <div className="calculator-container">
+      {/* Custom Radio Buttons */}
+      <div className="goal-options">
+        <label className={`custom-radio1 ${selectedOption === "calories" ? "selected" : ""}`}>
+          <input
+            type="radio"
+            name="goal"
+            value="calories"
+            checked={selectedOption === "calories"}
+            onChange={(e) => setSelectedOption(e.target.value)}
+          />
+          Підтримка ваги
+        </label>
+
+        <label className={`custom-radio1 ${selectedOption === "weightLose" ? "selected" : ""}`}>
+          <input
+            type="radio"
+            name="goal"
+            value="weightLose"
+            checked={selectedOption === "weightLose"}
+            onChange={(e) => setSelectedOption(e.target.value)}
+          />
+          Схуднення
+        </label>
+
+        <label className={`custom-radio1 ${selectedOption === "weightGain" ? "selected" : ""}`}>
+          <input
+            type="radio"
+            name="goal"
+            value="weightGain"
+            checked={selectedOption === "weightGain"}
+            onChange={(e) => setSelectedOption(e.target.value)}
+          />
+          Набір ваги
+        </label>
+        </div>
+      </div>
           <div className="circle">
             <div
               className="progress"
