@@ -5,6 +5,20 @@ import { auth, googleProvider } from "../../firebase";
 import { signInWithPopup } from "firebase/auth";
 import axios from "axios";
 import { sendPasswordResetEmail } from "firebase/auth";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import { db } from "../../firebase"; 
+
+const saveUserToFirestore = async (uid, email) => {
+  const userRef = doc(db, "users", uid);
+  const userSnap = await getDoc(userRef);
+
+  if (!userSnap.exists()) {
+    await setDoc(userRef, { email, favorites: [] });
+    console.log("Користувача створено в Firestore");
+  } else {
+    console.log("Користувач вже існує в Firestore");
+  }
+};
 
 const LoginModal = ({ onClose, setUser }) => {
   const [isRegister, setIsRegister] = useState(false);
@@ -23,66 +37,72 @@ const LoginModal = ({ onClose, setUser }) => {
     };
   }, []);
 
-  const handleLogin = async () => {
-    try {
-      const response = await fetch("https://fitmesever-production.up.railway.app/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        console.log("Login success:", data);
-        setUser({ email });
-        onClose();
-      } else {
-        setErrorMessage(data.error || "Login failed");
-      }
-    } catch (error) {
-      console.error("Login error:", error);
-      setErrorMessage("Server error");
+const handleLogin = async () => {
+  try {
+    const response = await fetch("https://fitme-sever.onrender.com/login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await response.json();
+    if (response.ok) {
+      const fakeUID = btoa(email); // унікальний, на основі email
+      await saveUserToFirestore(fakeUID, email); // збереження у Firestore
+      setUser({ uid: fakeUID, email });
+      onClose();
+    } else {
+      setErrorMessage(data.error || "Login failed");
     }
-  };
+  } catch (error) {
+    console.error("Login error:", error);
+    setErrorMessage("Server error");
+  }
+};
 
-  const handleRegister = async () => {
-    try {
-      const response = await fetch("https://fitmesever-production.up.railway.app/register", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        console.log("Registration success:", data);
-        setUser({ email });
-        onClose();
-      } else {
-        setErrorMessage(data.error || "Registration failed");
-      }
-    } catch (error) {
-      console.error("Registration error:", error);
-      setErrorMessage("Server error");
+
+const handleRegister = async () => {
+  try {
+    const response = await fetch("https://fitme-sever.onrender.com/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+    const data = await response.json();
+    if (response.ok) {
+      const fakeUID = btoa(email);
+      await saveUserToFirestore(fakeUID, email);
+      setUser({ uid: fakeUID, email });
+      onClose();
+    } else {
+      setErrorMessage(data.error || "Registration failed");
     }
-  };
+  } catch (error) {
+    console.error("Registration error:", error);
+    setErrorMessage("Server error");
+  }
+};
 
-  const handleGoogleLogin = async () => {
-    try {
-      const result = await signInWithPopup(auth, googleProvider);
-      const idToken = await result.user.getIdToken();
-      const response = await axios.post("https://fitmesever-production.up.railway.app/google-login", { idToken });
 
-      if (response.status === 200) {
-        console.log("Google login success:", response.data);
-        setUser({ email: result.user.email });
-        onClose();
-      } else {
-        setErrorMessage("Google login failed");
-      }
-    } catch (error) {
-      console.error("Google login error:", error);
-      setErrorMessage("Помилка при вході через Google");
+const handleGoogleLogin = async () => {
+  try {
+    const result = await signInWithPopup(auth, googleProvider);
+    const idToken = await result.user.getIdToken();
+    const response = await axios.post("https://fitme-sever.onrender.com/google-login", { idToken });
+
+    if (response.status === 200) {
+      const { uid, email } = result.user;
+      await saveUserToFirestore(uid, email); // додано
+      setUser({ uid, email }); // тепер передаємо uid
+      onClose();
+    } else {
+      setErrorMessage("Google login failed");
     }
-  };
+  } catch (error) {
+    console.error("Google login error:", error);
+    setErrorMessage("Помилка при вході через Google");
+  }
+};
+
 
 const handleForgotPassword = async () => {
   if (!email) {

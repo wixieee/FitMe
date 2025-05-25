@@ -17,7 +17,7 @@ const Recipe = () => {
     const title = searchParams.get("title");
     if (title) {
       fetch(
-        `https://fitmesever-production.up.railway.app/recipe?title=${encodeURIComponent(
+        `https://fitme-sever.onrender.com/recipe?title=${encodeURIComponent(
           title
         )}`
       )
