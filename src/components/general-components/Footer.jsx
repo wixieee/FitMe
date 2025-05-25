@@ -21,16 +21,16 @@ const Footer = () => {
             <h4>Навігація</h4>
             <ul>
               <li>
-                <a href="/workout">Тренування</a>
+                <Link to="/workouts">Тренування</Link>
               </li>
               <li>
-                <a href="/recipies">Рецепти</a>
+                <Link to="/recipes">Рецепти</Link>
               </li>
               <li>
-                <a href="/calculator">Калькулятор калорій</a>
+                <Link to="/calories">Калькулятор калорій</Link>
               </li>
               <li>
-                <a href="/about">Про нас</a>
+                <Link to="/about">Про нас</Link>
               </li>
             </ul>
           </div>

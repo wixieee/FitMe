@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
+import { useLocation } from "react-router-dom";
 import "swiper/css";
 import "swiper/css/navigation";
 
@@ -53,12 +54,12 @@ function RecipeCategorySection({ title, description, recipes }) {
   );
 }
 
-
 function Recipes() {
   const [highProteinRecipes, setHighProteinRecipes] = useState([]);
   const [dairyFreeRecipes, setDairyFreeRecipes] = useState([]);
   const [vegetarianRecipes, setVegetarianRecipes] = useState([]);
   const [highCarbRecipes, setHighCarbRecipes] = useState([]);
+  const location = useLocation();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [filters, setFilters] = useState({});
@@ -90,52 +91,59 @@ function Recipes() {
     fetchRecipes("Рецепти з високим вмістом вуглеводів", setHighCarbRecipes);
   }, []);
 
-function parseValue(value) {
-  if (!value || value === "—") return undefined;  // Порожнє, дефолт
+  useEffect(() => {
+    if (location.hash) {
+      setTimeout(() => {
+        const element = document.querySelector(location.hash);
+        if (element) {
+          window.scrollTo({
+            top: element.offsetTop - 10,
+            behavior: 'smooth'
+          });
+        }
+      }, 500);
+    }
+  }, [location.hash]);
 
-  // Знайти першу послідовність цифр, можливо з крапкою або комою
-  const match = value.toString().match(/[\d,.]+/);
-  if (!match) return undefined;
+  function parseValue(value) {
+    if (!value || value === "—") return undefined;
+    const match = value.toString().match(/[\d,.]+/);
+    if (!match) return undefined;
+    const numStr = match[0].replace(',', '.');
+    return Number(numStr);
+  }
 
-  // Замінимо кому на крапку для правильного парсингу float (якщо треба)
-  const numStr = match[0].replace(',', '.');
+  function filterRecipes(recipes) {
+    return recipes.filter((recipe) => {
+      if (!recipe || !recipe.title) return false;
 
-  return Number(numStr);
-}
+      const titleMatch = recipe.title.toLowerCase().includes(searchTerm.toLowerCase());
 
+      const cal = parseValue(recipe.calories);
+      const protein = parseValue(recipe.nutrients?.["білки"]);
+      const fats = parseValue(recipe.nutrients?.["жири"]);
+      const carbs = parseValue(recipe.nutrients?.["вуглеводи"]);
+      const prepTime = parseValue(recipe.prepTime);
 
-function filterRecipes(recipes) {
-  return recipes.filter((recipe) => {
-    if (!recipe || !recipe.title) return false;
+      const inRange = {
+        calories: cal >= (filters.calories?.[0] ?? 0) && cal <= (filters.calories?.[1] ?? 1000),
+        protein: protein >= (filters.protein?.[0] ?? 0) && protein <= (filters.protein?.[1] ?? 100),
+        fats: fats >= (filters.fats?.[0] ?? 0) && fats <= (filters.fats?.[1] ?? 100),
+        carbs: carbs >= (filters.carbs?.[0] ?? 0) && carbs <= (filters.carbs?.[1] ?? 100),
+        prepTime: prepTime >= (filters.prepTime?.[0] ?? 5) && prepTime <= (filters.prepTime?.[1] ?? 120),
+      };
 
-    const titleMatch = recipe.title.toLowerCase().includes(searchTerm.toLowerCase());
+      if (!isSearchApplied) return true;
 
-    const cal = parseValue(recipe.calories);
-    const protein = parseValue(recipe.nutrients?.["білки"]);
-    const fats = parseValue(recipe.nutrients?.["жири"]);
-    const carbs = parseValue(recipe.nutrients?.["вуглеводи"]);
-    const prepTime = parseValue(recipe.prepTime);
-
-    const inRange = {
-      calories: cal >= (filters.calories?.[0] ?? 0) && cal <= (filters.calories?.[1] ?? 1000),
-      protein: protein >= (filters.protein?.[0] ?? 0) && protein <= (filters.protein?.[1] ?? 100),
-      fats: fats >= (filters.fats?.[0] ?? 0) && fats <= (filters.fats?.[1] ?? 100),
-      carbs: carbs >= (filters.carbs?.[0] ?? 0) && carbs <= (filters.carbs?.[1] ?? 100),
-      prepTime: prepTime >= (filters.prepTime?.[0] ?? 5) && prepTime <= (filters.prepTime?.[1] ?? 120),
-    };
-
-    if (!isSearchApplied) return true;
-
-    return titleMatch && Object.values(inRange).every(Boolean);
-  });
-}
-
+      return titleMatch && Object.values(inRange).every(Boolean);
+    });
+  }
 
   const handleSearch = ({ searchTerm, selectedType, range }) => {
     setSearchTerm(searchTerm);
     setSelectedType(selectedType);
     setFilters(range);
-    setIsSearchApplied(true); // Активуємо фільтрацію
+    setIsSearchApplied(true);
   };
 
   return (
@@ -152,26 +160,34 @@ function filterRecipes(recipes) {
         onSearch={handleSearch}
       />
 
-      <RecipeCategorySection
-        title="Рецепти з високим вмістом білка"
-        description="Почніть свій день з білкових сніданків — ситно, корисно та смачно."
-        recipes={filterRecipes(highProteinRecipes)}
-      />
-      <RecipeCategorySection
-        title="Рецепти без молока"
-        description="Ідеально для тих, хто уникає лактози або дотримується безмолочної дієти."
-        recipes={filterRecipes(dairyFreeRecipes)}
-      />
-      <RecipeCategorySection
-        title="Вегетаріанські рецепти"
-        description="Смачні страви без м’яса — для здорового та збалансованого харчування."
-        recipes={filterRecipes(vegetarianRecipes)}
-      />
-      <RecipeCategorySection
-        title="Рецепти з високим вмістом вуглеводів"
-        description="Енергійні страви для спортсменів і тих, хто потребує додаткової енергії."
-        recipes={filterRecipes(highCarbRecipes)}
-      />
+      <section id="high-protein">
+        <RecipeCategorySection
+          title="Рецепти з високим вмістом білка"
+          description="Почніть свій день з білкових сніданків — ситно, корисно та смачно."
+          recipes={filterRecipes(highProteinRecipes)}
+        />
+      </section>
+      <section id="dairy-free">
+        <RecipeCategorySection
+          title="Рецепти без молока"
+          description="Ідеально для тих, хто уникає лактози або дотримується безмолочної дієти."
+          recipes={filterRecipes(dairyFreeRecipes)}
+        />
+      </section>
+      <section id="vegetarian">
+        <RecipeCategorySection
+          title="Вегетаріанські рецепти"
+          description="Смачні страви без м’яса — для здорового та збалансованого харчування."
+          recipes={filterRecipes(vegetarianRecipes)}
+        />
+      </section>
+      <section id="high-carb">
+        <RecipeCategorySection
+          title="Рецепти з високим вмістом вуглеводів"
+          description="Енергійні страви для спортсменів і тих, хто потребує додаткової енергії."
+          recipes={filterRecipes(highCarbRecipes)}
+        />
+      </section>
     </>
   );
 }

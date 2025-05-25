@@ -2,6 +2,8 @@
   padding: 4rem 4rem;
   background-color: #000;
   color: white;
+  scroll-margin-top: 80px;
+  scroll-behavior: smooth;
 }
 
 .recipes-section h2 {
@@ -56,4 +58,12 @@
     .recipes-section p{
     font-size: 0.9rem;
   }
+}
+
+#recipe-search {
+  scroll-margin-top: 100px; /* Це створить відступ при прокрутці до елемента */
+}
+
+#vegetarian {
+  scroll-margin-top: 80px;
 }
