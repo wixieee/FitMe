@@ -69,9 +69,43 @@ function Recipes() {
   useEffect(() => {
     async function fetchRecipes(category, setter) {
       try {
-        const response = await fetch(`${API_URL}?category=${encodeURIComponent(category)}`);
+        const response = await fetch(`${API_URL}?category=${encodeURIComponent(category)}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+            // Додаємо заголовок, щоб отримати повні дані
+            'X-Request-Full-Data': 'true'
+          }
+        });
+        
         const data = await response.json();
-        setter(data.recipes);
+        
+        if (data.recipes && Array.isArray(data.recipes)) {
+          console.log(`Отримано ${data.recipes.length} рецептів для категорії ${category}`);
+          const sampleRecipe = data.recipes[0];
+          console.log('Структура рецепту:', {
+            title: sampleRecipe.title,
+            description: sampleRecipe.description,
+            ingredients: sampleRecipe.ingredients,
+            instructions: sampleRecipe.instructions,
+            nutrients: sampleRecipe.nutrients
+          });
+          
+          // Нормалізуємо дані рецептів
+          const normalizedRecipes = data.recipes.map(recipe => ({
+            ...recipe,
+            id: recipe.id || `${recipe.title}-${Math.random()}`,
+            description: recipe.description || '',
+            ingredients: Array.isArray(recipe.ingredients) ? recipe.ingredients : [],
+            instructions: recipe.instructions || '',
+            nutrients: recipe.nutrients || {},
+            category: recipe.category || category
+          }));
+          
+          setter(normalizedRecipes);
+        } else {
+          console.error('Неправильний формат даних для категорії', category, data);
+        }
       } catch (error) {
         console.error(`Error fetching recipes for ${category}:`, error);
       }
@@ -97,6 +131,15 @@ function Recipes() {
     }
   }, [location.hash]);
 
+  // Додаємо ефект для логування при зміні пошукового запиту
+  useEffect(() => {
+    if (searchTerm) {
+      console.log('Новий пошуковий запит:', searchTerm);
+      const allRecipes = getRecipesByCategory(selectedType);
+      console.log(`Всього рецептів для пошуку: ${allRecipes.length}`);
+    }
+  }, [searchTerm, selectedType]);
+
   function parseValue(value) {
     if (!value || value === "—") return undefined;
     const match = value.toString().match(/[\d,.]+/);
@@ -105,49 +148,81 @@ function Recipes() {
     return Number(numStr);
   }
 
+  const categoryToApiMapping = {
+    "Рецепти з високим вмістом білка": "Рецепти з високим вмістом білка",
+    "Рецепти без молока": "Рецепти без молока",
+    "Вегетеріанські рецепти": "Вегетеріанські рецепти",
+    "Рецепти з високим вмістом вуглеводів": "Рецепти з високим вмістом вуглеводів"
+  };
+
   function filterRecipes(recipes) {
     return recipes.filter((recipe) => {
       if (!recipe || !recipe.title) return false;
 
-      const normalizedTitle = recipe.title.toLowerCase();
       const searchWords = searchTerm.toLowerCase().trim().split(/\s+/).filter(word => word.length > 0);
       
-      const titleMatch = searchWords.length === 0 || searchWords.every(word => 
-        normalizedTitle.includes(word)
+      if (searchWords.length === 0) return true;
+
+      // Перевіряємо часткові збіги в заголовку
+      const titleWords = recipe.title.toLowerCase().split(/\s+/);
+      const titleMatch = searchWords.every(searchWord => 
+        titleWords.some(titleWord => titleWord.includes(searchWord))
       );
-    
-      const cal = parseValue(recipe.calories);
-      const protein = parseValue(recipe.nutrients?.["білки"]);
-      const fats = parseValue(recipe.nutrients?.["жири"]);
-      const carbs = parseValue(recipe.nutrients?.["вуглеводи"]);
-      const prepTime = parseValue(recipe.prepTime);
 
-      const inRange = {
-        calories: cal >= (filters.calories?.[0] ?? 0) && cal <= (filters.calories?.[1] ?? 1000),
-        protein: protein >= (filters.protein?.[0] ?? 0) && protein <= (filters.protein?.[1] ?? 100),
-        fats: fats >= (filters.fats?.[0] ?? 0) && fats <= (filters.fats?.[1] ?? 100),
-        carbs: carbs >= (filters.carbs?.[0] ?? 0) && carbs <= (filters.carbs?.[1] ?? 100),
-        prepTime: prepTime >= (filters.prepTime?.[0] ?? 5) && prepTime <= (filters.prepTime?.[1] ?? 120),
-      };
+      if (titleMatch) return true;
 
-      return titleMatch && Object.values(inRange).every(Boolean);
+      // Якщо не знайдено в заголовку, шукаємо точні збіги в інших полях
+      const otherContent = [
+        ...(Array.isArray(recipe.ingredients) ? recipe.ingredients : []),
+        recipe.category,
+        recipe.instructions,
+        Object.entries(recipe.nutrients || {}).map(([key, value]) => `${key} ${value}`).join(' ')
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+        .replace(/[.,!?;:()\[\]{}]/g, '');
+
+      const contentWords = otherContent.split(/\s+/).filter(word => word.length > 0);
+
+      const otherFieldsMatch = searchWords.every(searchWord => 
+        contentWords.some(contentWord => contentWord === searchWord)
+      );
+
+      // Для налагодження
+      console.log('Пошук в рецепті:', {
+        title: recipe.title,
+        searchWords,
+        titleWords,
+        titleMatch,
+        otherFieldsMatch
+      });
+
+      return titleMatch || otherFieldsMatch;
     });
   }
+
+  // Функція для отримання всіх рецептів відповідної категорії
+  const getRecipesByCategory = (category) => {
+    switch(category) {
+      case "Рецепти з високим вмістом білка":
+        return highProteinRecipes;
+      case "Рецепти без молока":
+        return dairyFreeRecipes;
+      case "Вегетеріанські рецепти":
+        return vegetarianRecipes;
+      case "Рецепти з високим вмістом вуглеводів":
+        return highCarbRecipes;
+      default:
+        return [...highProteinRecipes, ...dairyFreeRecipes, ...vegetarianRecipes, ...highCarbRecipes];
+    }
+  };
 
   const handleSearch = ({ searchTerm, selectedType, range }) => {
     setSearchTerm(searchTerm);
     setSelectedType(selectedType);
     setFilters(range);
-    setIsSearchApplied(true);
   };
-
-  useEffect(() => {
-    handleSearch({
-      searchTerm,
-      selectedType,
-      range: filters
-    });
-  }, [searchTerm, selectedType, filters]);
 
   return (
     <>
@@ -159,48 +234,63 @@ function Recipes() {
 
       <RecipeSearch
         filters={recipeFilters}
-        typeOptions={["Сніданок", "Обід", "Вечеря", "Перекус", "Десерт"]}
+        typeOptions={[
+          "Рецепти з високим вмістом білка",
+          "Рецепти без молока",
+          "Вегетеріанські рецепти",
+          "Рецепти з високим вмістом вуглеводів"
+        ]}
         onSearch={handleSearch}
       />
 
-      {filterRecipes(highProteinRecipes).length > 0 && (
-        <section id="high-protein">
-          <RecipeCategorySection
-            title="Рецепти з високим вмістом білка"
-            description="Почніть свій день з білкових сніданків — ситно, корисно та смачно."
-            recipes={filterRecipes(highProteinRecipes)}
-          />
-        </section>
-      )}
+      {selectedType ? (
+        <RecipeCategorySection
+          title={selectedType}
+          description="Обрані рецепти за категорією"
+          recipes={filterRecipes(getRecipesByCategory(selectedType))}
+        />
+      ) : (
+        <>
+          {filterRecipes(highProteinRecipes).length > 0 && (
+            <section id="high-protein">
+              <RecipeCategorySection
+                title="Рецепти з високим вмістом білка"
+                description="Почніть свій день з білкових сніданків — ситно, корисно та смачно."
+                recipes={filterRecipes(highProteinRecipes)}
+              />
+            </section>
+          )}
 
-      {filterRecipes(dairyFreeRecipes).length > 0 && (
-        <section id="dairy-free">
-          <RecipeCategorySection
-            title="Рецепти без молока"
-            description="Ідеально для тих, хто уникає лактози або дотримується безмолочної дієти."
-            recipes={filterRecipes(dairyFreeRecipes)}
-          />
-        </section>
-      )}
+          {filterRecipes(dairyFreeRecipes).length > 0 && (
+            <section id="dairy-free">
+              <RecipeCategorySection
+                title="Рецепти без молока"
+                description="Ідеально для тих, хто уникає лактози або дотримується безмолочної дієти."
+                recipes={filterRecipes(dairyFreeRecipes)}
+              />
+            </section>
+          )}
 
-      {filterRecipes(vegetarianRecipes).length > 0 && (
-        <section id="vegetarian">
-          <RecipeCategorySection
-            title="Вегетаріанські рецепти"
-            description="Смачні страви без м'яса — для здорового та збалансованого харчування."
-            recipes={filterRecipes(vegetarianRecipes)}
-          />
-        </section>
-      )}
+          {filterRecipes(vegetarianRecipes).length > 0 && (
+            <section id="vegetarian">
+              <RecipeCategorySection
+                title="Вегетаріанські рецепти"
+                description="Смачні страви без м'яса — для здорового та збалансованого харчування."
+                recipes={filterRecipes(vegetarianRecipes)}
+              />
+            </section>
+          )}
 
-      {filterRecipes(highCarbRecipes).length > 0 && (
-        <section id="high-carb">
-          <RecipeCategorySection
-            title="Рецепти з високим вмістом вуглеводів"
-            description="Енергійні страви для спортсменів і тих, хто потребує додаткової енергії."
-            recipes={filterRecipes(highCarbRecipes)}
-          />
-        </section>
+          {filterRecipes(highCarbRecipes).length > 0 && (
+            <section id="high-carb">
+              <RecipeCategorySection
+                title="Рецепти з високим вмістом вуглеводів"
+                description="Енергійні страви для спортсменів і тих, хто потребує додаткової енергії."
+                recipes={filterRecipes(highCarbRecipes)}
+              />
+            </section>
+          )}
+        </>
       )}
     </>
   );

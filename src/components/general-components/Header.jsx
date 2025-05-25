@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useLocation, useMatch } from "react-router-dom";
+import { Link, useLocation, useMatch, useNavigate } from "react-router-dom";
 import LoginModal from "./LoginModal";
 import "../../assets/variables.css";
 import "./header.css";
@@ -14,7 +14,9 @@ const Header = () => {
   });
 
   const location = useLocation();
+  const navigate = useNavigate();
   const isRecipePage = useMatch("/recipe");
+
   useEffect(() => {
     if (user) {
       localStorage.setItem("user", JSON.stringify(user));
@@ -22,6 +24,7 @@ const Header = () => {
       localStorage.removeItem("user");
     }
   }, [user]);
+
   const navItems = [
     { name: "Головна", path: "/" },
     { name: "Тренування", path: "/workouts" },
@@ -34,11 +37,13 @@ const Header = () => {
     setIsModalOpen(true);
     setMenuOpen(false);
   };
+
   const handleLogout = () => {
-  setUser(null);
-  localStorage.removeItem("user");
-  setProfileMenuOpen(false);
-};
+    setUser(null);
+    localStorage.removeItem("user");
+    setProfileMenuOpen(false);
+    navigate('/');
+  };
 
   const profileMenuRef = useRef(null);
 
