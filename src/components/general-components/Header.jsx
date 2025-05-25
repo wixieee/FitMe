@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { Link, useLocation, useMatch } from "react-router-dom";
+import { Link, useLocation, useMatch, useNavigate } from "react-router-dom";
 import LoginModal from "./LoginModal";
 import "../../assets/variables.css";
 import "./header.css";
@@ -15,6 +15,8 @@ const Header = () => {
 
   const location = useLocation();
   const isRecipePage = useMatch("/recipe");
+  const navigate = useNavigate();
+
   useEffect(() => {
     if (user) {
       localStorage.setItem("user", JSON.stringify(user));
@@ -35,10 +37,11 @@ const Header = () => {
     setMenuOpen(false);
   };
   const handleLogout = () => {
-  setUser(null);
-  localStorage.removeItem("user");
-  setProfileMenuOpen(false);
-};
+    setUser(null);
+    localStorage.removeItem("user");
+    setProfileMenuOpen(false);
+    navigate('/');
+  };
 
   const profileMenuRef = useRef(null);
 
@@ -118,19 +121,19 @@ const Header = () => {
                     </button>
                   </div>
                   {profileMenuOpen && (
-  <div className="dropdown-menu">
-    <div className="dropdown-item">{user.email}</div>
-    <Link
-      to="/settings"
-      className="dropdown-item settings-btn"
-    >
-      Налаштування
-    </Link>
-    <button className="dropdown-item logout-btn" onClick={handleLogout}>
-      Вийти
-    </button>
-  </div>
-)}
+                    <div className="dropdown-menu">
+                      <div className="dropdown-item">{user.email}</div>
+                      <Link
+                        to="/settings"
+                        className="dropdown-item settings-btn"
+                      >
+                        Налаштування
+                      </Link>
+                      <button className="dropdown-item logout-btn" onClick={handleLogout}>
+                        Вийти
+                      </button>
+                    </div>
+                  )}
 
                 </div>
               </div>
