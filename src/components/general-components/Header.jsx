@@ -123,20 +123,20 @@ const Header = () => {
                     </button>
                   </div>
                   {profileMenuOpen && (
-  <div className="dropdown-menu">
-    <div className="dropdown-item">{user.email}</div>
-    <Link
-      to="/settings"
-      className="dropdown-item settings-btn"
-    >
-      Налаштування
-    </Link>
-    <button className="dropdown-item logout-btn" onClick={handleLogout}>
-      Вийти
-    </button>
-  </div>
-)}
-
+                    <div className="dropdown-menu">
+                      <div className="dropdown-item">{user.email}</div>
+                      <Link
+                        to="/profile?edit=true"
+                        className="dropdown-item settings-btn"
+                        onClick={() => setProfileMenuOpen(false)}
+                      >
+                        Налаштування
+                      </Link>
+                      <button className="dropdown-item logout-btn" onClick={handleLogout}>
+                        Вийти
+                      </button>
+                    </div>
+                  )}
                 </div>
               </div>
             ) : (

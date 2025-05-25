@@ -51,6 +51,7 @@ function Recipes() {
   const [dairyFreeRecipes, setDairyFreeRecipes] = useState([]);
   const [vegetarianRecipes, setVegetarianRecipes] = useState([]);
   const [highCarbRecipes, setHighCarbRecipes] = useState([]);
+  const [isDataLoaded, setIsDataLoaded] = useState(false);
   const location = useLocation();
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -73,7 +74,6 @@ function Recipes() {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',
-            // Додаємо заголовок, щоб отримати повні дані
             'X-Request-Full-Data': 'true'
           }
         });
@@ -81,17 +81,6 @@ function Recipes() {
         const data = await response.json();
         
         if (data.recipes && Array.isArray(data.recipes)) {
-          console.log(`Отримано ${data.recipes.length} рецептів для категорії ${category}`);
-          const sampleRecipe = data.recipes[0];
-          console.log('Структура рецепту:', {
-            title: sampleRecipe.title,
-            description: sampleRecipe.description,
-            ingredients: sampleRecipe.ingredients,
-            instructions: sampleRecipe.instructions,
-            nutrients: sampleRecipe.nutrients
-          });
-          
-          // Нормалізуємо дані рецептів
           const normalizedRecipes = data.recipes.map(recipe => ({
             ...recipe,
             id: recipe.id || `${recipe.title}-${Math.random()}`,
@@ -103,33 +92,36 @@ function Recipes() {
           }));
           
           setter(normalizedRecipes);
-        } else {
-          console.error('Неправильний формат даних для категорії', category, data);
         }
       } catch (error) {
         console.error(`Error fetching recipes for ${category}:`, error);
       }
     }
 
-    fetchRecipes("Рецепти з високим вмістом білка", setHighProteinRecipes);
-    fetchRecipes("Рецепти без молока", setDairyFreeRecipes);
-    fetchRecipes("Вегетеріанські рецепти", setVegetarianRecipes);
-    fetchRecipes("Рецепти з високим вмістом вуглеводів", setHighCarbRecipes);
+    Promise.all([
+      fetchRecipes("Рецепти з високим вмістом білка", setHighProteinRecipes),
+      fetchRecipes("Рецепти без молока", setDairyFreeRecipes),
+      fetchRecipes("Вегетеріанські рецепти", setVegetarianRecipes),
+      fetchRecipes("Рецепти з високим вмістом вуглеводів", setHighCarbRecipes)
+    ]).then(() => {
+      setIsDataLoaded(true);
+    });
   }, []);
 
   useEffect(() => {
-    if (location.hash) {
+    if (location.hash && isDataLoaded) {
       setTimeout(() => {
         const element = document.querySelector(location.hash);
         if (element) {
+          const headerHeight = document.querySelector('.header')?.offsetHeight || 0;
           window.scrollTo({
-            top: element.offsetTop - 10,
+            top: element.offsetTop - headerHeight - 20,
             behavior: 'smooth'
           });
         }
-      }, 500);
+      }, 100);
     }
-  }, [location.hash]);
+  }, [location.hash, isDataLoaded]);
 
   // Додаємо ефект для логування при зміні пошукового запиту
   useEffect(() => {
