@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from "react";
 import "./calculator.css";
 import "../assets/variables.css";
-import { doc, getDoc } from "firebase/firestore";
+import { doc,  onSnapshot } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 import { db } from "../firebase";  
 
 const Calculator = () => {
-   const [selectedOption, setSelectedOption] = useState("calories");
-  const [baseCalories, setBaseCalories] = useState(2100); // з Firestore
-  const [totalCalories, setTotalCalories] = useState(2100); // фактичне (з урахуванням опції)
+  const [selectedOption, setSelectedOption] = useState("calories");
+  const [baseCalories, setBaseCalories] = useState(2100);
+  const [totalCalories, setTotalCalories] = useState(2100);
   const [consumedCalories, setConsumedCalories] = useState(4000);
   const [percentage, setPercentage] = useState(0);
 
@@ -25,34 +25,44 @@ const Calculator = () => {
   const auth = getAuth();
   const userId = auth.currentUser?.uid;
 
-  useEffect(() => {
-    const fetchCalories = async () => {
-      try {
-        if (!userId) {
-          console.warn("userId не передано");
-          return;
-        }
+useEffect(() => {
+  // 🔹 1. Спочатку зчитуємо з localStorage, щоб миттєво показати користувачу
+  const savedBaseCalories = localStorage.getItem("baseCalories");
+  if (savedBaseCalories) {
+    setBaseCalories(Number(savedBaseCalories));
+  }
 
-        const docRef = doc(db, "users", userId);
-        const docSnap = await getDoc(docRef);
+  // 🔹 2. Підключаємо слухача Firestore
+  if (!userId) {
+    console.warn("userId не передано");
+    return;
+  }
 
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          if (data.calories !== undefined) {
-            setBaseCalories(data.calories); // зберігаємо базове
-          } else {
-            console.warn("Поле 'calories' не знайдено в документі.");
-          }
+  const docRef = doc(db, "users", userId);
+
+  const unsubscribe = onSnapshot(
+    docRef,
+    (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.calories !== undefined) {
+          setBaseCalories(data.calories);
+          localStorage.setItem("baseCalories", data.calories);
         } else {
-          console.warn("Документ не існує.");
+          console.warn("Поле 'calories' не знайдено в документі.");
         }
-      } catch (error) {
-        console.error("Помилка при отриманні калорій з Firestore:", error);
+      } else {
+        console.warn("Документ не існує.");
       }
-    };
+    },
+    (error) => {
+      console.error("Помилка при підписці на зміни документа:", error);
+    }
+  );
 
-    fetchCalories();
-  }, [userId]);
+  // 🔹 3. Відписка при розмонтуванні компонента
+  return () => unsubscribe();
+}, [userId]);
 
   // 🔁 Оновлюємо totalCalories при зміні selectedOption або baseCalories
   useEffect(() => {

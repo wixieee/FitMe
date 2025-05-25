@@ -43,7 +43,7 @@ const CalorieCalculator = () => {
   const [gender, setGender] = useState();
   const [height, setHeight] = useState();
   const [weight, setWeight] = useState();
-  const [activity, setActivity] = useState();
+  const [activity, setActivity] = useState("sedentary");
   const [showSettings, setShowSettings] = useState(false);
   const [unitSystem, setUnitSystem] = useState();
   const [calorieSystem, setCalorieSystem] = useState();
@@ -139,7 +139,7 @@ const handleUnitSystemChange = (newUnit) => {
                 value={age}
                 onChange={(e) => setAge(e.target.value)}
               />
-              <span className="input-annotation">15 - 80 років</span>
+              <span className="input-annotation"> років</span>
             </div>
           </div>
 
