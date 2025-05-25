@@ -15,15 +15,7 @@ import "./recipes.css";
 const API_URL = "https://fitme-sever.onrender.com/recipes/by-category";
 
 function RecipeCategorySection({ title, description, recipes }) {
-  if (!recipes.length) {
-    return (
-      <section className="recipes-section">
-        <h2>{title}</h2>
-        <p>{description}</p>
-        <p style={{ fontStyle: "italic", color: "#666" }}>Рецептів не знайдено.</p>
-      </section>
-    );
-  }
+  if (!recipes.length) return null;
 
   return (
     <section className="recipes-section">
@@ -117,8 +109,13 @@ function Recipes() {
     return recipes.filter((recipe) => {
       if (!recipe || !recipe.title) return false;
 
-      const titleMatch = recipe.title.toLowerCase().includes(searchTerm.toLowerCase());
-
+      const normalizedTitle = recipe.title.toLowerCase();
+      const searchWords = searchTerm.toLowerCase().trim().split(/\s+/).filter(word => word.length > 0);
+      
+      const titleMatch = searchWords.length === 0 || searchWords.every(word => 
+        normalizedTitle.includes(word)
+      );
+    
       const cal = parseValue(recipe.calories);
       const protein = parseValue(recipe.nutrients?.["білки"]);
       const fats = parseValue(recipe.nutrients?.["жири"]);
@@ -133,8 +130,6 @@ function Recipes() {
         prepTime: prepTime >= (filters.prepTime?.[0] ?? 5) && prepTime <= (filters.prepTime?.[1] ?? 120),
       };
 
-      if (!isSearchApplied) return true;
-
       return titleMatch && Object.values(inRange).every(Boolean);
     });
   }
@@ -145,6 +140,14 @@ function Recipes() {
     setFilters(range);
     setIsSearchApplied(true);
   };
+
+  useEffect(() => {
+    handleSearch({
+      searchTerm,
+      selectedType,
+      range: filters
+    });
+  }, [searchTerm, selectedType, filters]);
 
   return (
     <>
@@ -160,34 +163,45 @@ function Recipes() {
         onSearch={handleSearch}
       />
 
-      <section id="high-protein">
-        <RecipeCategorySection
-          title="Рецепти з високим вмістом білка"
-          description="Почніть свій день з білкових сніданків — ситно, корисно та смачно."
-          recipes={filterRecipes(highProteinRecipes)}
-        />
-      </section>
-      <section id="dairy-free">
-        <RecipeCategorySection
-          title="Рецепти без молока"
-          description="Ідеально для тих, хто уникає лактози або дотримується безмолочної дієти."
-          recipes={filterRecipes(dairyFreeRecipes)}
-        />
-      </section>
-      <section id="vegetarian">
-        <RecipeCategorySection
-          title="Вегетаріанські рецепти"
-          description="Смачні страви без м’яса — для здорового та збалансованого харчування."
-          recipes={filterRecipes(vegetarianRecipes)}
-        />
-      </section>
-      <section id="high-carb">
-        <RecipeCategorySection
-          title="Рецепти з високим вмістом вуглеводів"
-          description="Енергійні страви для спортсменів і тих, хто потребує додаткової енергії."
-          recipes={filterRecipes(highCarbRecipes)}
-        />
-      </section>
+      {filterRecipes(highProteinRecipes).length > 0 && (
+        <section id="high-protein">
+          <RecipeCategorySection
+            title="Рецепти з високим вмістом білка"
+            description="Почніть свій день з білкових сніданків — ситно, корисно та смачно."
+            recipes={filterRecipes(highProteinRecipes)}
+          />
+        </section>
+      )}
+
+      {filterRecipes(dairyFreeRecipes).length > 0 && (
+        <section id="dairy-free">
+          <RecipeCategorySection
+            title="Рецепти без молока"
+            description="Ідеально для тих, хто уникає лактози або дотримується безмолочної дієти."
+            recipes={filterRecipes(dairyFreeRecipes)}
+          />
+        </section>
+      )}
+
+      {filterRecipes(vegetarianRecipes).length > 0 && (
+        <section id="vegetarian">
+          <RecipeCategorySection
+            title="Вегетаріанські рецепти"
+            description="Смачні страви без м'яса — для здорового та збалансованого харчування."
+            recipes={filterRecipes(vegetarianRecipes)}
+          />
+        </section>
+      )}
+
+      {filterRecipes(highCarbRecipes).length > 0 && (
+        <section id="high-carb">
+          <RecipeCategorySection
+            title="Рецепти з високим вмістом вуглеводів"
+            description="Енергійні страви для спортсменів і тих, хто потребує додаткової енергії."
+            recipes={filterRecipes(highCarbRecipes)}
+          />
+        </section>
+      )}
     </>
   );
 }

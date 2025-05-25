@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./search.css";
 
 function UniversalSearchSection({ 
@@ -19,18 +19,18 @@ function UniversalSearchSection({
     return initial;
   });
 
-  const handleRangeChange = (key, index, value) => {
-    const newRange = { ...range };
-    newRange[key][index] = Number(value);
-    setRange(newRange);
-  };
-
-  const handleSubmit = () => {
+  useEffect(() => {
     onSearch?.({
       searchTerm,
       selectedType,
       range
     });
+  }, [searchTerm, selectedType, range, onSearch]);
+
+  const handleRangeChange = (key, index, value) => {
+    const newRange = { ...range };
+    newRange[key][index] = Number(value);
+    setRange(newRange);
   };
 
   return (
@@ -43,7 +43,6 @@ function UniversalSearchSection({
           onChange={(e) => setSearchTerm(e.target.value)}
           className="search-input"
         />
-        <button className="search-btn" onClick={handleSubmit}>Пошук</button>
         <button
           onClick={() => setShowFilters(!showFilters)}
           className="filter-btn"
