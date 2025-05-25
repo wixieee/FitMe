@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./calculator.css";
 import "../assets/variables.css";
-import { doc, getDoc, setDoc, collection, getDocs } from "firebase/firestore";
+import { doc, getDoc, setDoc, collection, getDocs, onSnapshot } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { db } from "../firebase";
 
@@ -27,7 +27,7 @@ const Calculator = () => {
   const auth = getAuth();
   const userId = auth.currentUser?.uid;
 
-  // Додаємо слухач авторизації
+  // Слухач авторизації та завантаження даних
   useEffect(() => {
     const auth = getAuth();
     
@@ -39,38 +39,36 @@ const Calculator = () => {
         return;
       }
 
-      console.log('Завантаження даних для користувача:', user.uid);
-
       try {
-        // Завантажуємо базові калорії
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists() && userDoc.data().calories) {
-          setBaseCalories(userDoc.data().calories);
-        }
-
         // Завантажуємо збережені страви
         const caloriesRef = doc(db, "calories", user.uid);
-        const caloriesDoc = await getDoc(caloriesRef);
         
-        console.log('Отримані дані:', caloriesDoc.data());
-
-        if (caloriesDoc.exists()) {
-          const data = caloriesDoc.data();
-          if (data.foods && Array.isArray(data.foods)) {
-            console.log('Знайдено страв:', data.foods.length);
-            setFoods(data.foods);
-            const totalCals = data.foods.reduce((sum, food) => sum + (food.calories || 0), 0);
-            setConsumedCalories(totalCals);
-          } else {
-            console.log('Масив foods відсутній або не є масивом');
-            setFoods([]);
-            setConsumedCalories(0);
+        // Використовуємо onSnapshot для реального часу
+        const unsubscribeCalories = onSnapshot(caloriesRef, (doc) => {
+          if (doc.exists()) {
+            const data = doc.data();
+            if (data.foods && Array.isArray(data.foods)) {
+              console.log('Знайдено страв:', data.foods.length);
+              setFoods(data.foods);
+              const totalCals = data.foods.reduce((sum, food) => sum + (food.calories || 0), 0);
+              setConsumedCalories(totalCals);
+            }
           }
-        } else {
-          console.log('Документ не існує в колекції calories');
-          setFoods([]);
-          setConsumedCalories(0);
-        }
+        });
+
+        // Завантажуємо базові калорії
+        const userRef = doc(db, "users", user.uid);
+        const unsubscribeUser = onSnapshot(userRef, (doc) => {
+          if (doc.exists() && doc.data().calories) {
+            setBaseCalories(doc.data().calories);
+            localStorage.setItem("baseCalories", doc.data().calories);
+          }
+        });
+
+        return () => {
+          unsubscribeCalories();
+          unsubscribeUser();
+        };
       } catch (error) {
         console.error("Помилка при завантаженні даних:", error);
         setFoods([]);
@@ -79,13 +77,21 @@ const Calculator = () => {
     };
 
     // Підписуємося на зміни стану авторизації
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
+    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       setIsAuthenticated(!!user);
       console.log('Зміна стану авторизації:', !!user);
-      loadUserData(user);
+      if (user) {
+        loadUserData(user);
+      } else {
+        setFoods([]);
+        setConsumedCalories(0);
+      }
     });
 
-    return () => unsubscribe();
+    // Відписуємося при розмонтуванні
+    return () => {
+      unsubscribeAuth();
+    };
   }, []);
 
   // Перевіряємо наявність userId перед кожною операцією з Firestore
