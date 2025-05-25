@@ -1,23 +1,82 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./profile.css";
+import { getAuth } from "firebase/auth";
+import { doc, setDoc, getDoc } from "firebase/firestore";
+import { db } from "../firebase";
+import RecipeCard from "../components/recipe-components/RecipeCard";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation } from "swiper/modules";
+import "swiper/css";
+import "swiper/css/navigation";
 
 const Profile = () => {
-  const [editMode, setEditMode] = useState(false);
-  const [user, setUser] = useState({
-    name: "Ім’я користувача",
-    email: "example@email.com",
-    weight: "70",
-    height: "175",
-    age: "25",
-    gender: "Чоловіча",
-  });
+  const auth = getAuth();
+  const currentUser = auth.currentUser;
 
+  const [editMode, setEditMode] = useState(false);
   const [avatar, setAvatar] = useState(
     process.env.PUBLIC_URL + "/images/profile.jpg"
   );
 
+  const [profileData, setProfileData] = useState({
+    name: "",
+    email: "",
+    weight: "",
+    height: "",
+    age: "",
+    gender: "Чоловіча",
+  });
+
+  const [favoriteRecipes, setFavoriteRecipes] = useState([]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      if (currentUser) {
+        const userRef = doc(db, "users", currentUser.uid);
+        const docSnap = await getDoc(userRef);
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          setProfileData((prev) => ({
+            ...prev,
+            ...data,
+          }));
+
+          const favoriteIds = data?.favorites || [];
+
+          if (favoriteIds.length > 0) {
+            try {
+              const response = await fetch("https://fitme-sever.onrender.com/recipes/all");
+              const allRecipes = await response.json();
+
+              const filtered = allRecipes.recipes.filter((r) =>
+                favoriteIds.includes(r.id)
+              );
+
+              setFavoriteRecipes(filtered);
+            } catch (error) {
+              console.error("Помилка завантаження рецептів:", error);
+            }
+          } else {
+            setFavoriteRecipes([]);
+          }
+        } else {
+          setProfileData((prev) => ({
+            ...prev,
+            email: currentUser.email || "",
+          }));
+        }
+      }
+    };
+
+    fetchData();
+  }, [currentUser]);
+
   const handleChange = (e) => {
-    setUser({ ...user, [e.target.name]: e.target.value });
+    const { name, value } = e.target;
+    setProfileData((prevData) => ({
+      ...prevData,
+      [name]: value,
+    }));
   };
 
   const handleAvatarChange = (e) => {
@@ -25,6 +84,22 @@ const Profile = () => {
     if (file) {
       const imageUrl = URL.createObjectURL(file);
       setAvatar(imageUrl);
+    }
+  };
+
+  const handleSave = async () => {
+    if (!currentUser || !currentUser.uid) {
+      console.error("Користувач не авторизований");
+      return;
+    }
+
+    try {
+      const userRef = doc(db, "users", currentUser.uid);
+      await setDoc(userRef, profileData);
+      console.log("Дані збережено:", profileData);
+      setEditMode(false);
+    } catch (error) {
+      console.error("Помилка збереження:", error);
     }
   };
 
@@ -45,46 +120,50 @@ const Profile = () => {
             </div>
           )}
         </div>
-        
+
         <div className="user-info">
           {editMode ? (
             <>
               <input
                 type="text"
                 name="name"
-                value={user.name}
+                value={profileData.name}
                 onChange={handleChange}
                 placeholder="Ім'я"
               />
               <input
                 type="email"
                 name="email"
-                value={user.email}
+                value={profileData.email}
                 onChange={handleChange}
                 placeholder="Email"
               />
               <input
                 type="number"
                 name="weight"
-                value={user.weight}
+                value={profileData.weight}
                 onChange={handleChange}
                 placeholder="Вага (кг)"
               />
               <input
                 type="number"
                 name="height"
-                value={user.height}
+                value={profileData.height}
                 onChange={handleChange}
                 placeholder="Ріст (см)"
               />
               <input
                 type="number"
                 name="age"
-                value={user.age}
+                value={profileData.age}
                 onChange={handleChange}
                 placeholder="Вік"
               />
-              <select name="gender" value={user.gender} onChange={handleChange}>
+              <select
+                name="gender"
+                value={profileData.gender}
+                onChange={handleChange}
+              >
                 <option value="Чоловіча">Чоловіча</option>
                 <option value="Жіноча">Жіноча</option>
                 <option value="Інше">Інше</option>
@@ -92,16 +171,19 @@ const Profile = () => {
             </>
           ) : (
             <>
-              <h2>{user.name}</h2>
-              <p>Email: {user.email}</p>
-              <p>Вага: {user.weight} кг</p>
-              <p>Ріст: {user.height} см</p>
-              <p>Вік: {user.age}</p>
-              <p>Стать: {user.gender}</p>
+              <h2>{profileData.name || "Ім'я не вказано"}</h2>
+              <p>Email: {profileData.email}</p>
+              <p>Вага: {profileData.weight} кг</p>
+              <p>Ріст: {profileData.height} см</p>
+              <p>Вік: {profileData.age}</p>
+              <p>Стать: {profileData.gender}</p>
             </>
           )}
 
-          <button onClick={() => setEditMode(!editMode)} className="edit-btn">
+          <button
+            onClick={editMode ? handleSave : () => setEditMode(true)}
+            className="edit-btn"
+          >
             {editMode ? "Зберегти" : "Редагувати"}
           </button>
         </div>
@@ -109,6 +191,38 @@ const Profile = () => {
 
       <div className="profile-section">
         <h3>Збережені рецепти</h3>
+        
+        <div className="favorites-container">
+{favoriteRecipes.length === 0 ? (
+  <p>У вас поки немає збережених рецептів.</p>
+) : (
+  <Swiper
+    modules={[Navigation]}
+    navigation
+    spaceBetween={20}
+    slidesPerView={1}
+    loop={true}
+    breakpoints={{
+      0: { slidesPerView: 1 },
+      768: { slidesPerView: 2 },
+      1200: { slidesPerView: 3 },
+      1600: { slidesPerView: 4 },
+    }}
+  >
+    {favoriteRecipes.map((recipe, index) => (
+      <SwiperSlide key={index}>
+        <div className="recipe-card-slide">
+          <RecipeCard
+            {...recipe}
+            recipeId={recipe.id}
+          />
+        </div>
+      </SwiperSlide>
+    ))}
+  </Swiper>
+)}
+
+        </div>
       </div>
 
       <div className="profile-section">

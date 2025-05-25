@@ -27,7 +27,7 @@ function RecipeSection() {
   useEffect(() => {
     const fetchRecipe = async () => {
       try {
-        const response = await fetch("https://fitmesever-production.up.railway.app/recipe/of-the-day");
+        const response = await fetch("https://fitme-sever.onrender.com/recipe/of-the-day");
         const data = await response.json();
         setRecipeOfTheDay(data.recipe);
       } catch (error) {
@@ -41,7 +41,7 @@ function RecipeSection() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const response = await axios.get("https://fitmesever-production.up.railway.app/recipe/categories-preview");
+        const response = await axios.get("https://fitme-sever.onrender.com/recipe/categories-preview");
         setCategoryRecipes(response.data.categories || []);
       } catch (error) {
         console.error("Не вдалося завантажити категорії рецептів", error);
