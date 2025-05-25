@@ -89,7 +89,7 @@ function Recipes() {
         const element = document.querySelector(location.hash);
         if (element) {
           window.scrollTo({
-            top: element.offsetTop - 10,
+            top: element.offsetTop -10,
             behavior: 'smooth'
           });
         }
