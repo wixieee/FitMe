@@ -4,6 +4,42 @@
   color: white;
 }
 
+.goal-options {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.custom-radio1 {
+  background-color: #1a1a1a;
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 2rem;
+  cursor: pointer;
+  border: 2px solid transparent;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  user-select: none;
+}
+
+.custom-radio1 input[type="radio"] {
+  display: none;
+}
+.selected{
+  color:var(--yellow);
+}
+.custom-radio1 input[type="radio"] {
+  border-color: var(--yellow);
+  background-color: #333;
+  font-weight: bold;
+  color: var(--yellow);
+}
+
+.custom-radio1:hover {
+  background-color: #2a2a2a;
+}
+
 .calculator-description h1 {
   font-size: 2rem;
   color: white;
