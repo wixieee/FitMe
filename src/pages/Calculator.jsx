@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import "./calculator.css";
 import "../assets/variables.css";
 import { doc, getDoc } from "firebase/firestore";
@@ -6,15 +6,18 @@ import { getAuth } from "firebase/auth";
 import { db } from "../firebase";  
 
 const Calculator = () => {
-   const [selectedOption, setSelectedOption] = useState("calories");
+  const [selectedOption, setSelectedOption] = useState("calories");
+  const searchContainerRef = useRef(null);
   const [baseCalories, setBaseCalories] = useState(2100); // з Firestore
   const [totalCalories, setTotalCalories] = useState(2100); // фактичне (з урахуванням опції)
   const [consumedCalories, setConsumedCalories] = useState(4000);
   const [percentage, setPercentage] = useState(0);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [searchResults, setSearchResults] = useState([]);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const [foods, setFoods] = useState([
-    { name: "Куряча грудка", calories: 165 },
-    { name: "Салат з тунцем", calories: 210 },
+
   ]);
 
   const [workouts, setWorkouts] = useState([
@@ -76,6 +79,20 @@ const Calculator = () => {
     }
   }, [consumedCalories, totalCalories]);
 
+  // Додаємо обробник кліку поза межами випадаючого списку
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
+        setShowDropdown(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   const handleDeleteFood = (index) => {
     setFoods((prev) => prev.filter((_, i) => i !== index));
   };
@@ -83,6 +100,68 @@ const Calculator = () => {
   const handleDeleteWorkout = (index) => {
     setWorkouts((prev) => prev.filter((_, i) => i !== index));
   };
+
+  // Функція для пошуку страв
+  const searchFood = async (query) => {
+    try {
+      const response = await fetch(`https://fitme-sever.onrender.com/recipes/all`);
+      const data = await response.json();
+      
+      if (data.recipes && Array.isArray(data.recipes)) {
+        const filteredRecipes = data.recipes.filter(recipe => {
+          if (!recipe || !recipe.title) return false;
+
+          const searchWords = query.toLowerCase().trim().split(/\s+/).filter(word => word.length > 0);
+          if (searchWords.length === 0) return false;
+
+          // Пошук по заголовку (часткові збіги)
+          const titleWords = recipe.title.toLowerCase().split(/\s+/);
+          const titleMatch = searchWords.every(searchWord => 
+            titleWords.some(titleWord => titleWord.includes(searchWord))
+          );
+
+          // Пошук по інгредієнтах
+          const ingredients = Array.isArray(recipe.ingredients) 
+            ? recipe.ingredients.join(' ').toLowerCase()
+            : '';
+          const ingredientMatch = searchWords.every(searchWord =>
+            ingredients.includes(searchWord)
+          );
+
+          return titleMatch || ingredientMatch;
+        });
+
+        setSearchResults(filteredRecipes.slice(0, 5)); // Обмежуємо до 5 результатів
+        setShowDropdown(filteredRecipes.length > 0);
+      }
+    } catch (error) {
+      console.error('Помилка при пошуку страв:', error);
+      setShowDropdown(false);
+    }
+  };
+
+  // Обробник зміни пошукового запиту
+  const handleSearchChange = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    if (value.trim()) {
+      searchFood(value);
+    } else {
+      setSearchResults([]);
+      setShowDropdown(false);
+    }
+  };
+
+  // Обробник вибору страви з випадаючого списку
+  const handleFoodSelect = (recipe) => {
+    setFoods(prev => [...prev, { 
+      name: recipe.title, 
+      calories: recipe.calories || 0
+    }]);
+    setSearchTerm("");
+    setShowDropdown(false);
+  };
+
   return (
     
     <div className="calorie-container">
@@ -175,17 +254,35 @@ const Calculator = () => {
           {/* Їжа */}
           <div className="food-section">
             <h2>Список їжі</h2>
-            <input
-              type="text"
-              className="food-search"
-              placeholder="Пошук страви..."
-            />
+            <div className="search-container" ref={searchContainerRef}>
+              <input
+                type="text"
+                className="food-search"
+                placeholder="Пошук за назвою або інгредієнтами..."
+                value={searchTerm}
+                onChange={handleSearchChange}
+              />
+              {showDropdown && searchResults.length > 0 && (
+                <div className="search-dropdown">
+                  {searchResults.map((recipe, index) => (
+                    <div 
+                      key={index} 
+                      className="search-item"
+                      onClick={() => handleFoodSelect(recipe)}
+                    >
+                      <span className="search-item-title">{recipe.title}</span>
+                      <span className="search-item-calories">{recipe.calories || 0}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
             <ul className="food-list">
               {foods.map((food, index) => (
                 <li key={index} className="food-item">
                   <span>{food.name}</span>
                   <div className="item-right">
-                    <span className="calories">{food.calories} ккал</span>
+                    <span className="calories">{food.calories} </span>
                     <button
                       className="delete-button"
                       onClick={() => handleDeleteFood(index)}
