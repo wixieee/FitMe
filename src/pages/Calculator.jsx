@@ -27,10 +27,9 @@ const Calculator = () => {
   const auth = getAuth();
   const userId = auth.currentUser?.uid;
 
-  // Слухач авторизації та завантаження даних
   useEffect(() => {
     const auth = getAuth();
-    
+
     const loadUserData = async (user) => {
       if (!user) {
         console.log('Неможливо завантажити дані: користувач не авторизований');
@@ -40,10 +39,8 @@ const Calculator = () => {
       }
 
       try {
-        // Завантажуємо збережені страви
+        // Завантаження збережених страв
         const caloriesRef = doc(db, "calories", user.uid);
-        
-        // Використовуємо onSnapshot для реального часу
         const unsubscribeCalories = onSnapshot(caloriesRef, (doc) => {
           if (doc.exists()) {
             const data = doc.data();
@@ -56,12 +53,14 @@ const Calculator = () => {
           }
         });
 
-        // Завантажуємо базові калорії
+        // Завантаження базових калорій
         const userRef = doc(db, "users", user.uid);
         const unsubscribeUser = onSnapshot(userRef, (doc) => {
-          if (doc.exists() && doc.data().calories) {
+          if (doc.exists() && doc.data().calories !== undefined) {
             setBaseCalories(doc.data().calories);
             localStorage.setItem("baseCalories", doc.data().calories);
+          } else {
+            console.warn("Поле 'calories' не знайдено або документ не існує.");
           }
         });
 
@@ -76,7 +75,6 @@ const Calculator = () => {
       }
     };
 
-    // Підписуємося на зміни стану авторизації
     const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
       setIsAuthenticated(!!user);
       console.log('Зміна стану авторизації:', !!user);
@@ -88,21 +86,47 @@ const Calculator = () => {
       }
     });
 
-    // Відписуємося при розмонтуванні
     return () => {
       unsubscribeAuth();
     };
   }, []);
 
-  // Перевіряємо наявність userId перед кожною операцією з Firestore
   useEffect(() => {
+    // Швидке встановлення з localStorage
+    const savedBaseCalories = localStorage.getItem("baseCalories");
+    if (savedBaseCalories) {
+      setBaseCalories(Number(savedBaseCalories));
+    }
+
     if (!userId) {
-      console.log('userId відсутній, операції з Firestore неможливі');
+      console.warn("userId не передано");
       return;
     }
-    console.log('Поточний userId:', userId);
-  }, [userId]);
 
+    const docRef = doc(db, "users", userId);
+
+    const unsubscribe = onSnapshot(
+      docRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          if (data.calories !== undefined) {
+            setBaseCalories(data.calories);
+            localStorage.setItem("baseCalories", data.calories);
+          } else {
+            console.warn("Поле 'calories' не знайдено в документі.");
+          }
+        } else {
+          console.warn("Документ не існує.");
+        }
+      },
+      (error) => {
+        console.error("Помилка при підписці на зміни документа:", error);
+      }
+    );
+
+    return () => unsubscribe();
+  }, [userId]);
   // Оновлюємо totalCalories при зміні selectedOption або baseCalories
   useEffect(() => {
     let adjustedCalories = baseCalories;
