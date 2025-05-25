@@ -3,7 +3,8 @@ import { useSearchParams } from "react-router-dom";
 import "./profile.css";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
-import { db } from "../firebase";
+import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
+import { db, storage } from "../firebase";
 import RecipeCard from "../components/recipe-components/RecipeCard";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
@@ -17,6 +18,7 @@ const Profile = () => {
   const auth = getAuth();
   const [currentUser, setCurrentUser] = useState(auth.currentUser);
   const [isLoading, setIsLoading] = useState(true);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   const [editMode, setEditMode] = useState(shouldEdit);
   const [avatar, setAvatar] = useState(
@@ -30,6 +32,7 @@ const Profile = () => {
     height: "",
     age: "",
     gender: "Чоловіча",
+    avatarUrl: "",
   });
 
   const [favoriteRecipes, setFavoriteRecipes] = useState([]);
@@ -62,8 +65,20 @@ const Profile = () => {
             ...data,
           }));
 
-          const favoriteIds = data?.favorites || [];
+          // If there's an avatar URL in Firestore, try to get a fresh download URL
+          if (data.avatarUrl) {
+            try {
+              const avatarRef = ref(storage, `avatars/${currentUser.uid}/profile-image`);
+              const freshUrl = await getDownloadURL(avatarRef);
+              setAvatar(freshUrl);
+            } catch (error) {
+              console.error("Error refreshing avatar URL:", error);
+              // If we can't get a fresh URL, use the stored one
+              setAvatar(data.avatarUrl);
+            }
+          }
 
+          const favoriteIds = data?.favorites || [];
           if (favoriteIds.length > 0) {
             try {
               const response = await fetch("https://fitme-sever.onrender.com/recipes/all");
@@ -71,7 +86,10 @@ const Profile = () => {
 
               const filtered = allRecipes.recipes.filter((r) =>
                 favoriteIds.includes(r.id)
-              );
+              ).map(recipe => ({
+                ...recipe,
+                imageUrl: recipe.imageUrl || recipe.image
+              }));
 
               setFavoriteRecipes(filtered);
             } catch (error) {
@@ -108,11 +126,51 @@ const Profile = () => {
     }));
   };
 
-  const handleAvatarChange = (e) => {
+  const handleAvatarChange = async (e) => {
     const file = e.target.files[0];
-    if (file) {
-      const imageUrl = URL.createObjectURL(file);
-      setAvatar(imageUrl);
+    if (!file) return;
+
+    try {
+      setUploadingAvatar(true);
+
+      // Create a reference to the file in Firebase Storage
+      const storageRef = ref(storage, `avatars/${currentUser.uid}/profile-image`);
+      
+      // Add metadata with CORS headers
+      const metadata = {
+        contentType: file.type,
+        customMetadata: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'GET, HEAD, OPTIONS, POST',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization'
+        }
+      };
+
+      // Upload the file with metadata
+      await uploadBytes(storageRef, file, metadata);
+      
+      // Get the download URL immediately after upload
+      const url = await getDownloadURL(storageRef);
+
+      // Update Firestore with the new avatar URL
+      const userRef = doc(db, "users", currentUser.uid);
+      await setDoc(userRef, {
+        ...profileData,
+        avatarUrl: url
+      }, { merge: true });
+
+      // Update local state
+      setAvatar(url);
+      setProfileData(prev => ({
+        ...prev,
+        avatarUrl: url
+      }));
+
+    } catch (error) {
+      console.error("Avatar upload error:", error);
+      alert("Помилка завантаження аватару. Спробуйте ще раз.");
+    } finally {
+      setUploadingAvatar(false);
     }
   };
 
@@ -124,10 +182,17 @@ const Profile = () => {
 
     try {
       const userRef = doc(db, "users", currentUser.uid);
-      await setDoc(userRef, profileData);
+      await setDoc(userRef, profileData, { merge: true });
       setEditMode(false);
     } catch (error) {
       console.error("Помилка збереження:", error);
+    }
+  };
+
+  const handleFavoriteChange = (recipeId, isFavorite) => {
+    if (!isFavorite) {
+      // Видаляємо рецепт зі списку збережених
+      setFavoriteRecipes(prev => prev.filter(recipe => recipe.id !== recipeId));
     }
   };
 
@@ -150,12 +215,15 @@ const Profile = () => {
           <img src={avatar} alt="Avatar" className="avatar" />
           {editMode && (
             <div className="custom-file-upload">
-              <label htmlFor="avatarUpload">Завантажити фото</label>
+              <label htmlFor="avatarUpload" className={uploadingAvatar ? "disabled" : ""}>
+                {uploadingAvatar ? "Завантаження..." : "Завантажити фото"}
+              </label>
               <input
                 id="avatarUpload"
                 type="file"
                 onChange={handleAvatarChange}
                 accept="image/*"
+                disabled={uploadingAvatar}
               />
             </div>
           )}
@@ -251,7 +319,11 @@ const Profile = () => {
               {favoriteRecipes.map((recipe, index) => (
                 <SwiperSlide key={index}>
                   <div className="recipe-card-slide">
-                    <RecipeCard {...recipe} recipeId={recipe.id} />
+                    <RecipeCard 
+                      {...recipe} 
+                      recipeId={recipe.id}
+                      onFavoriteChange={handleFavoriteChange}
+                    />
                   </div>
                 </SwiperSlide>
               ))}

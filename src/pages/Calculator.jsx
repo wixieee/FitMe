@@ -45,7 +45,6 @@ const Calculator = () => {
           if (doc.exists()) {
             const data = doc.data();
             if (data.foods && Array.isArray(data.foods)) {
-              console.log('Знайдено страв:', data.foods.length);
               setFoods(data.foods);
               const totalCals = data.foods.reduce((sum, food) => sum + (food.calories || 0), 0);
               setConsumedCalories(totalCals);
@@ -214,7 +213,6 @@ const Calculator = () => {
   };
 
   const handleFoodSelect = (recipe) => {
-    console.log('Вибрано страву:', recipe);
     
     const newFood = {
       name: recipe.title,
@@ -225,7 +223,6 @@ const Calculator = () => {
     console.log('Додаємо нову страву:', newFood);
     setFoods(prevFoods => {
       const updatedFoods = [...prevFoods, newFood];
-      console.log('Оновлений список страв:', updatedFoods);
       return updatedFoods;
     });
 
