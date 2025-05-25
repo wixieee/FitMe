@@ -42,7 +42,19 @@ function RecipeSection() {
     const fetchCategories = async () => {
       try {
         const response = await axios.get("https://fitmesever-production.up.railway.app/recipe/categories-preview");
-        setCategoryRecipes(response.data.categories || []);
+        const categoriesWithIds = response.data.categories.map(category => {
+          const idMap = {
+            "Рецепти з високим вмістом білка": "high-protein",
+            "Рецепти без молока": "dairy-free",
+            "Вегетеріанські рецепти": "vegetarian",
+            "Рецепти з високим вмістом вуглеводів": "high-carb"
+          };
+          return {
+            ...category,
+            id: idMap[category.title]
+          };
+        });
+        setCategoryRecipes(categoriesWithIds || []);
       } catch (error) {
         console.error("Не вдалося завантажити категорії рецептів", error);
       }
@@ -86,7 +98,11 @@ function RecipeSection() {
           >
             {categoryRecipes.map((r, index) => (
               <SwiperSlide key={index}>
-                <Link to={r.link} className="small-recipe">
+                <Link to={`/recipes#${r.title === "Рецепти з високим вмістом вуглеводів" ? "high-carb" : 
+                           r.title === "Рецепти з високим вмістом білка" ? "high-protein" :
+                           r.title === "Рецепти без молока" ? "dairy-free" :
+                           r.title === "Вегетеріанські рецепти" ? "vegetarian" : ""}`} 
+                     className="small-recipe">
                   <img className="small-recipe-img" src={r.img} alt={r.title} />
                   <p className="small-recipe-title">{r.title}</p>
                 </Link>
@@ -97,7 +113,11 @@ function RecipeSection() {
           <ul>
             {categoryRecipes.map((r, index) => (
               <li key={index}>
-                <Link to={r.link} className="small-recipe">
+                <Link to={`/recipes#${r.title === "Рецепти з високим вмістом вуглеводів" ? "high-carb" : 
+                           r.title === "Рецепти з високим вмістом білка" ? "high-protein" :
+                           r.title === "Рецепти без молока" ? "dairy-free" :
+                           r.title === "Вегетеріанські рецепти" ? "vegetarian" : ""}`} 
+                     className="small-recipe">
                   <img className="small-recipe-img" src={r.img} alt={r.title} />
                   <p className="small-recipe-title">{r.title}</p>
                 </Link>
