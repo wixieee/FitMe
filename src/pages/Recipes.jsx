@@ -105,6 +105,13 @@ function Recipes() {
     return Number(numStr);
   }
 
+  const categoryToApiMapping = {
+    "Рецепти з високим вмістом білка": "Рецепти з високим вмістом білка",
+    "Рецепти без молока": "Рецепти без молока",
+    "Вегетеріанські рецепти": "Вегетеріанські рецепти",
+    "Рецепти з високим вмістом вуглеводів": "Рецепти з високим вмістом вуглеводів"
+  };
+
   function filterRecipes(recipes) {
     return recipes.filter((recipe) => {
       if (!recipe || !recipe.title) return false;
@@ -115,6 +122,19 @@ function Recipes() {
       const titleMatch = searchWords.length === 0 || searchWords.every(word => 
         normalizedTitle.includes(word)
       );
+
+      let categoryMatch = true;
+      if (selectedType) {
+        if (selectedType === "Рецепти з високим вмістом білка") {
+          categoryMatch = highProteinRecipes.some(r => r.id === recipe.id);
+        } else if (selectedType === "Рецепти без молока") {
+          categoryMatch = dairyFreeRecipes.some(r => r.id === recipe.id);
+        } else if (selectedType === "Вегетеріанські рецепти") {
+          categoryMatch = vegetarianRecipes.some(r => r.id === recipe.id);
+        } else if (selectedType === "Рецепти з високим вмістом вуглеводів") {
+          categoryMatch = highCarbRecipes.some(r => r.id === recipe.id);
+        }
+      }
     
       const cal = parseValue(recipe.calories);
       const protein = parseValue(recipe.nutrients?.["білки"]);
@@ -130,7 +150,7 @@ function Recipes() {
         prepTime: prepTime >= (filters.prepTime?.[0] ?? 5) && prepTime <= (filters.prepTime?.[1] ?? 120),
       };
 
-      return titleMatch && Object.values(inRange).every(Boolean);
+      return titleMatch && categoryMatch && Object.values(inRange).every(Boolean);
     });
   }
 
@@ -138,16 +158,22 @@ function Recipes() {
     setSearchTerm(searchTerm);
     setSelectedType(selectedType);
     setFilters(range);
-    setIsSearchApplied(true);
   };
 
-  useEffect(() => {
-    handleSearch({
-      searchTerm,
-      selectedType,
-      range: filters
-    });
-  }, [searchTerm, selectedType, filters]);
+  const getRecipesByCategory = (category) => {
+    switch(category) {
+      case "Рецепти з високим вмістом білка":
+        return highProteinRecipes;
+      case "Рецепти без молока":
+        return dairyFreeRecipes;
+      case "Вегетеріанські рецепти":
+        return vegetarianRecipes;
+      case "Рецепти з високим вмістом вуглеводів":
+        return highCarbRecipes;
+      default:
+        return [...highProteinRecipes, ...dairyFreeRecipes, ...vegetarianRecipes, ...highCarbRecipes];
+    }
+  };
 
   return (
     <>
@@ -159,48 +185,63 @@ function Recipes() {
 
       <RecipeSearch
         filters={recipeFilters}
-        typeOptions={["Сніданок", "Обід", "Вечеря", "Перекус", "Десерт"]}
+        typeOptions={[
+          "Рецепти з високим вмістом білка",
+          "Рецепти без молока",
+          "Вегетеріанські рецепти",
+          "Рецепти з високим вмістом вуглеводів"
+        ]}
         onSearch={handleSearch}
       />
 
-      {filterRecipes(highProteinRecipes).length > 0 && (
-        <section id="high-protein">
-          <RecipeCategorySection
-            title="Рецепти з високим вмістом білка"
-            description="Почніть свій день з білкових сніданків — ситно, корисно та смачно."
-            recipes={filterRecipes(highProteinRecipes)}
-          />
-        </section>
-      )}
+      {selectedType ? (
+        <RecipeCategorySection
+          title={selectedType}
+          description="Обрані рецепти за категорією"
+          recipes={filterRecipes(getRecipesByCategory(selectedType))}
+        />
+      ) : (
+        <>
+          {filterRecipes(highProteinRecipes).length > 0 && (
+            <section id="high-protein">
+              <RecipeCategorySection
+                title="Рецепти з високим вмістом білка"
+                description="Почніть свій день з білкових сніданків — ситно, корисно та смачно."
+                recipes={filterRecipes(highProteinRecipes)}
+              />
+            </section>
+          )}
 
-      {filterRecipes(dairyFreeRecipes).length > 0 && (
-        <section id="dairy-free">
-          <RecipeCategorySection
-            title="Рецепти без молока"
-            description="Ідеально для тих, хто уникає лактози або дотримується безмолочної дієти."
-            recipes={filterRecipes(dairyFreeRecipes)}
-          />
-        </section>
-      )}
+          {filterRecipes(dairyFreeRecipes).length > 0 && (
+            <section id="dairy-free">
+              <RecipeCategorySection
+                title="Рецепти без молока"
+                description="Ідеально для тих, хто уникає лактози або дотримується безмолочної дієти."
+                recipes={filterRecipes(dairyFreeRecipes)}
+              />
+            </section>
+          )}
 
-      {filterRecipes(vegetarianRecipes).length > 0 && (
-        <section id="vegetarian">
-          <RecipeCategorySection
-            title="Вегетаріанські рецепти"
-            description="Смачні страви без м'яса — для здорового та збалансованого харчування."
-            recipes={filterRecipes(vegetarianRecipes)}
-          />
-        </section>
-      )}
+          {filterRecipes(vegetarianRecipes).length > 0 && (
+            <section id="vegetarian">
+              <RecipeCategorySection
+                title="Вегетаріанські рецепти"
+                description="Смачні страви без м'яса — для здорового та збалансованого харчування."
+                recipes={filterRecipes(vegetarianRecipes)}
+              />
+            </section>
+          )}
 
-      {filterRecipes(highCarbRecipes).length > 0 && (
-        <section id="high-carb">
-          <RecipeCategorySection
-            title="Рецепти з високим вмістом вуглеводів"
-            description="Енергійні страви для спортсменів і тих, хто потребує додаткової енергії."
-            recipes={filterRecipes(highCarbRecipes)}
-          />
-        </section>
+          {filterRecipes(highCarbRecipes).length > 0 && (
+            <section id="high-carb">
+              <RecipeCategorySection
+                title="Рецепти з високим вмістом вуглеводів"
+                description="Енергійні страви для спортсменів і тих, хто потребує додаткової енергії."
+                recipes={filterRecipes(highCarbRecipes)}
+              />
+            </section>
+          )}
+        </>
       )}
     </>
   );
