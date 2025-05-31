@@ -69,8 +69,14 @@ function WorkoutCategorySection({ title, description, workouts }) {
 function Workouts() {
   const [isSlider, setIsSlider] = useState(window.innerWidth <= 1520);
   const [workoutSections, setWorkoutSections] = useState([]);
+  const [allWorkouts, setAllWorkouts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  
+  // Пошук і фільтрація
+  const [searchTerm, setSearchTerm] = useState("");
+  const [filters, setFilters] = useState({});
+  const [selectedType, setSelectedType] = useState("");
 
   useEffect(() => {
     const handleResize = () => {
@@ -89,25 +95,64 @@ function Workouts() {
         const response = await axios.get('https://fitme-sever.onrender.com/trainings/all');
         const trainings = response.data.trainings;
 
-        // Групування тренувань за третьою буквою в workoutNumber
-        const categorizedTrainings = {};
-        
-        trainings.forEach(training => {
-          if (training.workoutNumber && training.workoutNumber.length >= 3) {
-            const categoryLetter = training.workoutNumber.charAt(2);
-            
-            if (!categorizedTrainings[categoryLetter]) {
-              categorizedTrainings[categoryLetter] = [];
-            }
-            
-            categorizedTrainings[categoryLetter].push({
+        // Отримання даних про вправи для кожного тренування
+        const workoutsWithExercises = await Promise.all(
+          trainings.map(async (training) => {
+            // Базова інформація про тренування
+            const workoutData = {
               image: training.imageUrl || process.env.PUBLIC_URL + "/images/workout1.png",
               time: `${training.durationMinutes || 30} хв`,
               calories: `${training.caloriesBurned || 200} ккал`,
               link: `/workout/${training.workoutNumber}`,
               title: training.title,
-              workoutNumber: training.workoutNumber
-            });
+              workoutNumber: training.workoutNumber,
+              durationMinutes: training.durationMinutes || 30,
+              caloriesBurned: training.caloriesBurned || 200,
+              exercises: training.exercises || [],
+              exerciseNames: [], // Буде заповнено назвами вправ
+              categoryLetter: training.workoutNumber && training.workoutNumber.length >= 3 ? 
+                training.workoutNumber.charAt(2) : ''
+            };
+
+            // Якщо є вправи, отримуємо їх назви
+            if (training.exercises && training.exercises.length > 0) {
+              try {
+                const exerciseNames = await Promise.all(
+                  training.exercises.map(async (exerciseId) => {
+                    try {
+                      const exerciseResponse = await axios.get(
+                        `https://fitme-sever.onrender.com/exercise?exerciseNumber=${exerciseId}`
+                      );
+                      const exerciseData = exerciseResponse.data.exercise;
+                      return exerciseData ? (exerciseData.title || exerciseData.name || `Вправа ${exerciseId}`) : '';
+                    } catch (error) {
+                      console.error(`Помилка при отриманні вправи ${exerciseId}:`, error);
+                      return '';
+                    }
+                  })
+                );
+                workoutData.exerciseNames = exerciseNames.filter(name => name !== '');
+              } catch (error) {
+                console.error(`Помилка при отриманні вправ для тренування ${training.workoutNumber}:`, error);
+              }
+            }
+
+            return workoutData;
+          })
+        );
+
+        setAllWorkouts(workoutsWithExercises);
+
+        // Групування тренувань за третьою буквою в workoutNumber
+        const categorizedTrainings = {};
+        
+        workoutsWithExercises.forEach(workout => {
+          if (workout.categoryLetter) {
+            if (!categorizedTrainings[workout.categoryLetter]) {
+              categorizedTrainings[workout.categoryLetter] = [];
+            }
+            
+            categorizedTrainings[workout.categoryLetter].push(workout);
           }
         });
 
@@ -117,6 +162,7 @@ function Workouts() {
         Object.keys(categorizedTrainings).forEach(categoryLetter => {
           if (sectionDefinitions[categoryLetter]) {
             sections.push({
+              categoryLetter,
               title: sectionDefinitions[categoryLetter].title,
               description: sectionDefinitions[categoryLetter].description,
               workouts: categorizedTrainings[categoryLetter]
@@ -145,6 +191,77 @@ function Workouts() {
       unit: "хв",
     },
   ];
+  
+  // Функція для парсингу числових значень з текстових полів
+  const parseValue = (value) => {
+    if (typeof value === 'string') {
+      const match = value.match(/\d+/);
+      return match ? parseInt(match[0], 10) : 0;
+    }
+    return value || 0;
+  };
+  
+  // Функція для фільтрації тренувань
+  const filterWorkouts = (workouts) => {
+    if (!workouts || !Array.isArray(workouts)) return [];
+    
+    return workouts.filter(workout => {
+      // Фільтрація за пошуковим терміном (шукаємо в назвах вправ та назві тренування)
+      if (searchTerm) {
+        const searchWords = searchTerm.toLowerCase().split(/\s+/).filter(word => word.length > 0);
+        
+        // Перевіряємо чи є збіг у назві тренування
+        const title = workout.title?.toLowerCase() || '';
+        const titleMatch = searchWords.every(word => title.includes(word));
+        
+        // Перевіряємо чи є збіг у назвах вправ
+        let exerciseMatch = false;
+        if (workout.exerciseNames && workout.exerciseNames.length > 0) {
+          const exerciseNamesLower = workout.exerciseNames.map(name => name.toLowerCase());
+          const exerciseNamesText = exerciseNamesLower.join(' ');
+          
+          exerciseMatch = searchWords.every(word => {
+            return exerciseNamesText.includes(word) || 
+                  exerciseNamesLower.some(name => name.includes(word));
+          });
+        }
+        
+        // Якщо немає збігу ні в назві тренування, ні в назвах вправ - відфільтровуємо
+        if (!titleMatch && !exerciseMatch) return false;
+      }
+      
+      // Фільтрація за діапазоном калорій
+      if (filters.calories) {
+        const calories = parseValue(workout.calories);
+        if (calories < filters.calories[0] || calories > filters.calories[1]) {
+          return false;
+        }
+      }
+      
+      // Фільтрація за часом тренування
+      if (filters.workoutTime) {
+        const time = parseValue(workout.time);
+        if (time < filters.workoutTime[0] || time > filters.workoutTime[1]) {
+          return false;
+        }
+      }
+      
+      return true;
+    });
+  };
+  
+  // Функція для отримання тренувань за категорією
+  const getWorkoutsByCategory = (categoryLetter) => {
+    const section = workoutSections.find(section => section.categoryLetter === categoryLetter);
+    return section ? section.workouts : [];
+  };
+  
+  // Обробник пошуку
+  const handleSearch = ({ searchTerm, selectedType, range }) => {
+    setSearchTerm(searchTerm);
+    setSelectedType(selectedType);
+    setFilters(range);
+  };
 
   if (loading) {
     return <div className="loading">Завантаження тренувань...</div>;
@@ -154,6 +271,35 @@ function Workouts() {
     return <div className="error">{error}</div>;
   }
 
+  // Створюємо масив опцій для фільтра типу (назви секцій)
+  const typeOptions = workoutSections.map(section => section.title);
+  
+  // Підготовка відфільтрованих секцій
+  const filteredSections = () => {
+    if (selectedType) {
+      // Знаходимо секцію за вибраним типом
+      const selectedSection = workoutSections.find(section => section.title === selectedType);
+      if (selectedSection) {
+        const filteredWorkouts = filterWorkouts(selectedSection.workouts);
+        if (filteredWorkouts.length > 0) {
+          return [{
+            ...selectedSection,
+            workouts: filteredWorkouts
+          }];
+        }
+      }
+      return [];
+    } else {
+      // Фільтруємо всі секції
+      return workoutSections
+        .map(section => ({
+          ...section,
+          workouts: filterWorkouts(section.workouts)
+        }))
+        .filter(section => section.workouts.length > 0);
+    }
+  };
+
   return (
     <>
       <div className="workout-container">
@@ -161,11 +307,12 @@ function Workouts() {
       </div>
       <WorkoutSearch
         filters={workoutFilters}
-        typeOptions={["Легко", "Середньо", "Складно"]}
-        onSearch={(data) => console.log("Workout search", data)}
+        typeOptions={typeOptions}
+        onSearch={handleSearch}
+        placeholder="Пошук тренувань..."
       />
-      {workoutSections.length > 0 ? (
-        workoutSections.map((section, index) => (
+      {filteredSections().length > 0 ? (
+        filteredSections().map((section, index) => (
           <WorkoutCategorySection
             key={index}
             title={section.title}
@@ -174,7 +321,9 @@ function Workouts() {
           />
         ))
       ) : (
-        <div className="no-workouts">Тренування не знайдено</div>
+        <div style={{ color: '#888', textAlign: 'center', padding: '3rem', fontSize: '1.2rem', background: 'transparent' }}>
+          Тренування не знайдено
+        </div>
       )}
     </>
   );

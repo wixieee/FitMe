@@ -203,20 +203,20 @@
 
 .food-search {
   width: 100%;
-  padding: 14px 16px;
-  border: 1px solid #333;
-  border-radius: 12px;
-  background-color: #1a1a1a;
+  padding: 0.6rem 1rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: none;
+  outline: none;
+  background-color: black;
   color: #fff;
   margin-bottom: 10px;
-  font-size: 0.95rem;
-  transition: all 0.2s ease;
 }
 
 .food-search:focus {
   outline: none;
-  border-color: var(--yellow);
-  background-color: #242424;
+  background-color: black;
+  color: #fff;
 }
 
 .workout-search {
