@@ -1,7 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import "./aboutUs.css";
+import LoginModal from "../components/general-components/LoginModal";
 
 const AboutUs = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [user, setUser] = useState(() => {
+    const savedUser = localStorage.getItem("user");
+    return savedUser ? JSON.parse(savedUser) : null;
+  });
+
+  const handleOpenModal = (e) => {
+    e.preventDefault();
+    setIsModalOpen(true);
+  };
+
   return (
     <>
       <section className="about-hero">
@@ -17,9 +29,9 @@ const AboutUs = () => {
               Ми допомагаємо людям досягати своїх цілей — з програмами
               тренувань, раціоном і підтримкою. FitMe — це ваш фітнес-гід 24/7.
             </p>
-            <a href="/signup" className="join-button">
+            <button onClick={handleOpenModal} className="join-button">
               Створити акаунт
-            </a>
+            </button>
           </div>
         </div>
       </section>
@@ -84,6 +96,13 @@ const AboutUs = () => {
           </div>
         </section>
       </div>
+
+      {isModalOpen && (
+        <LoginModal 
+          onClose={() => setIsModalOpen(false)} 
+          setUser={setUser} 
+        />
+      )}
     </>
   );
 };
