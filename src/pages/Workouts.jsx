@@ -70,6 +70,7 @@ function Workouts() {
   const [isSlider, setIsSlider] = useState(window.innerWidth <= 1520);
   const [workoutSections, setWorkoutSections] = useState([]);
   const [allWorkouts, setAllWorkouts] = useState([]);
+  const [allTrainings, setAllTrainings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   
