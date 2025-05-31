@@ -3,6 +3,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
+import axios from "axios";
 
 import WorkoutPageCard from "../components/workout-components/WorkoutPageCard";
 import WorkoutSection from "../components/home-components/WorkoutSection";
@@ -11,193 +12,29 @@ import WorkoutSearch from "../components/general-components/Search";
 import "../assets/variables.css";
 import "./workouts.css";
 
-const workoutSections = [
-  {
+// Визначення секцій тренувань з описами
+const sectionDefinitions = {
+  A: {
     title: "Для початківців",
-    description:
-      "Прості тренування з низькою інтенсивністю для поступового входження у форму. Підходить для людей без досвіду.",
-    workouts: [
-      {
-        image: process.env.PUBLIC_URL + "/images/workout1.png",
-        time: "30–40 хв",
-        calories: "150–250 ккал",
-        link: "/workout",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/workout1.png",
-        time: "30–40 хв",
-        calories: "150–250 ккал",
-        link: "/workout",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/workout1.png",
-        time: "30–40 хв",
-        calories: "150–250 ккал",
-        link: "/workout",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/workout1.png",
-        time: "30–40 хв",
-        calories: "150–250 ккал",
-        link: "/workout",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/workout1.png",
-        time: "30–40 хв",
-        calories: "150–250 ккал",
-        link: "/workout",
-      },
-    ],
+    description: "Прості тренування з низькою інтенсивністю для поступового входження у форму. Підходить для людей без досвіду.",
   },
-  {
-    title: "Від середнього до просунутого",
-    description:
-      "Тренування середньої та високої інтенсивності для тих, хто вже має фізичну підготовку та хоче вдосконалювати форму.",
-    workouts: [
-      {
-        image: process.env.PUBLIC_URL + "/images/workout1.png",
-        time: "25–35 хв",
-        calories: "300–450 ккал",
-        link: "/workouts/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/workout1.png",
-        time: "30–40 хв",
-        calories: "150–250 ккал",
-        link: "/workouts/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/workout1.png",
-        time: "30–40 хв",
-        calories: "150–250 ккал",
-        link: "/workouts/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/workout1.png",
-        time: "30–40 хв",
-        calories: "150–250 ккал",
-        link: "/workouts/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/workout1.png",
-        time: "30–40 хв",
-        calories: "150–250 ккал",
-        link: "/workouts/1",
-      },
-    ],
-  },
-  {
+  B: {
     title: "Схуднення",
-    description:
-      "Кардіо та функціональні тренування, спрямовані на активне спалення калорій та зменшення ваги.",
-    workouts: [
-      {
-        image: process.env.PUBLIC_URL + "/images/workout1.png",
-        time: "20–30 хв",
-        calories: "350–500 ккал",
-        link: "/workouts/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/workout1.png",
-        time: "30–40 хв",
-        calories: "150–250 ккал",
-        link: "/workouts/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/workout1.png",
-        time: "30–40 хв",
-        calories: "150–250 ккал",
-        link: "/workouts/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/workout1.png",
-        time: "30–40 хв",
-        calories: "150–250 ккал",
-        link: "/workouts/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/workout1.png",
-        time: "30–40 хв",
-        calories: "150–250 ккал",
-        link: "/workouts/1",
-      },
-    ],
+    description: "Кардіо та функціональні тренування, спрямовані на активне спалення калорій та зменшення ваги.",
   },
-  {
+  C: {
     title: "Без обладнання",
-    description:
-      "Ефективні тренування з вагою власного тіла, які не потребують додаткового обладнання. Підходять для занять вдома.",
-    workouts: [
-      {
-        image: process.env.PUBLIC_URL + "/images/workout1.png",
-        time: "15–25 хв",
-        calories: "200–350 ккал",
-        link: "/workouts/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/workout1.png",
-        time: "30–40 хв",
-        calories: "150–250 ккал",
-        link: "/workouts/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/workout1.png",
-        time: "30–40 хв",
-        calories: "150–250 ккал",
-        link: "/workouts/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/workout1.png",
-        time: "30–40 хв",
-        calories: "150–250 ккал",
-        link: "/workouts/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/workout1.png",
-        time: "30–40 хв",
-        calories: "150–250 ккал",
-        link: "/workouts/1",
-      },
-    ],
+    description: "Тренування, які можна виконувати вдома без спеціального обладнання, використовуючи лише вагу власного тіла.",
   },
-  {
+  D: {
     title: "Силові тренування",
-    description:
-      "Тренування з акцентом на розвиток м’язової сили та витривалості, з використанням ваги або обладнання.",
-    workouts: [
-      {
-        image: process.env.PUBLIC_URL + "/images/workout1.png",
-        time: "30–45 хв",
-        calories: "400–600 ккал",
-        link: "/workouts/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/workout1.png",
-        time: "30–40 хв",
-        calories: "150–250 ккал",
-        link: "/workouts/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/workout1.png",
-        time: "30–40 хв",
-        calories: "150–250 ккал",
-        link: "/workouts/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/workout1.png",
-        time: "30–40 хв",
-        calories: "150–250 ккал",
-        link: "/workouts/1",
-      },
-      {
-        image: process.env.PUBLIC_URL + "/images/workout1.png",
-        time: "30–40 хв",
-        calories: "150–250 ккал",
-        link: "/workouts/1",
-      },
-    ],
+    description: "Тренування з акцентом на розвиток м'язової сили та витривалості, з використанням ваги або обладнання.",
   },
-];
+  E: {
+    title: "Від середнього до просунутого",
+    description: "Тренування середньої та високої інтенсивності для тих, хто вже має фізичну підготовку та хоче вдосконалювати форму.",
+  },
+};
 
 function WorkoutCategorySection({ title, description, workouts }) {
   return (
@@ -231,6 +68,10 @@ function WorkoutCategorySection({ title, description, workouts }) {
 
 function Workouts() {
   const [isSlider, setIsSlider] = useState(window.innerWidth <= 1520);
+  const [workoutSections, setWorkoutSections] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+
   useEffect(() => {
     const handleResize = () => {
       setIsSlider(window.innerWidth <= 1520);
@@ -238,6 +79,61 @@ function Workouts() {
 
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  // Отримання тренувань з сервера
+  useEffect(() => {
+    const fetchTrainings = async () => {
+      try {
+        setLoading(true);
+        const response = await axios.get('https://fitme-sever.onrender.com/trainings/all');
+        const trainings = response.data.trainings;
+
+        // Групування тренувань за третьою буквою в workoutNumber
+        const categorizedTrainings = {};
+        
+        trainings.forEach(training => {
+          if (training.workoutNumber && training.workoutNumber.length >= 3) {
+            const categoryLetter = training.workoutNumber.charAt(2);
+            
+            if (!categorizedTrainings[categoryLetter]) {
+              categorizedTrainings[categoryLetter] = [];
+            }
+            
+            categorizedTrainings[categoryLetter].push({
+              image: training.imageUrl || process.env.PUBLIC_URL + "/images/workout1.png",
+              time: `${training.durationMinutes || 30} хв`,
+              calories: `${training.caloriesBurned || 200} ккал`,
+              link: `/workout/${training.workoutNumber}`,
+              title: training.title,
+              workoutNumber: training.workoutNumber
+            });
+          }
+        });
+
+        // Створення секцій на основі категорій
+        const sections = [];
+        
+        Object.keys(categorizedTrainings).forEach(categoryLetter => {
+          if (sectionDefinitions[categoryLetter]) {
+            sections.push({
+              title: sectionDefinitions[categoryLetter].title,
+              description: sectionDefinitions[categoryLetter].description,
+              workouts: categorizedTrainings[categoryLetter]
+            });
+          }
+        });
+        
+        setWorkoutSections(sections);
+        setLoading(false);
+      } catch (err) {
+        console.error('Помилка при отриманні тренувань:', err);
+        setError('Не вдалося завантажити тренування. Спробуйте пізніше.');
+        setLoading(false);
+      }
+    };
+
+    fetchTrainings();
   }, []);
 
   const workoutFilters = [
@@ -249,6 +145,15 @@ function Workouts() {
       unit: "хв",
     },
   ];
+
+  if (loading) {
+    return <div className="loading">Завантаження тренувань...</div>;
+  }
+
+  if (error) {
+    return <div className="error">{error}</div>;
+  }
+
   return (
     <>
       <div className="workout-container">
@@ -259,14 +164,18 @@ function Workouts() {
         typeOptions={["Легко", "Середньо", "Складно"]}
         onSearch={(data) => console.log("Workout search", data)}
       />
-      {workoutSections.map((section, index) => (
-        <WorkoutCategorySection
-          key={index}
-          title={section.title}
-          description={section.description}
-          workouts={section.workouts}
-        />
-      ))}
+      {workoutSections.length > 0 ? (
+        workoutSections.map((section, index) => (
+          <WorkoutCategorySection
+            key={index}
+            title={section.title}
+            description={section.description}
+            workouts={section.workouts}
+          />
+        ))
+      ) : (
+        <div className="no-workouts">Тренування не знайдено</div>
+      )}
     </>
   );
 }

@@ -1,152 +1,128 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./calculator.css";
 import "../assets/variables.css";
-import { doc, getDoc, setDoc, collection, getDocs, onSnapshot } from "firebase/firestore";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
+import { doc, onSnapshot, setDoc } from "firebase/firestore";
+import { getAuth } from "firebase/auth";
 import { db } from "../firebase";
-
-// Перевірка ініціалізації Firebase
-console.log('Firebase initialized:', !!db);
 
 const Calculator = () => {
   const [selectedOption, setSelectedOption] = useState("calories");
-  const [baseCalories, setBaseCalories] = useState(2100);
-  const [totalCalories, setTotalCalories] = useState(2100);
-  const [consumedCalories, setConsumedCalories] = useState(0);
+  const searchContainerRef = useRef(null);
+  const [baseCalories, setBaseCalories] = useState(2100); // з Firestore
+  const [totalCalories, setTotalCalories] = useState(2100); // фактичне (з урахуванням опції)
+  const [consumedCalories, setConsumedCalories] = useState(2000);
   const [percentage, setPercentage] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
-  const searchContainerRef = useRef(null);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
 
   const [foods, setFoods] = useState([]);
-  const [workouts, setWorkouts] = useState([]);
-  const [currentDate, setCurrentDate] = useState(new Date().toISOString().split('T')[0]);
+
+  const [workouts, setWorkouts] = useState([
+    { name: "Біг", burned: 300 },
+    { name: "Cилові вправи", burned: 180 },
+  ]);
 
   const auth = getAuth();
   const userId = auth.currentUser?.uid;
 
-  useEffect(() => {
-    const auth = getAuth();
+useEffect(() => {
+  const savedFoods = localStorage.getItem("foods");
+  if (savedFoods) {
+    setFoods(JSON.parse(savedFoods));
+  }
+}, []);
 
-    const loadUserData = async (user) => {
-      if (!user) {
-        console.log('Неможливо завантажити дані: користувач не авторизований');
-        setFoods([]);
-        setConsumedCalories(0);
-        return;
-      }
+useEffect(() => {
+  // 🔺 1. Спочатку зчитуємо з localStorage, щоб миттєво показати користувачу
+  const savedBaseCalories = localStorage.getItem("baseCalories");
+  if (savedBaseCalories) {
+    setBaseCalories(Number(savedBaseCalories));
+  }
 
-      try {
-        // Завантаження збережених страв
-        const caloriesRef = doc(db, "calories", user.uid);
-        const unsubscribeCalories = onSnapshot(caloriesRef, (doc) => {
-          if (doc.exists()) {
-            const data = doc.data();
-            if (data.foods && Array.isArray(data.foods)) {
-              setFoods(data.foods);
-              const totalCals = data.foods.reduce((sum, food) => sum + (food.calories || 0), 0);
-              setConsumedCalories(totalCals);
-            }
-          }
-        });
+  // 🔺 2. Підключаємо слухача Firestore
+  if (!userId) {
+    console.warn("userId не передано");
+    return;
+  }
 
-        // Завантаження базових калорій
-        const userRef = doc(db, "users", user.uid);
-        const unsubscribeUser = onSnapshot(userRef, (doc) => {
-          if (doc.exists() && doc.data().calories !== undefined) {
-            setBaseCalories(doc.data().calories);
-            localStorage.setItem("baseCalories", doc.data().calories);
-          } else {
-            console.warn("Поле 'calories' не знайдено або документ не існує.");
-          }
-        });
+  const docRef = doc(db, "users", userId);
 
-        return () => {
-          unsubscribeCalories();
-          unsubscribeUser();
-        };
-      } catch (error) {
-        console.error("Помилка при завантаженні даних:", error);
-        setFoods([]);
-        setConsumedCalories(0);
-      }
-    };
-
-    const unsubscribeAuth = onAuthStateChanged(auth, (user) => {
-      setIsAuthenticated(!!user);
-      console.log('Зміна стану авторизації:', !!user);
-      if (user) {
-        loadUserData(user);
-      } else {
-        setFoods([]);
-        setConsumedCalories(0);
-      }
-    });
-
-    return () => {
-      unsubscribeAuth();
-    };
-  }, []);
-
-  useEffect(() => {
-    // Швидке встановлення з localStorage
-    const savedBaseCalories = localStorage.getItem("baseCalories");
-    if (savedBaseCalories) {
-      setBaseCalories(Number(savedBaseCalories));
-    }
-
-    if (!userId) {
-      console.warn("userId не передано");
-      return;
-    }
-
-    const docRef = doc(db, "users", userId);
-
-    const unsubscribe = onSnapshot(
-      docRef,
-      (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          if (data.calories !== undefined) {
-            setBaseCalories(data.calories);
-            localStorage.setItem("baseCalories", data.calories);
-          } else {
-            console.warn("Поле 'calories' не знайдено в документі.");
-          }
+  const unsubscribe = onSnapshot(
+    docRef,
+    (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        if (data.calories !== undefined) {
+          setBaseCalories(data.calories);
+          localStorage.setItem("baseCalories", data.calories);
         } else {
-          console.warn("Документ не існує.");
+          console.warn("Поле 'calories' не знайдено в документі.");
         }
-      },
-      (error) => {
-        console.error("Помилка при підписці на зміни документа:", error);
+      } else {
+        console.warn("Документ не існує.");
       }
-    );
-
-    return () => unsubscribe();
-  }, [userId]);
-  // Оновлюємо totalCalories при зміні selectedOption або baseCalories
-  useEffect(() => {
-    let adjustedCalories = baseCalories;
-    if (selectedOption === "weightLose") {
-      adjustedCalories = baseCalories - 400;
-    } else if (selectedOption === "weightGain") {
-      adjustedCalories = baseCalories + 400;
+    },
+    (error) => {
+      console.error("Помилка при підписці на зміни документа:", error);
     }
-    setTotalCalories(adjustedCalories);
-  }, [selectedOption, baseCalories]);
+  );
 
-  // Оновлення відсотка кільця
-  useEffect(() => {
-    if (totalCalories > 0) {
-      const target = (consumedCalories / totalCalories) * 100;
-      const timeout = setTimeout(() => {
-        setPercentage(target);
-      }, 100);
-      return () => clearTimeout(timeout);
-    }
-  }, [consumedCalories, totalCalories]);
+  // 🔺 3. Відписка при розмонтуванні компонента
+  return () => unsubscribe();
+}, [userId]);
+
+let adjustedCalories = baseCalories;
+// 🔁 Оновлюємо totalCalories при зміні selectedOption або baseCalories
+useEffect(() => {
+
+  if (selectedOption === "weightLose") {
+    adjustedCalories = baseCalories - 429;
+  } else if (selectedOption === "weightGain") {
+    adjustedCalories = baseCalories + 497;
+  }
+  setTotalCalories(adjustedCalories);
+}, [selectedOption, baseCalories]);
+
+// 🔁 Оновлюємо процент кільця
+useEffect(() => {
+  if (totalCalories > 0 && typeof consumedCalories === "number" && !isNaN(consumedCalories)) {
+    const target = (consumedCalories / totalCalories) * 100;
+    const timeout = setTimeout(() => {
+      setPercentage(Math.max(0, target)); // захист від від'ємних %
+    }, 100);
+    return () => clearTimeout(timeout);
+  } else {
+    setPercentage(0);
+  }
+}, [consumedCalories, totalCalories]);
+
+useEffect(() => {
+  if (
+    typeof consumedCalories === "number" &&
+    typeof totalCalories === "number" &&
+    totalCalories > 0
+  ) {
+    const target = (consumedCalories / totalCalories) * 100;
+    setPercentage(target);
+  } else {
+    setPercentage(0);
+  }
+}, [consumedCalories, totalCalories]);
+
+useEffect(() => {
+  const totalFoodCalories = Array.isArray(foods)
+    ? foods.reduce((sum, food) => sum + (Number(food.calories) || 0), 0)
+    : 0;
+
+  const totalWorkoutCalories = Array.isArray(workouts)
+    ? workouts.reduce((sum, workout) => sum + (Number(workout.burned) || 0), 0)
+    : 0;
+
+  const result = totalFoodCalories - totalWorkoutCalories;
+
+  setConsumedCalories(result >= 0 ? result : 0);
+}, [foods, workouts]);
 
   // Додаємо обробник кліку поза межами випадаючого списку
   useEffect(() => {
@@ -213,92 +189,30 @@ const Calculator = () => {
   };
 
   const handleFoodSelect = (recipe) => {
-    
-    const newFood = {
-      name: recipe.title,
-      calories: recipe.calories || 0,
-      addedAt: new Date().toISOString()
+    const newFood = { 
+      name: recipe.title, 
+      calories: parseInt(recipe.calories?.toString().replace(/[^\d]/g, ""), 10) || 0
     };
 
-    console.log('Додаємо нову страву:', newFood);
-    setFoods(prevFoods => {
-      const updatedFoods = [...prevFoods, newFood];
-      return updatedFoods;
-    });
-
+    const updatedFoods = [...foods, newFood];
+    setFoods(updatedFoods);
     setSearchTerm("");
     setShowDropdown(false);
+
+    // 💾 Зберегти в localStorage
+    localStorage.setItem("foods", JSON.stringify(updatedFoods));
   };
 
-  // Окремий useEffect для збереження даних
-  useEffect(() => {
-    const saveUserData = async () => {
-      const auth = getAuth();
-      const user = auth.currentUser;
-      
-      if (!user) {
-        console.log('Неможливо зберегти дані: користувач не авторизований');
-        return;
-      }
+  // Окремий useEffect для збереження даних в Firebase (не використовується в цій версії)
+  // Зараз дані зберігаються в localStorage
 
-      try {
-        console.log('Починаємо збереження даних. Foods:', foods);
-        const totalCals = foods.reduce((sum, food) => sum + (food.calories || 0), 0);
+  const handleDeleteFood = (index) => {
+  const updatedFoods = foods.filter((_, i) => i !== index);
+  setFoods(updatedFoods);
 
-        // Зберігаємо в колекцію calories
-        const caloriesRef = doc(db, "calories", user.uid);
-        await setDoc(caloriesRef, {
-          foods: foods,
-          totalCalories: totalCals,
-          updatedAt: new Date().toISOString()
-        });
-
-        console.log('Дані успішно збережені в Firebase');
-        setConsumedCalories(totalCals);
-      } catch (error) {
-        console.error("Помилка при збереженні даних:", error);
-      }
-    };
-
-    // Зберігаємо дані тільки якщо є що зберігати
-    if (foods && foods.length > 0) {
-      console.log('Запускаємо збереження даних...');
-      saveUserData();
-    }
-  }, [foods]);
-
-  const handleDeleteFood = async (index) => {
-    console.log('Видаляємо страву з індексом:', index);
-    
-    const auth = getAuth();
-    const user = auth.currentUser;
-    
-    if (!user) {
-      console.log('Неможливо видалити: користувач не авторизований');
-      return;
-    }
-
-    try {
-      // Оновлюємо локальний стан
-      const updatedFoods = foods.filter((_, i) => i !== index);
-      setFoods(updatedFoods);
-      
-      // Оновлюємо дані в Firebase
-      const caloriesRef = doc(db, "calories", user.uid);
-      const totalCals = updatedFoods.reduce((sum, food) => sum + (food.calories || 0), 0);
-      
-      await setDoc(caloriesRef, {
-        foods: updatedFoods,
-        totalCalories: totalCals,
-        updatedAt: new Date().toISOString()
-      });
-
-      setConsumedCalories(totalCals);
-      console.log('Страву успішно видалено з бази даних');
-    } catch (error) {
-      console.error("Помилка при видаленні страви:", error);
-    }
-  };
+  // 💾 Оновити в localStorage
+  localStorage.setItem("foods", JSON.stringify(updatedFoods));
+};
 
   const handleDeleteWorkout = (index) => {
     setWorkouts(prev => prev.filter((_, i) => i !== index));
@@ -386,15 +300,15 @@ const Calculator = () => {
           <div className="macros-summary">
             <div className="macro">
               <span className="macro-label">Білки</span>
-              <span className="macro-value">10/110 г</span>
+              <span className="macro-value">10/{parseInt(adjustedCalories * 0.45)} г</span>
             </div>
             <div className="macro">
               <span className="macro-label">Жири</span>
-              <span className="macro-value">10/70 г</span>
+              <span className="macro-value">10/{parseInt(adjustedCalories * 0.35)} г</span>
             </div>
             <div className="macro">
               <span className="macro-label">Вуглеводи</span>
-              <span className="macro-value">10/220 г</span>
+              <span className="macro-value">10/{parseInt(adjustedCalories * 0.2)} г</span>
             </div>
           </div>
         </div>
