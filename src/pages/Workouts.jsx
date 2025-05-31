@@ -17,28 +17,59 @@ const sectionDefinitions = {
   A: {
     title: "Для початківців",
     description: "Прості тренування з низькою інтенсивністю для поступового входження у форму. Підходить для людей без досвіду.",
+    id: "beginners",
+    order: 1
   },
   B: {
     title: "Схуднення",
     description: "Кардіо та функціональні тренування, спрямовані на активне спалення калорій та зменшення ваги.",
+    id: "weight-loss",
+    order: 2
   },
   C: {
     title: "Без обладнання",
     description: "Тренування, які можна виконувати вдома без спеціального обладнання, використовуючи лише вагу власного тіла.",
+    id: "no-equipment",
+    order: 3
   },
   D: {
     title: "Силові тренування",
     description: "Тренування з акцентом на розвиток м'язової сили та витривалості, з використанням ваги або обладнання.",
+    id: "strength",
+    order: 4
   },
   E: {
     title: "Від середнього до просунутого",
     description: "Тренування середньої та високої інтенсивності для тих, хто вже має фізичну підготовку та хоче вдосконалювати форму.",
+    id: "advanced",
+    order: 5
   },
 };
 
-function WorkoutCategorySection({ title, description, workouts }) {
+// Порядок відображення секцій
+const sectionOrder = ["beginners", "weight-loss", "no-equipment", "strength", "advanced"];
+
+// Функція для отримання випадкового тренування за категорією
+const getRandomWorkoutForCategory = (trainings, categoryLetter) => {
+  if (!trainings || trainings.length === 0) return null;
+  
+  // Фільтруємо тренування за категорією
+  const categoryTrainings = trainings.filter(training => 
+    training.workoutNumber && 
+    training.workoutNumber.length >= 3 && 
+    training.workoutNumber.charAt(2) === categoryLetter
+  );
+  
+  if (categoryTrainings.length === 0) return null;
+  
+  // Вибираємо випадкове тренування з відфільтрованих
+  const randomIndex = Math.floor(Math.random() * categoryTrainings.length);
+  return categoryTrainings[randomIndex];
+};
+
+function WorkoutCategorySection({ title, description, workouts, id }) {
   return (
-    <section className="workout-section">
+    <section className="workout-section" id={id}>
       <h2>{title}</h2>
       <p>{description}</p>
       <Swiper
@@ -71,6 +102,7 @@ function Workouts() {
   const [workoutSections, setWorkoutSections] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [allTrainings, setAllTrainings] = useState([]);
 
   useEffect(() => {
     const handleResize = () => {
@@ -81,6 +113,19 @@ function Workouts() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
+  // Скрол до секції при завантаженні сторінки, якщо є хеш в URL
+  useEffect(() => {
+    if (window.location.hash) {
+      const id = window.location.hash.substring(1);
+      setTimeout(() => {
+        const element = document.getElementById(id);
+        if (element) {
+          element.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 500); // Затримка для завантаження даних
+    }
+  }, []);
+
   // Отримання тренувань з сервера
   useEffect(() => {
     const fetchTrainings = async () => {
@@ -88,6 +133,8 @@ function Workouts() {
         setLoading(true);
         const response = await axios.get('https://fitme-sever.onrender.com/trainings/all');
         const trainings = response.data.trainings;
+        
+        setAllTrainings(trainings);
 
         // Групування тренувань за третьою буквою в workoutNumber
         const categorizedTrainings = {};
@@ -119,10 +166,15 @@ function Workouts() {
             sections.push({
               title: sectionDefinitions[categoryLetter].title,
               description: sectionDefinitions[categoryLetter].description,
-              workouts: categorizedTrainings[categoryLetter]
+              workouts: categorizedTrainings[categoryLetter],
+              id: sectionDefinitions[categoryLetter].id,
+              order: sectionDefinitions[categoryLetter].order
             });
           }
         });
+        
+        // Сортування секцій за порядковим номером
+        sections.sort((a, b) => a.order - b.order);
         
         setWorkoutSections(sections);
         setLoading(false);
@@ -171,6 +223,7 @@ function Workouts() {
             title={section.title}
             description={section.description}
             workouts={section.workouts}
+            id={section.id}
           />
         ))
       ) : (

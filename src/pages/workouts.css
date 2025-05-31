@@ -1,29 +1,33 @@
 .workout-section {
-  padding: 4rem 4rem;
+  padding: 4rem;
   background-color: #000;
   color: white;
+  scroll-margin-top: 100px;
 }
 
 .workout-section h2 {
   font-size: 2rem;
-  font-weight: var(--font-bold);
+  font-weight: 700;
   margin-bottom: 1rem;
 }
 
 .workout-section p {
-  font-size: 1.1rem;
+  font-size: 1rem;
   color: #bbb;
   margin-bottom: 2rem;
+  max-width: 800px;
 }
 
 .workout-container {
   padding-top: 5rem;
   color: white;
-  background-color: #000;
+  background-color: black;
+  padding: 0 4rem;
 }
 
 .workout-card-slide {
   width: 100%;
+  padding: 1rem 0;
 }
 
 @media screen and (max-width: 560px) {
@@ -39,8 +43,11 @@
 
 @media screen and (max-width: 440px) {
   .workout-container {
-    padding-left: 0.5rem;
-    padding-right: 0.5rem;
+    padding: 0 0.5rem;
+  }
+
+  .workout-section {
+    padding: 4rem 0.5rem;
   }
 }
 
