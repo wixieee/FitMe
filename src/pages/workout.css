@@ -132,6 +132,14 @@
   background-color: #1a1a1a;
 }
 
+.exercise-name-highlight {
+  display: inline-block;
+  color: var(--yellow);
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin: 0.5rem 0;
+}
+
 .workout-star-icon {
   position: absolute;
   top: 15px;
