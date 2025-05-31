@@ -71,6 +71,8 @@ const Header = () => {
             src={process.env.PUBLIC_URL + "/images/fitme.png"}
             alt="Logo"
             className="logo"
+            onClick={() => navigate('/')}
+            style={{ cursor: 'pointer' }}
           />
 
           <button

@@ -25,6 +25,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .card-image::before {
@@ -34,6 +36,16 @@
   background-color: black;
   opacity: 0.7;
   z-index: 0;
+  transition: opacity 0.3s ease;
+}
+
+.card-image:hover::before {
+  opacity: 0.5;
+}
+
+.card-image:active::before {
+  opacity: 0.4;
+  background-color: rgba(251, 255, 0, 0.2);
 }
 
 .label {
@@ -45,6 +57,7 @@
   font-size: 1.5rem;
   font-weight: var(--font-bold);
   text-align: center;
+  z-index: 1;
 }
 
 .start-button {
@@ -59,13 +72,75 @@
   font-weight: var(--font-semi-bold);
   font-size: 0.9rem;
   cursor: pointer;
-  transition: 0.3s ease;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
 }
 
 .start-button:hover {
   background-color: var(--yellow);
   border: none;
   color: black;
+}
+
+.start-button:active {
+  transform: scale(0.95);
+}
+
+.start-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%);
+  transform-origin: 50% 50%;
+}
+
+.start-button:focus:not(:active)::after {
+  animation: ripple 1s ease-out;
+}
+
+.start-button.error {
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+}
+
+.start-button.error:hover {
+  background-color: #ff6b6b;
+  color: black;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0, 0);
+    opacity: 0.5;
+  }
+  20% {
+    transform: scale(25, 25);
+    opacity: 0.3;
+  }
+  100% {
+    opacity: 0;
+    transform: scale(40, 40);
+  }
+}
+
+.start-button:disabled {
+  border: 1px solid #666;
+  color: #888;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.start-button:disabled:hover {
+  background-color: transparent;
+  border: 1px solid #666;
+  color: #888;
 }
 
 .programs-section {
