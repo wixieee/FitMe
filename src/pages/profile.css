@@ -142,3 +142,13 @@
     padding: 10rem 0.5rem 1rem 0.5rem;
   }
 }
+
+.workout-card-slide {
+  height: 100%;
+  width: 100%;
+  padding: 10px;
+}
+
+.favorites-container .swiper-slide {
+  height: auto;
+}

@@ -279,27 +279,16 @@
 
 .workout-star-icon {
   position: absolute;
-  top: 15px;
-  right: 15px;
-  background-color: white;
-  border-radius: 50%;
-  padding: 6px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  top: 10px;
+  right: 10px;
+  color: white;
+  font-size: 24px;
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  z-index: 2;
+  z-index: 10;
 }
 
-.workout-star-icon i {
-  color: black;
-  font-size: 1.4rem;
-}
-
-.workout-star-icon:hover i {
-  color: var(--yellow);
+.workout-star-icon i.active {
+  color: #ffca28;
 }
 
 .no-exercises {

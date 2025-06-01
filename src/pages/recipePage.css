@@ -127,29 +127,61 @@
   pointer-events: none;
 }
 
-.page-star-icon {
+.recipe-page-star {
   position: absolute;
   top: 110px;
   right: 20px;
+  z-index: 2;
+}
+
+.recipe-page-add {
+  position: absolute;
+  top: 110px;
+  right: 70px;
+  z-index: 2;
+}
+
+.page-star-icon, .page-add-icon {
   background-color: white;
   border-radius: 50%;
   padding: 6px;
+  width: 36px;
+  height: 36px;
   display: flex;
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   cursor: pointer;
-  transition: background-color 0.2s ease;
-  z-index: 2;
+  transition: all 0.2s ease;
 }
 
-.page-star-icon i {
+.page-star-icon i, .page-add-icon i {
   color: black;
   font-size: 1.4rem;
+  transition: color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .page-star-icon:hover i {
-  color: var(--yellow);
+  color: #FFD700;
+}
+
+.page-add-icon:hover {
+  background-color: var(--yellow);
+}
+
+.page-add-icon:hover i {
+  color: white;
+}
+
+.page-add-icon.added {
+  background-color: #4CAF50;
+}
+
+.page-add-icon.added i {
+  color: white;
 }
 
 @media screen and (max-width: 1024px) {
