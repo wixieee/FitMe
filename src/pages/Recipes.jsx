@@ -151,8 +151,33 @@ function Recipes() {
     return recipes.filter((recipe) => {
       if (!recipe || !recipe.title) return false;
 
+      // Перевірка фільтрів діапазонів (калорії, білки, жири, вуглеводи, час)
+      for (const key in filters) {
+        const [min, max] = filters[key];
+        let value;
+
+        // Отримуємо значення в залежності від типу фільтра
+        if (key === 'calories') {
+          value = parseValue(recipe.calories);
+        } else if (key === 'prepTime') {
+          value = parseValue(recipe.prepTime);
+        } else if (key === 'protein' && recipe.nutrients) {
+          value = parseValue(recipe.nutrients.protein);
+        } else if (key === 'fats' && recipe.nutrients) {
+          value = parseValue(recipe.nutrients.fats);
+        } else if (key === 'carbs' && recipe.nutrients) {
+          value = parseValue(recipe.nutrients.carbs);
+        }
+
+        // Якщо значення існує і не входить в діапазон, відфільтровуємо рецепт
+        if (value !== undefined && (value < min || value > max)) {
+          console.log(`Рецепт ${recipe.title} не відповідає фільтру ${key}: ${value} не в діапазоні [${min}, ${max}]`);
+          return false;
+        }
+      }
+
+      // Якщо пошуковий термін порожній, повертаємо всі рецепти, що пройшли фільтри діапазонів
       const searchWords = searchTerm.toLowerCase().trim().split(/\s+/).filter(word => word.length > 0);
-      
       if (searchWords.length === 0) return true;
 
       // Перевіряємо часткові збіги в заголовку
@@ -178,17 +203,8 @@ function Recipes() {
       const contentWords = otherContent.split(/\s+/).filter(word => word.length > 0);
 
       const otherFieldsMatch = searchWords.every(searchWord => 
-        contentWords.some(contentWord => contentWord === searchWord)
+        contentWords.some(contentWord => contentWord.includes(searchWord))
       );
-
-      // Для налагодження
-      console.log('Пошук в рецепті:', {
-        title: recipe.title,
-        searchWords,
-        titleWords,
-        titleMatch,
-        otherFieldsMatch
-      });
 
       return titleMatch || otherFieldsMatch;
     });

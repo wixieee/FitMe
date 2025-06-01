@@ -8,6 +8,11 @@
   border-radius: 1.5rem;
   align-items: center;
   margin: auto;
+  transition: transform 0.3s ease;
+}
+
+.workoutPage-card:hover {
+  transform: translateY(-5px);
 }
 
 .workout-image {
@@ -17,6 +22,22 @@
   background-position: center;
   position: relative;
   border-radius: 1rem;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.workout-image::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.workoutPage-card:hover .workout-image::before {
+  opacity: 1;
 }
 
 .info-block {
@@ -27,6 +48,7 @@
   display: flex;
   justify-content: space-between;
   padding: 0 10px;
+  z-index: 2;
 }
 
 .info-badge {
@@ -54,12 +76,17 @@
   justify-content: center;
   gap: 0.5rem;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s ease;
   text-align: center;
 }
 
 .view-button i {
   font-size: 1.5rem;
+  transition: transform 0.3s ease;
+}
+
+.workoutPage-card:hover .view-button i {
+  transform: translateX(5px);
 }
 
 .view-button:hover {
@@ -91,6 +118,7 @@
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   cursor: pointer;
   transition: background-color 0.2s ease;
+  z-index: 2;
 }
 
 .star-icon i {

@@ -1,9 +1,10 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./calculator.css";
 import "../assets/variables.css";
-import { doc,  onSnapshot } from "firebase/firestore";
+import { doc, onSnapshot, setDoc } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
-import { db } from "../firebase";  
+import { db } from "../firebase";
+import axios from "axios";
 
 const Calculator = () => {
   const [selectedOption, setSelectedOption] = useState("calories");
@@ -15,34 +16,55 @@ const Calculator = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  
+  // Для пошуку тренувань
+  const [workoutSearchTerm, setWorkoutSearchTerm] = useState("");
+  const [workoutSearchResults, setWorkoutSearchResults] = useState([]);
+  const [showWorkoutDropdown, setShowWorkoutDropdown] = useState(false);
+  const workoutSearchContainerRef = useRef(null);
+  const [completedWorkouts, setCompletedWorkouts] = useState([]);
 
-  const [foods, setFoods] = useState([
-
-  ]);
-
-  const [workouts, setWorkouts] = useState([
-    { name: "Біг", burned: 300 },
-    { name: "Cилові вправи", burned: 180 },
-  ]);
+  const [foods, setFoods] = useState([]);
+  const [workouts, setWorkouts] = useState([]);
 
   const auth = getAuth();
   const userId = auth.currentUser?.uid;
 
 useEffect(() => {
+  // Завантаження їжі з localStorage
   const savedFoods = localStorage.getItem("foods");
   if (savedFoods) {
     setFoods(JSON.parse(savedFoods));
   }
+  
+  // Завантаження тренувань з localStorage
+  const savedWorkouts = localStorage.getItem("workouts");
+  let workoutsArr = savedWorkouts ? JSON.parse(savedWorkouts) : [];
+
+  // Додаємо завершені тренування з completedWorkouts (без дублікатів)
+  const completed = localStorage.getItem("completedWorkouts");
+  if (completed) {
+    const completedArr = JSON.parse(completed);
+    // Додаємо лише ті, яких ще немає у workouts
+    completedArr.forEach(cw => {
+      if (!workoutsArr.some(w => w.name === cw.name && w.burned === cw.burned)) {
+        workoutsArr.push({ name: cw.name, burned: cw.burned, addedAt: cw.addedAt });
+      }
+    });
+    // Оновлюємо localStorage, якщо щось додали
+    localStorage.setItem("workouts", JSON.stringify(workoutsArr));
+  }
+  setWorkouts(workoutsArr);
 }, []);
 
 useEffect(() => {
-  // 🔹 1. Спочатку зчитуємо з localStorage, щоб миттєво показати користувачу
+  // 🔺 1. Спочатку зчитуємо з localStorage, щоб миттєво показати користувачу
   const savedBaseCalories = localStorage.getItem("baseCalories");
   if (savedBaseCalories) {
     setBaseCalories(Number(savedBaseCalories));
   }
 
-  // 🔹 2. Підключаємо слухача Firestore
+  // 🔺 2. Підключаємо слухача Firestore
   if (!userId) {
     console.warn("userId не передано");
     return;
@@ -70,28 +92,28 @@ useEffect(() => {
     }
   );
 
-  // 🔹 3. Відписка при розмонтуванні компонента
+  // 🔺 3. Відписка при розмонтуванні компонента
   return () => unsubscribe();
 }, [userId]);
 
 let adjustedCalories = baseCalories;
-  // 🔁 Оновлюємо totalCalories при зміні selectedOption або baseCalories
-  useEffect(() => {
+// 🔁 Оновлюємо totalCalories при зміні selectedOption або baseCalories
+useEffect(() => {
 
-    if (selectedOption === "weightLose") {
-      adjustedCalories = baseCalories - 429;
-    } else if (selectedOption === "weightGain") {
-      adjustedCalories = baseCalories + 497;
-    }
-    setTotalCalories(adjustedCalories);
-  }, [selectedOption, baseCalories]);
+  if (selectedOption === "weightLose") {
+    adjustedCalories = baseCalories - 429;
+  } else if (selectedOption === "weightGain") {
+    adjustedCalories = baseCalories + 497;
+  }
+  setTotalCalories(adjustedCalories);
+}, [selectedOption, baseCalories]);
 
-  // 🔁 Оновлюємо процент кільця
+// 🔁 Оновлюємо процент кільця
 useEffect(() => {
   if (totalCalories > 0 && typeof consumedCalories === "number" && !isNaN(consumedCalories)) {
     const target = (consumedCalories / totalCalories) * 100;
     const timeout = setTimeout(() => {
-      setPercentage(Math.max(0, target)); // захист від від’ємних %
+      setPercentage(Math.max(0, target)); // захист від від'ємних %
     }, 100);
     return () => clearTimeout(timeout);
   } else {
@@ -132,6 +154,10 @@ useEffect(() => {
       if (searchContainerRef.current && !searchContainerRef.current.contains(event.target)) {
         setShowDropdown(false);
       }
+      
+      if (workoutSearchContainerRef.current && !workoutSearchContainerRef.current.contains(event.target)) {
+        setShowWorkoutDropdown(false);
+      }
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -139,10 +165,6 @@ useEffect(() => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);
-
-  const handleDeleteWorkout = (index) => {
-    setWorkouts((prev) => prev.filter((_, i) => i !== index));
-  };
 
   // Функція для пошуку страв
   const searchFood = async (query) => {
@@ -174,7 +196,7 @@ useEffect(() => {
           return titleMatch || ingredientMatch;
         });
 
-        setSearchResults(filteredRecipes.slice(0, 5)); // Обмежуємо до 5 результатів
+        setSearchResults(filteredRecipes.slice(0, 5));
         setShowDropdown(filteredRecipes.length > 0);
       }
     } catch (error) {
@@ -182,8 +204,93 @@ useEffect(() => {
       setShowDropdown(false);
     }
   };
+  
+  // Функція для пошуку тренувань
+  const searchWorkout = async (query) => {
+    try {
+      // Отримуємо всі тренування
+      const response = await axios.get('https://fitme-sever.onrender.com/trainings/all');
+      const trainings = response.data.trainings;
+      
+      if (!trainings || !Array.isArray(trainings)) {
+        setWorkoutSearchResults([]);
+        setShowWorkoutDropdown(false);
+        return;
+      }
+      
+      // Фільтруємо тренування з вправами
+      const workoutsWithExercises = await Promise.all(
+        trainings
+          .filter(training => training.exercises && training.exercises.length > 0)
+          .map(async (training) => {
+            try {
+              // Отримуємо назви вправ для кожного тренування
+              const exerciseNames = await Promise.all(
+                training.exercises.map(async (exerciseId) => {
+                  try {
+                    const exerciseResponse = await axios.get(
+                      `https://fitme-sever.onrender.com/exercise?exerciseNumber=${exerciseId}`
+                    );
+                    const exerciseData = exerciseResponse.data.exercise;
+                    return exerciseData ? (exerciseData.title || exerciseData.name || `Вправа ${exerciseId}`) : '';
+                  } catch (error) {
+                    console.error(`Помилка при отриманні вправи ${exerciseId}:`, error);
+                    return '';
+                  }
+                })
+              );
+              
+              return {
+                title: training.title,
+                workoutNumber: training.workoutNumber,
+                caloriesBurned: training.caloriesBurned || 200,
+                exerciseNames: exerciseNames.filter(name => name !== ''),
+                exerciseNamesText: exerciseNames.filter(name => name !== '').join(' ')
+              };
+            } catch (error) {
+              console.error(`Помилка при отриманні вправ для тренування:`, error);
+              return null;
+            }
+          })
+      );
+      
+      // Фільтруємо за пошуковим запитом
+      const searchWords = query.toLowerCase().trim().split(/\s+/).filter(word => word.length > 0);
+      if (searchWords.length === 0) {
+        setWorkoutSearchResults([]);
+        setShowWorkoutDropdown(false);
+        return;
+      }
+      
+      const filteredWorkouts = workoutsWithExercises
+        .filter(workout => {
+          if (!workout) return false;
+          
+          // Пошук у назвах вправ
+          const exerciseNamesText = workout.exerciseNamesText.toLowerCase();
+          const exerciseMatch = searchWords.every(searchWord => 
+            exerciseNamesText.includes(searchWord)
+          );
+          
+          // Пошук у назві тренування
+          const titleMatch = searchWords.every(searchWord => 
+            workout.title.toLowerCase().includes(searchWord)
+          );
+          
+          return exerciseMatch || titleMatch;
+        })
+        .slice(0, 5); // Обмежуємо кількість результатів
+      
+      setWorkoutSearchResults(filteredWorkouts);
+      setShowWorkoutDropdown(filteredWorkouts.length > 0);
+      
+    } catch (error) {
+      console.error('Помилка при пошуку тренувань:', error);
+      setWorkoutSearchResults([]);
+      setShowWorkoutDropdown(false);
+    }
+  };
 
-  // Обробник зміни пошукового запиту
   const handleSearchChange = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
@@ -194,24 +301,38 @@ useEffect(() => {
       setShowDropdown(false);
     }
   };
-
-  // Обробник вибору страви з випадаючого списку
-const handleFoodSelect = (recipe) => {
-  const newFood = { 
-    name: recipe.title, 
-   calories: parseInt(recipe.calories?.toString().replace(/[^\d]/g, ""), 10) || 0
+  
+  // Обробник зміни поля пошуку тренувань
+  const handleWorkoutSearchChange = (e) => {
+    const value = e.target.value;
+    setWorkoutSearchTerm(value);
+    if (value.trim()) {
+      searchWorkout(value);
+    } else {
+      setWorkoutSearchResults([]);
+      setShowWorkoutDropdown(false);
+    }
   };
 
-  const updatedFoods = [...foods, newFood];
-  setFoods(updatedFoods);
-  setSearchTerm("");
-  setShowDropdown(false);
+  const handleFoodSelect = (recipe) => {
+    const newFood = { 
+      name: recipe.title, 
+      calories: parseInt(recipe.calories?.toString().replace(/[^\d]/g, ""), 10) || 0
+    };
 
-  // 💾 Зберегти в localStorage
-  localStorage.setItem("foods", JSON.stringify(updatedFoods));
-};
+    const updatedFoods = [...foods, newFood];
+    setFoods(updatedFoods);
+    setSearchTerm("");
+    setShowDropdown(false);
 
-const handleDeleteFood = (index) => {
+    // 💾 Зберегти в localStorage
+    localStorage.setItem("foods", JSON.stringify(updatedFoods));
+  };
+
+  // Окремий useEffect для збереження даних в Firebase (не використовується в цій версії)
+  // Зараз дані зберігаються в localStorage
+
+  const handleDeleteFood = (index) => {
   const updatedFoods = foods.filter((_, i) => i !== index);
   setFoods(updatedFoods);
 
@@ -219,8 +340,53 @@ const handleDeleteFood = (index) => {
   localStorage.setItem("foods", JSON.stringify(updatedFoods));
 };
 
-  return (
+  const handleDeleteWorkout = (index) => {
+    const updatedWorkouts = workouts.filter((_, i) => i !== index);
+    setWorkouts(updatedWorkouts);
+
+    // Зберігаємо в localStorage
+    localStorage.setItem("workouts", JSON.stringify(updatedWorkouts));
+  };
+
+  // Додавання тренування
+  const handleAddWorkout = (name, burned) => {
+    const updatedWorkouts = [...workouts, {
+      name,
+      burned: parseInt(burned) || 0,
+      addedAt: new Date().toISOString()
+    }];
     
+    setWorkouts(updatedWorkouts);
+    
+    // Зберігаємо в localStorage
+    localStorage.setItem("workouts", JSON.stringify(updatedWorkouts));
+  };
+
+  // Додавання тренування з пошуку
+  const handleWorkoutSelect = (workout) => {
+    const newWorkout = { 
+      name: workout.title, 
+      burned: parseInt(workout.caloriesBurned) || 0,
+      addedAt: new Date().toISOString()
+    };
+
+    const updatedWorkouts = [...workouts, newWorkout];
+    setWorkouts(updatedWorkouts);
+    setWorkoutSearchTerm("");
+    setShowWorkoutDropdown(false);
+
+    // Зберігаємо в localStorage
+    localStorage.setItem("workouts", JSON.stringify(updatedWorkouts));
+  };
+
+  useEffect(() => {
+    const completedWorkouts = localStorage.getItem("completedWorkouts");
+    if (completedWorkouts) {
+      setCompletedWorkouts(JSON.parse(completedWorkouts));
+    }
+  }, []);
+
+  return (
     <div className="calorie-container">
       <div className="calculator-description">
         <h1>Калькулятор калорій</h1>
@@ -314,7 +480,7 @@ const handleDeleteFood = (index) => {
             <div className="search-container" ref={searchContainerRef}>
               <input
                 type="text"
-                className="food-search"
+                className="workout-search"
                 placeholder="Пошук за назвою або інгредієнтами..."
                 value={searchTerm}
                 onChange={handleSearchChange}
@@ -355,27 +521,51 @@ const handleDeleteFood = (index) => {
           {/* Тренування */}
           <div className="workouts-section">
             <h2>Тренування</h2>
-            <input
-              type="text"
-              className="workout-search"
-              placeholder="Назва тренування..."
-            />
-            <ul className="workout-list">
-              {workouts.map((workout, index) => (
-                <li key={index} className="workout-item">
-                  <span>{workout.name}</span>
-                  <div className="item-right">
-                    <span className="burned">{workout.burned} ккал</span>
-                    <button
-                      className="delete-button"
-                      onClick={() => handleDeleteWorkout(index)}
+            <div className="search-container" ref={workoutSearchContainerRef}>
+              <input
+                type="text"
+                className="workout-search"
+                placeholder="Пошук за назвою тренування або вправ..."
+                value={workoutSearchTerm}
+                onChange={handleWorkoutSearchChange}
+              />
+              {showWorkoutDropdown && workoutSearchResults.length > 0 && (
+                <div className="search-dropdown">
+                  {workoutSearchResults.map((workout, index) => (
+                    <div 
+                      key={index} 
+                      className="search-item"
+                      onClick={() => handleWorkoutSelect(workout)}
                     >
-                      ×
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
+                      <span className="search-item-title">{workout.title}</span>
+                      <span className="search-item-calories">{workout.caloriesBurned} ккал</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+            {workouts.length > 0 ? (
+              <ul className="workout-list">
+                {workouts.map((workout, index) => (
+                  <li key={index} className="workout-item">
+                    <span>{workout.name}</span>
+                    <div className="item-right">
+                      <span className="burned">{workout.burned} ккал</span>
+                      <button
+                        className="delete-button"
+                        onClick={() => handleDeleteWorkout(index)}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div style={{ color: '#888', textAlign: 'center', padding: '1rem', fontSize: '1.1rem', background: 'transparent' }}>
+                Тренування не знайдено
+              </div>
+            )}
           </div>
         </div>
       </div>

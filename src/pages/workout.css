@@ -9,21 +9,74 @@
 .workout-left {
   max-width: 30rem;
   width: 100%;
-
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
 .workout-Img {
-  width: 90%;
+  width: 100%;
+  height: 100%;
   border-radius: 1rem;
   object-fit: cover;
+  transition: all 0.3s ease;
 }
 
 .image-container {
   position: relative;
-  display: inline-block;
+  width: 90%;
+  aspect-ratio: 3 / 4;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+  transition: all 0.3s ease;
+}
+
+.image-container::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.3);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.image-container:hover::before {
+  opacity: 1;
+}
+
+.image-container:hover {
+  box-shadow: rgba(251, 255, 0, 0.35) 0px 5px 15px;
+  transform: scale(1.02);
+}
+
+.info-block {
+  position: absolute;
+  bottom: 10px;
+  left: 0;
+  right: 0;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 10px;
+  z-index: 2;
+}
+
+.info-badge {
+  background-color: var(--yellow);
+  color: black;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-weight: bold;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.info-badge i {
+  margin-right: 5px;
+  font-size: 1.2rem;
 }
 
 .timer {
@@ -38,6 +91,15 @@
 
 .workout-right h2 {
   margin-bottom: 1rem;
+}
+
+.top-buttons {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
 }
 
 .exercise-block {
@@ -78,6 +140,28 @@
   cursor: pointer;
 }
 
+.complete-btn {
+  background-color: #333;
+  border: none;
+  color: white;
+  font-weight: bold;
+  padding: 0 1rem;
+  border-radius: 0.4rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.complete-btn.completed {
+  background-color: #28a745;
+}
+
+.complete-btn i {
+  font-size: 1.3rem;
+}
+
 .add-set-btn {
   margin-top: 1rem;
   height: 2.2rem;
@@ -99,6 +183,49 @@
   border: none;
   border-radius: 0.5rem;
   cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.top-start-btn {
+  margin-top: 0;
+  white-space: nowrap;
+}
+
+.bottom-start-btn {
+  display: none;
+}
+
+.start-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(251, 255, 0, 0.3);
+}
+
+.start-btn:active {
+  transform: translateY(0);
+}
+
+.back-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0;
+  background-color: transparent;
+  color: var(--yellow);
+  padding: 0.5rem 1rem;
+  font-weight: bold;
+  border: 1px solid var(--yellow);
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.back-btn i {
+  font-size: 1.2rem;
+}
+
+.back-btn:hover {
+  background-color: var(--yellow);
+  color: black;
 }
 
 .yt-link {
@@ -122,6 +249,16 @@
   border: none;
   border-radius: 0.5rem;
   cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.end-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(255, 0, 0, 0.3);
+}
+
+.end-btn:active {
+  transform: translateY(0);
 }
 
 .end-summary {
@@ -132,10 +269,18 @@
   background-color: #1a1a1a;
 }
 
+.exercise-name-highlight {
+  display: inline-block;
+  color: var(--yellow);
+  font-weight: bold;
+  font-size: 1.2rem;
+  margin: 0.5rem 0;
+}
+
 .workout-star-icon {
   position: absolute;
   top: 15px;
-  right: 50px;
+  right: 15px;
   background-color: white;
   border-radius: 50%;
   padding: 6px;
@@ -157,6 +302,34 @@
   color: var(--yellow);
 }
 
+.no-exercises {
+  padding: 2rem;
+  background-color: #1a1a1a;
+  border-radius: 1rem;
+  text-align: center;
+  margin: 2rem 0;
+}
+
+.workout-page.error {
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 60vh;
+}
+
+.error-message {
+  font-size: 1.2rem;
+  color: #ff6b6b;
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.loading-message {
+  font-size: 1.2rem;
+  color: var(--yellow);
+  text-align: center;
+}
+
 @media screen and (max-width: 920px) {
   .workout-page {
     flex-direction: column;
@@ -170,10 +343,34 @@
   .workout-left {
     margin: auto;
   }
+  
+  .bottom-start-btn {
+    display: block;
+  }
+  
+  .top-start-btn {
+    display: none;
+  }
 }
 
 @media screen and (max-width: 440px) {
   .workout-page {
     padding: 10rem 0.5rem 1rem 0.5rem;
+  }
+  
+  .info-block {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+  
+  .top-buttons {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .back-btn, .top-start-btn {
+    width: 100%;
+    justify-content: center;
   }
 }

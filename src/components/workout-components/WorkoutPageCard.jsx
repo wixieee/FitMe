@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import "./workoutPageCard.css";
 import "../../assets/variables.css";
 
-function WorkoutPageCard({ image, time, calories, link }) {
+function WorkoutPageCard({ image, time, calories, link, title }) {
   return (
     <Link to={link} className="workout-card-link">
       <div className="workoutPage-card">
@@ -28,7 +28,7 @@ function WorkoutPageCard({ image, time, calories, link }) {
           </div>
         </div>
         <div className="view-button">
-          Перейти до тренування
+          {title || "Перейти до тренування"}
           <i className="bx bxs-right-arrow-circle"></i>
         </div>
       </div>
