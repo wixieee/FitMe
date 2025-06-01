@@ -22,6 +22,7 @@ const Calculator = () => {
   const [workoutSearchResults, setWorkoutSearchResults] = useState([]);
   const [showWorkoutDropdown, setShowWorkoutDropdown] = useState(false);
   const workoutSearchContainerRef = useRef(null);
+  const [completedWorkouts, setCompletedWorkouts] = useState([]);
 
   const [foods, setFoods] = useState([]);
   const [workouts, setWorkouts] = useState([]);
@@ -38,9 +39,22 @@ useEffect(() => {
   
   // Завантаження тренувань з localStorage
   const savedWorkouts = localStorage.getItem("workouts");
-  if (savedWorkouts) {
-    setWorkouts(JSON.parse(savedWorkouts));
+  let workoutsArr = savedWorkouts ? JSON.parse(savedWorkouts) : [];
+
+  // Додаємо завершені тренування з completedWorkouts (без дублікатів)
+  const completed = localStorage.getItem("completedWorkouts");
+  if (completed) {
+    const completedArr = JSON.parse(completed);
+    // Додаємо лише ті, яких ще немає у workouts
+    completedArr.forEach(cw => {
+      if (!workoutsArr.some(w => w.name === cw.name && w.burned === cw.burned)) {
+        workoutsArr.push({ name: cw.name, burned: cw.burned, addedAt: cw.addedAt });
+      }
+    });
+    // Оновлюємо localStorage, якщо щось додали
+    localStorage.setItem("workouts", JSON.stringify(workoutsArr));
   }
+  setWorkouts(workoutsArr);
 }, []);
 
 useEffect(() => {
@@ -365,6 +379,13 @@ useEffect(() => {
     localStorage.setItem("workouts", JSON.stringify(updatedWorkouts));
   };
 
+  useEffect(() => {
+    const completedWorkouts = localStorage.getItem("completedWorkouts");
+    if (completedWorkouts) {
+      setCompletedWorkouts(JSON.parse(completedWorkouts));
+    }
+  }, []);
+
   return (
     <div className="calorie-container">
       <div className="calculator-description">
@@ -484,7 +505,7 @@ useEffect(() => {
                 <li key={index} className="food-item">
                   <span>{food.name}</span>
                   <div className="item-right">
-                    <span className="calories">{food.calories} </span>
+                    <span className="calories">{food.calories} ккал</span>
                     <button
                       className="delete-button"
                       onClick={() => handleDeleteFood(index)}

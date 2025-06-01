@@ -137,7 +137,26 @@ const Workout = () => {
   const endWorkout = () => {
     setEnded(true);
     setStarted(false);
-    // Optional: send results to server here
+
+    // Створюємо об'єкт завершеного тренування
+    const completedWorkout = {
+      name: workout?.title || `Тренування #${workoutNumber}`,
+      burned: workout.caloriesBurned,
+      addedAt: new Date().toISOString(),
+      exercises: exercises.map(ex => ex.name)
+    };
+
+    // Зберігаємо для Calculator
+    localStorage.setItem('searchFromWorkout', JSON.stringify({
+      name: completedWorkout.name,
+      burned: completedWorkout.burned,
+      addedAt: completedWorkout.addedAt
+    }));
+
+    // (опціонально) Зберігаємо історію завершених тренувань
+    const previous = JSON.parse(localStorage.getItem('completedWorkouts') || '[]');
+    localStorage.setItem('completedWorkouts', JSON.stringify([...previous, completedWorkout]));
+
     console.log("Workout completed:", exercises);
   };
 
