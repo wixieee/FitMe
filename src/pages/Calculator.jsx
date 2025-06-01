@@ -44,22 +44,9 @@ useEffect(() => {
   
   // Завантаження тренувань з localStorage
   const savedWorkouts = localStorage.getItem("workouts");
-  let workoutsArr = savedWorkouts ? JSON.parse(savedWorkouts) : [];
-
-  // Додаємо завершені тренування з completedWorkouts (без дублікатів)
-  const completed = localStorage.getItem("completedWorkouts");
-  if (completed) {
-    const completedArr = JSON.parse(completed);
-    // Додаємо лише ті, яких ще немає у workouts
-    completedArr.forEach(cw => {
-      if (!workoutsArr.some(w => w.name === cw.name && w.burned === cw.burned)) {
-        workoutsArr.push({ name: cw.name, burned: cw.burned, addedAt: cw.addedAt });
-      }
-    });
-    // Оновлюємо localStorage, якщо щось додали
-    localStorage.setItem("workouts", JSON.stringify(workoutsArr));
+  if (savedWorkouts) {
+    setWorkouts(JSON.parse(savedWorkouts));
   }
-  setWorkouts(workoutsArr);
 }, []);
 
 useEffect(() => {
@@ -421,6 +408,20 @@ useEffect(() => {
 
     // Зберігаємо в localStorage
     localStorage.setItem("workouts", JSON.stringify(updatedWorkouts));
+    
+    // Також видаляємо з completedWorkouts, якщо тренування там є
+    const deletedWorkout = workouts[index];
+    const completedFromStorage = localStorage.getItem("completedWorkouts");
+    if (completedFromStorage) {
+      const completedArr = JSON.parse(completedFromStorage);
+      const updatedCompleted = completedArr.filter(cw => 
+        !(cw.name === deletedWorkout.name && 
+          cw.burned === deletedWorkout.burned && 
+          cw.addedAt === deletedWorkout.addedAt)
+      );
+      localStorage.setItem("completedWorkouts", JSON.stringify(updatedCompleted));
+      setCompletedWorkouts(updatedCompleted);
+    }
   };
 
   // Додавання тренування
@@ -454,10 +455,42 @@ useEffect(() => {
     localStorage.setItem("workouts", JSON.stringify(updatedWorkouts));
   };
 
+  // Додаємо useEffect для синхронізації завершених тренувань
   useEffect(() => {
     const completedWorkouts = localStorage.getItem("completedWorkouts");
     if (completedWorkouts) {
-      setCompletedWorkouts(JSON.parse(completedWorkouts));
+      const completedArr = JSON.parse(completedWorkouts);
+      setCompletedWorkouts(completedArr);
+      
+      // Перевіряємо, чи є нові завершені тренування, яких ще немає в списку
+      const savedWorkouts = localStorage.getItem("workouts") ? JSON.parse(localStorage.getItem("workouts")) : [];
+      let updatedWorkouts = [...savedWorkouts];
+      let hasNewWorkouts = false;
+      
+      completedArr.forEach(cw => {
+        // Перевіряємо, чи тренування вже є в списку
+        const workoutExists = updatedWorkouts.some(w => 
+          w.name === cw.name && 
+          w.burned === cw.burned && 
+          w.addedAt === cw.addedAt
+        );
+        
+        // Якщо тренування немає в списку, додаємо його
+        if (!workoutExists) {
+          updatedWorkouts.push({ 
+            name: cw.name, 
+            burned: cw.burned, 
+            addedAt: cw.addedAt || new Date().toISOString() 
+          });
+          hasNewWorkouts = true;
+        }
+      });
+      
+      // Оновлюємо список тренувань, якщо були додані нові
+      if (hasNewWorkouts) {
+        setWorkouts(updatedWorkouts);
+        localStorage.setItem("workouts", JSON.stringify(updatedWorkouts));
+      }
     }
   }, []);
 
@@ -581,7 +614,9 @@ useEffect(() => {
                   <li key={index} className="food-item">
                     <span>{food.name}</span>
                     <div className="item-right">
-                      <span className="calories">{food.calories} ккал</span>
+                      <span className="calories">
+                        {food.calories} ккал
+                      </span>
                       <button
                         className="delete-button"
                         onClick={() => handleDeleteFood(index)}
