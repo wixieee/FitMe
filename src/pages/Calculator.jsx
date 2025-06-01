@@ -11,11 +11,16 @@ const Calculator = () => {
   const searchContainerRef = useRef(null);
   const [baseCalories, setBaseCalories] = useState(2100); // з Firestore
   const [totalCalories, setTotalCalories] = useState(2100); // фактичне (з урахуванням опції)
-  const [consumedCalories, setConsumedCalories] = useState(2000);
+  const [consumedCalories, setConsumedCalories] = useState(0);
   const [percentage, setPercentage] = useState(0);
   const [searchTerm, setSearchTerm] = useState("");
   const [searchResults, setSearchResults] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
+  
+  // Додаємо стани для відстеження макронутрієнтів
+  const [consumedProteins, setConsumedProteins] = useState(0);
+  const [consumedFats, setConsumedFats] = useState(0);
+  const [consumedCarbs, setConsumedCarbs] = useState(0);
   
   // Для пошуку тренувань
   const [workoutSearchTerm, setWorkoutSearchTerm] = useState("");
@@ -134,6 +139,7 @@ useEffect(() => {
   }
 }, [consumedCalories, totalCalories]);
 
+// Розрахунок спожитих калорій та макронутрієнтів на основі доданих страв
 useEffect(() => {
   const totalFoodCalories = Array.isArray(foods)
     ? foods.reduce((sum, food) => sum + (Number(food.calories) || 0), 0)
@@ -146,6 +152,21 @@ useEffect(() => {
   const result = totalFoodCalories - totalWorkoutCalories;
 
   setConsumedCalories(result >= 0 ? result : 0);
+  
+  // Розрахунок макронутрієнтів з доданих страв
+  if (Array.isArray(foods)) {
+    const totalProteins = foods.reduce((sum, food) => sum + (Number(food.proteins) || 0), 0);
+    const totalFats = foods.reduce((sum, food) => sum + (Number(food.fats) || 0), 0);
+    const totalCarbs = foods.reduce((sum, food) => sum + (Number(food.carbs) || 0), 0);
+    
+    setConsumedProteins(totalProteins);
+    setConsumedFats(totalFats);
+    setConsumedCarbs(totalCarbs);
+  } else {
+    setConsumedProteins(0);
+    setConsumedFats(0);
+    setConsumedCarbs(0);
+  }
 }, [foods, workouts]);
 
   // Додаємо обробник кліку поза межами випадаючого списку
@@ -315,18 +336,72 @@ useEffect(() => {
   };
 
   const handleFoodSelect = (recipe) => {
-    const newFood = { 
-      name: recipe.title, 
-      calories: parseInt(recipe.calories?.toString().replace(/[^\d]/g, ""), 10) || 0
+    // Отримуємо дані про рецепт з API, щоб отримати макронутрієнти
+    const fetchRecipeDetails = async () => {
+      try {
+        const response = await fetch(`https://fitme-sever.onrender.com/recipe?title=${encodeURIComponent(recipe.title)}`);
+        const data = await response.json();
+        
+        if (data.recipe) {
+          const nutrients = data.recipe.nutrients || {};
+          
+          // Парсимо значення макронутрієнтів (видаляємо 'г' і конвертуємо в число)
+          const proteins = parseInt(nutrients.білки?.replace(/[^\d]/g, ""), 10) || 0;
+          const fats = parseInt(nutrients.жири?.replace(/[^\d]/g, ""), 10) || 0;
+          const carbs = parseInt(nutrients.вуглеводи?.replace(/[^\d]/g, ""), 10) || 0;
+          
+          const newFood = { 
+            name: recipe.title, 
+            calories: parseInt(recipe.calories?.toString().replace(/[^\d]/g, ""), 10) || 0,
+            proteins: proteins,
+            fats: fats,
+            carbs: carbs
+          };
+
+          const updatedFoods = [...foods, newFood];
+          setFoods(updatedFoods);
+          
+          // 💾 Зберегти в localStorage
+          localStorage.setItem("foods", JSON.stringify(updatedFoods));
+        } else {
+          // Якщо деталі рецепту недоступні, додаємо лише основну інформацію
+          const newFood = { 
+            name: recipe.title, 
+            calories: parseInt(recipe.calories?.toString().replace(/[^\d]/g, ""), 10) || 0,
+            proteins: 0,
+            fats: 0,
+            carbs: 0
+          };
+
+          const updatedFoods = [...foods, newFood];
+          setFoods(updatedFoods);
+          
+          // 💾 Зберегти в localStorage
+          localStorage.setItem("foods", JSON.stringify(updatedFoods));
+        }
+      } catch (error) {
+        console.error('Помилка при отриманні деталей рецепту:', error);
+        // У випадку помилки додаємо рецепт без макронутрієнтів
+        const newFood = { 
+          name: recipe.title, 
+          calories: parseInt(recipe.calories?.toString().replace(/[^\d]/g, ""), 10) || 0,
+          proteins: 0,
+          fats: 0,
+          carbs: 0
+        };
+
+        const updatedFoods = [...foods, newFood];
+        setFoods(updatedFoods);
+        
+        // 💾 Зберегти в localStorage
+        localStorage.setItem("foods", JSON.stringify(updatedFoods));
+      }
+      
+      setSearchTerm("");
+      setShowDropdown(false);
     };
-
-    const updatedFoods = [...foods, newFood];
-    setFoods(updatedFoods);
-    setSearchTerm("");
-    setShowDropdown(false);
-
-    // 💾 Зберегти в localStorage
-    localStorage.setItem("foods", JSON.stringify(updatedFoods));
+    
+    fetchRecipeDetails();
   };
 
   // Окремий useEffect для збереження даних в Firebase (не використовується в цій версії)
@@ -459,15 +534,15 @@ useEffect(() => {
           <div className="macros-summary">
             <div className="macro">
               <span className="macro-label">Білки</span>
-              <span className="macro-value">10/{parseInt(adjustedCalories * 0.45)} г</span>
+              <span className="macro-value">{consumedProteins} г</span>
             </div>
             <div className="macro">
               <span className="macro-label">Жири</span>
-              <span className="macro-value">10/{parseInt(adjustedCalories * 0.35)} г</span>
+              <span className="macro-value">{consumedFats} г</span>
             </div>
             <div className="macro">
               <span className="macro-label">Вуглеводи</span>
-              <span className="macro-value">10/{parseInt(adjustedCalories * 0.2)} г</span>
+              <span className="macro-value">{consumedCarbs} г</span>
             </div>
           </div>
         </div>
@@ -500,22 +575,28 @@ useEffect(() => {
                 </div>
               )}
             </div>
-            <ul className="food-list">
-              {foods.map((food, index) => (
-                <li key={index} className="food-item">
-                  <span>{food.name}</span>
-                  <div className="item-right">
-                    <span className="calories">{food.calories} ккал</span>
-                    <button
-                      className="delete-button"
-                      onClick={() => handleDeleteFood(index)}
-                    >
-                      ×
-                    </button>
-                  </div>
-                </li>
-              ))}
-            </ul>
+            {foods.length > 0 ? (
+              <ul className="food-list">
+                {foods.map((food, index) => (
+                  <li key={index} className="food-item">
+                    <span>{food.name}</span>
+                    <div className="item-right">
+                      <span className="calories">{food.calories} ккал</span>
+                      <button
+                        className="delete-button"
+                        onClick={() => handleDeleteFood(index)}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <div style={{ color: '#888', textAlign: 'center', padding: '1rem', fontSize: '1.1rem', background: 'transparent' }}>
+                Рецептів не знайдено
+              </div>
+            )}
           </div>
 
           {/* Тренування */}
