@@ -43,11 +43,19 @@ const Recipe = () => {
     const savedFoods = localStorage.getItem("foods");
     const foods = savedFoods ? JSON.parse(savedFoods) : [];
 
-    // Додаємо новий рецепт до списку
+    // Парсимо значення макронутрієнтів
+    const proteins = parseInt(nutrients?.білки?.replace(/[^\d]/g, ""), 10) || 0;
+    const fats = parseInt(nutrients?.жири?.replace(/[^\d]/g, ""), 10) || 0;
+    const carbs = parseInt(nutrients?.вуглеводи?.replace(/[^\d]/g, ""), 10) || 0;
+
+    // Додаємо новий рецепт до списку з макронутрієнтами
     const caloriesValue = parseInt(recipe.calories, 10) || 0;
     const newFood = {
       name: recipe.title,
       calories: caloriesValue,
+      proteins: proteins,
+      fats: fats,
+      carbs: carbs,
       addedAt: new Date().toISOString()
     };
     
