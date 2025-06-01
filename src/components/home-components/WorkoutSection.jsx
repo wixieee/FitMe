@@ -64,54 +64,27 @@ const getRandomWorkoutForCategory = (trainings, categoryLetter) => {
   return categoryTrainings[randomIndex];
 };
 
-// Функція для перевірки, чи тренування існує
-const checkWorkoutExists = async (workoutNumber) => {
-  try {
-    const response = await axios.get(`https://fitme-sever.onrender.com/training?workoutNumber=${workoutNumber}`);
-    return response.data.training !== null;
-  } catch (error) {
-    console.warn(`Помилка при перевірці тренування ${workoutNumber}:`, error);
-    return false;
-  }
-};
-
 const WorkoutCard = ({ image, label, sectionId, categoryLetter }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const [randomWorkout, setRandomWorkout] = useState(null);
   const [loading, setLoading] = useState(false);
   const [allTrainings, setAllTrainings] = useState([]);
-  const [error, setError] = useState(false);
 
   // Функція для отримання тренувань
   const fetchTrainings = useCallback(async () => {
     try {
       setLoading(true);
-      setError(false);
       const response = await axios.get('https://fitme-sever.onrender.com/trainings/all');
       const trainings = response.data.trainings;
       setAllTrainings(trainings);
       
       const workout = getRandomWorkoutForCategory(trainings, categoryLetter);
-      
-      if (workout) {
-        // Перевіряємо, чи тренування існує
-        const exists = await checkWorkoutExists(workout.workoutNumber);
-        if (exists) {
-          setRandomWorkout(workout);
-        } else {
-          console.warn(`Тренування ${workout.workoutNumber} не існує на сервері`);
-          setError(true);
-        }
-      } else {
-        console.warn(`Не знайдено тренувань для категорії ${categoryLetter}`);
-        setError(true);
-      }
+      setRandomWorkout(workout);
       
       setLoading(false);
     } catch (err) {
       console.error('Помилка при отриманні тренувань:', err);
-      setError(true);
       setLoading(false);
     }
   }, [categoryLetter]);
@@ -122,39 +95,9 @@ const WorkoutCard = ({ image, label, sectionId, categoryLetter }) => {
   }, [fetchTrainings]);
 
   // Функція для отримання нового випадкового тренування
-  const getNewRandomWorkout = async () => {
-    if (allTrainings.length === 0) {
-      await fetchTrainings();
-      return;
-    }
-    
-    setLoading(true);
-    setError(false);
-    
+  const getNewRandomWorkout = () => {
     const workout = getRandomWorkoutForCategory(allTrainings, categoryLetter);
-    
-    if (workout) {
-      // Перевіряємо, чи тренування існує
-      try {
-        const exists = await checkWorkoutExists(workout.workoutNumber);
-        if (exists) {
-          setRandomWorkout(workout);
-          setLoading(false);
-        } else {
-          console.warn(`Тренування ${workout.workoutNumber} не існує на сервері`);
-          setError(true);
-          setLoading(false);
-        }
-      } catch (err) {
-        console.error('Помилка при перевірці тренування:', err);
-        setError(true);
-        setLoading(false);
-      }
-    } else {
-      console.warn(`Не знайдено тренувань для категорії ${categoryLetter}`);
-      setError(true);
-      setLoading(false);
-    }
+    setRandomWorkout(workout);
   };
 
   const handleImageClick = () => {
@@ -170,22 +113,19 @@ const WorkoutCard = ({ image, label, sectionId, categoryLetter }) => {
     }
   };
 
-  const handleStartButtonClick = async () => {
-    if (loading) {
-      // Якщо тренування завантажуються, нічого не робимо
-      return;
-    }
-    
-    if (error || !randomWorkout) {
-      // Якщо була помилка або немає тренування, спробуємо отримати нове
-      await getNewRandomWorkout();
-    }
-    
+  const handleStartButtonClick = () => {
     if (randomWorkout) {
       navigate(`/workout/${randomWorkout.workoutNumber}`);
+    } else if (loading) {
+      // Якщо тренування завантажуються, нічого не робимо
+      return;
     } else {
+      // Якщо тренування не знайдено, спробуємо отримати нове
+      getNewRandomWorkout();
       // Якщо все ще немає тренування, переходимо до секції
-      handleImageClick();
+      if (!randomWorkout) {
+        handleImageClick();
+      }
     }
   };
 
@@ -199,11 +139,11 @@ const WorkoutCard = ({ image, label, sectionId, categoryLetter }) => {
         <div className="label">{label}</div>
       </div>
       <button 
-        className={`start-button ${error ? 'error' : ''}`}
+        className="start-button" 
         onClick={handleStartButtonClick}
         disabled={loading}
       >
-        {loading ? "Завантаження..." : error ? "Спробувати ще раз" : "Розпочати"}
+        {loading ? "Завантаження..." : "Розпочати"}
       </button>
     </div>
   );
