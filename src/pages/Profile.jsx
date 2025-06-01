@@ -91,7 +91,8 @@ const Profile = () => {
                 favoriteIds.includes(r.id)
               ).map(recipe => ({
                 ...recipe,
-                imageUrl: recipe.imageUrl || recipe.image
+                imageUrl: recipe.imageUrl || recipe.image,
+                prepTime: recipe.prepTime || recipe.time // Забезпечуємо, що prepTime доступний для RecipeCard
               }));
 
               setFavoriteRecipes(filtered);

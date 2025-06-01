@@ -3,6 +3,9 @@ import "./recipePage.css";
 import "../assets/variables.css";
 
 import { useSearchParams } from "react-router-dom";
+import { getAuth } from "firebase/auth";
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { db } from "../firebase";
 
 const Recipe = () => {
   const [recipe, setRecipe] = useState(null);
@@ -11,6 +14,9 @@ const Recipe = () => {
   const [error, setError] = useState(null);
   const [searchParams] = useSearchParams();
   const [addedToCalculator, setAddedToCalculator] = useState(false);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const auth = getAuth();
+  const user = auth.currentUser;
 
   useEffect(() => {
     setIsIOS(/iPad|iPhone|iPod/.test(window.navigator.userAgent));
@@ -26,6 +32,8 @@ const Recipe = () => {
         .then((data) => {
           if (data.recipe) {
             setRecipe(data.recipe);
+            // Перевіряємо, чи є рецепт у обраному
+            checkFavorite(data.recipe.id);
           } else {
             setError(data.message || "Рецепт не знайдено");
           }
@@ -35,6 +43,45 @@ const Recipe = () => {
       setError("Назва рецепту не вказана");
     }
   }, [searchParams]);
+  
+  const checkFavorite = async (recipeId) => {
+    if (user && recipeId) {
+      try {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const data = userSnap.data();
+          setIsFavorite(data.favorites?.includes(recipeId));
+        }
+      } catch (error) {
+        console.error("Помилка перевірки обраного:", error);
+      }
+    }
+  };
+
+  const toggleFavorite = async () => {
+    if (!user) {
+      alert("Увійдіть в систему, щоб додати до обраного");
+      return;
+    }
+
+    if (!recipe || !recipe.id) {
+      console.error("Немає ID рецепту для додавання в обране");
+      return;
+    }
+
+    try {
+      const userRef = doc(db, "users", user.uid);
+      await updateDoc(userRef, {
+        favorites: isFavorite
+          ? arrayRemove(recipe.id)
+          : arrayUnion(recipe.id),
+      });
+      setIsFavorite(!isFavorite);
+    } catch (error) {
+      console.error("Помилка збереження обраного рецепта:", error);
+    }
+  };
 
   const addToCalculator = () => {
     if (!recipe) return;
@@ -101,8 +148,8 @@ const Recipe = () => {
           <img src={imageUrl} alt={title} />
 
           <div className="recipe-page-star">
-            <div className="page-star-icon">
-              <i className="bx bxs-star"></i>
+            <div className="page-star-icon" onClick={toggleFavorite}>
+              <i className={`bx ${isFavorite ? "bxs-star active" : "bx-star"}`}></i>
             </div>
           </div>
           <div className="recipe-page-add">

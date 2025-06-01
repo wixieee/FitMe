@@ -168,6 +168,10 @@
   color: #FFD700;
 }
 
+.page-star-icon i.active {
+  color: #FFD700;
+}
+
 .page-add-icon:hover {
   background-color: var(--yellow);
 }
