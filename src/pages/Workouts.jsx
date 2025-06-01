@@ -54,10 +54,10 @@ function WorkoutCategorySection({ title, description, workouts }) {
           1800: { slidesPerView: 4 },
         }}
       >
-        {workouts.map((workouts, index) => (
+        {workouts.map((workout, index) => (
           <SwiperSlide key={index}>
             <div className="workout-card-slide">
-              <WorkoutPageCard {...workouts} />
+              <WorkoutPageCard {...workout} />
             </div>
           </SwiperSlide>
         ))}

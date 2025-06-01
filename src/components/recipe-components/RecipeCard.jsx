@@ -7,6 +7,7 @@ import "./recipeCard.css";
 
 function RecipeCard({ recipeId, title, imageUrl, prepTime, calories, link, onFavoriteChange }) {
   const [isFavorite, setIsFavorite] = useState(false);
+  const [addedToCalculator, setAddedToCalculator] = useState(false);
   const auth = getAuth();
   const user = auth.currentUser;
 
@@ -52,6 +53,34 @@ function RecipeCard({ recipeId, title, imageUrl, prepTime, calories, link, onFav
     }
   };
 
+  const addToCalculator = (e) => {
+    e.preventDefault(); // блокує перехід за посиланням
+    e.stopPropagation(); // зупиняє спливання
+
+    // Отримуємо поточний список їжі з localStorage
+    const savedFoods = localStorage.getItem("foods");
+    const foods = savedFoods ? JSON.parse(savedFoods) : [];
+
+    // Додаємо новий рецепт до списку
+    const caloriesValue = parseInt(calories, 10) || 0;
+    const newFood = {
+      name: title,
+      calories: caloriesValue,
+      addedAt: new Date().toISOString()
+    };
+    
+    foods.push(newFood);
+    
+    // Зберігаємо оновлений список у localStorage
+    localStorage.setItem("foods", JSON.stringify(foods));
+    
+    // Показуємо ефект додавання
+    setAddedToCalculator(true);
+    setTimeout(() => {
+      setAddedToCalculator(false);
+    }, 1000);
+  };
+
   return (
     <Link to={link} className="recipe-card-link">
       <div className="recipe-card">
@@ -59,8 +88,15 @@ function RecipeCard({ recipeId, title, imageUrl, prepTime, calories, link, onFav
           className="recipe-image"
           style={{ backgroundImage: `url(${imageUrl})` }}
         >
-          <div className="star-icon" onClick={toggleFavorite}>
-            <i className={`bx ${isFavorite ? "bxs-star active" : "bx-star"}`}></i>
+          <div className="recipe-actions">
+            <div className="star-icon" onClick={toggleFavorite}>
+              <i className={`bx ${isFavorite ? "bxs-star active" : "bx-star"}`}></i>
+            </div>
+          </div>
+          <div className="add-icon-container">
+            <div className={`add-icon ${addedToCalculator ? 'added' : ''}`} onClick={addToCalculator}>
+              <i className={`bx ${addedToCalculator ? 'bx-check' : 'bx-plus'}`}></i>
+            </div>
           </div>
           <div className="info-block">
             <div className="info-badge">

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { getAuth } from "firebase/auth";
+import { doc, getDoc, updateDoc, arrayUnion, arrayRemove } from "firebase/firestore";
+import { db } from "../firebase";
 import "./workout.css";
 
 const Workout = () => {
@@ -13,6 +16,45 @@ const Workout = () => {
   const [workout, setWorkout] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [isFavorite, setIsFavorite] = useState(false);
+  
+  const auth = getAuth();
+  const user = auth.currentUser;
+
+  // Перевіряємо, чи є тренування в улюблених
+  useEffect(() => {
+    const checkFavorite = async () => {
+      if (user && workoutNumber) {
+        const userRef = doc(db, "users", user.uid);
+        const userSnap = await getDoc(userRef);
+        if (userSnap.exists()) {
+          const data = userSnap.data();
+          setIsFavorite(data.favoriteWorkouts?.includes(workoutNumber));
+        }
+      }
+    };
+    checkFavorite();
+  }, [user, workoutNumber]);
+
+  // Функція для додавання/видалення з улюблених
+  const toggleFavorite = async () => {
+    if (!user) {
+      alert("Увійдіть в систему, щоб додати до обраного");
+      return;
+    }
+
+    const userRef = doc(db, "users", user.uid);
+    try {
+      await updateDoc(userRef, {
+        favoriteWorkouts: isFavorite
+          ? arrayRemove(workoutNumber)
+          : arrayUnion(workoutNumber),
+      });
+      setIsFavorite(!isFavorite);
+    } catch (error) {
+      console.error("Помилка збереження обраного тренування:", error);
+    }
+  };
 
   // Отримуємо дані тренування з сервера
   useEffect(() => {
@@ -225,8 +267,8 @@ const Workout = () => {
             alt={workout.title}
             className="workout-Img"
           />
-          <div className="workout-star-icon">
-            <i className="bx bxs-star"></i>
+          <div className="workout-star-icon" onClick={toggleFavorite}>
+            <i className={`bx ${isFavorite ? "bxs-star active" : "bx-star"}`}></i>
           </div>
           <div className="info-block">
             <div className="info-badge">

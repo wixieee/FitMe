@@ -10,6 +10,7 @@ const Recipe = () => {
   const [isIOS, setIsIOS] = useState(false);
   const [error, setError] = useState(null);
   const [searchParams] = useSearchParams();
+  const [addedToCalculator, setAddedToCalculator] = useState(false);
 
   useEffect(() => {
     setIsIOS(/iPad|iPhone|iPod/.test(window.navigator.userAgent));
@@ -34,6 +35,33 @@ const Recipe = () => {
       setError("Назва рецепту не вказана");
     }
   }, [searchParams]);
+
+  const addToCalculator = () => {
+    if (!recipe) return;
+
+    // Отримуємо поточний список їжі з localStorage
+    const savedFoods = localStorage.getItem("foods");
+    const foods = savedFoods ? JSON.parse(savedFoods) : [];
+
+    // Додаємо новий рецепт до списку
+    const caloriesValue = parseInt(recipe.calories, 10) || 0;
+    const newFood = {
+      name: recipe.title,
+      calories: caloriesValue,
+      addedAt: new Date().toISOString()
+    };
+    
+    foods.push(newFood);
+    
+    // Зберігаємо оновлений список у localStorage
+    localStorage.setItem("foods", JSON.stringify(foods));
+    
+    // Показуємо ефект додавання
+    setAddedToCalculator(true);
+    setTimeout(() => {
+      setAddedToCalculator(false);
+    }, 1000);
+  };
 
   if (error) {
     return (
@@ -72,10 +100,16 @@ const Recipe = () => {
         <div className="header-image">
           <img src={imageUrl} alt={title} />
 
-          <div className="page-star-icon">
-            <i className="bx bxs-star"></i>
+          <div className="recipe-page-star">
+            <div className="page-star-icon">
+              <i className="bx bxs-star"></i>
+            </div>
           </div>
-
+          <div className="recipe-page-add">
+            <div className={`page-add-icon ${addedToCalculator ? 'added' : ''}`} onClick={addToCalculator}>
+              <i className={`bx ${addedToCalculator ? 'bx-check' : 'bx-plus'}`}></i>
+            </div>
+          </div>
 
           <div className="prep-time">
             <span>

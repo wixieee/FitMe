@@ -6,6 +6,7 @@ import { doc, setDoc, getDoc } from "firebase/firestore";
 import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../firebase";
 import RecipeCard from "../components/recipe-components/RecipeCard";
+import WorkoutPageCard from "../components/workout-components/WorkoutPageCard";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
@@ -36,6 +37,7 @@ const Profile = () => {
   });
 
   const [favoriteRecipes, setFavoriteRecipes] = useState([]);
+  const [favoriteWorkouts, setFavoriteWorkouts] = useState([]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -78,6 +80,7 @@ const Profile = () => {
             }
           }
 
+          // Завантаження улюблених рецептів
           const favoriteIds = data?.favorites || [];
           if (favoriteIds.length > 0) {
             try {
@@ -98,15 +101,42 @@ const Profile = () => {
           } else {
             setFavoriteRecipes([]);
           }
+
+          // Завантаження улюблених тренувань
+          const favoriteWorkoutIds = data?.favoriteWorkouts || [];
+          if (favoriteWorkoutIds.length > 0) {
+            try {
+              const response = await fetch("https://fitme-sever.onrender.com/trainings/all");
+              const allWorkouts = await response.json();
+
+              const filtered = allWorkouts.trainings.filter((w) =>
+                favoriteWorkoutIds.includes(w.workoutNumber)
+              ).map(workout => ({
+                image: workout.imageUrl || process.env.PUBLIC_URL + "/images/workout1.png",
+                time: `${workout.durationMinutes || 30} хв`,
+                calories: `${workout.caloriesBurned || 200} ккал`,
+                link: `/workout/${workout.workoutNumber}`,
+                title: workout.title,
+                workoutNumber: workout.workoutNumber
+              }));
+
+              setFavoriteWorkouts(filtered);
+            } catch (error) {
+              console.error("Помилка завантаження тренувань:", error);
+            }
+          } else {
+            setFavoriteWorkouts([]);
+          }
         } else {
           setProfileData((prev) => ({
             ...prev,
             email: currentUser.email || "",
           }));
         }
+
+        setIsLoading(false);
       } catch (error) {
-        console.error("Помилка завантаження даних профілю:", error);
-      } finally {
+        console.error("Помилка отримання даних користувача:", error);
         setIsLoading(false);
       }
     };
@@ -189,10 +219,15 @@ const Profile = () => {
     }
   };
 
-  const handleFavoriteChange = (recipeId, isFavorite) => {
+  const handleFavoriteRecipeChange = (recipeId, isFavorite) => {
     if (!isFavorite) {
-      // Видаляємо рецепт зі списку збережених
       setFavoriteRecipes(prev => prev.filter(recipe => recipe.id !== recipeId));
+    }
+  };
+
+  const handleFavoriteWorkoutChange = (workoutNumber, isFavorite) => {
+    if (!isFavorite) {
+      setFavoriteWorkouts(prev => prev.filter(workout => workout.workoutNumber !== workoutNumber));
     }
   };
 
@@ -322,7 +357,7 @@ const Profile = () => {
                     <RecipeCard 
                       {...recipe} 
                       recipeId={recipe.id}
-                      onFavoriteChange={handleFavoriteChange}
+                      onFavoriteChange={handleFavoriteRecipeChange}
                     />
                   </div>
                 </SwiperSlide>
@@ -334,6 +369,36 @@ const Profile = () => {
 
       <div className="profile-section">
         <h3>Збережені тренування</h3>
+        <div className="favorites-container">
+          {favoriteWorkouts.length === 0 ? (
+            <p>У вас поки немає збережених тренувань.</p>
+          ) : (
+            <Swiper
+              modules={[Navigation]}
+              navigation
+              spaceBetween={20}
+              slidesPerView={1}
+              loop={favoriteWorkouts.length > 1}
+              breakpoints={{
+                0: { slidesPerView: 1 },
+                768: { slidesPerView: 2 },
+                1200: { slidesPerView: 3 },
+                1600: { slidesPerView: 4 },
+              }}
+            >
+              {favoriteWorkouts.map((workout, index) => (
+                <SwiperSlide key={index}>
+                  <div className="workout-card-slide">
+                    <WorkoutPageCard 
+                      {...workout} 
+                      onFavoriteChange={handleFavoriteWorkoutChange}
+                    />
+                  </div>
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          )}
+        </div>
       </div>
     </div>
   );
