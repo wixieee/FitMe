@@ -335,13 +335,6 @@ const Profile = () => {
       <div className="profile-section">
         <h3>Збережені тренування</h3>
       </div>
-
-      <div className="profile-section">
-        <h3>Графік змін ваги</h3>
-        <div className="weight-chart-placeholder">
-          <p>Графік буде тут</p>
-        </div>
-      </div>
     </div>
   );
 };
