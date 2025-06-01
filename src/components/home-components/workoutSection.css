@@ -105,16 +105,6 @@
   animation: ripple 1s ease-out;
 }
 
-.start-button.error {
-  border-color: #ff6b6b;
-  color: #ff6b6b;
-}
-
-.start-button.error:hover {
-  background-color: #ff6b6b;
-  color: black;
-}
-
 @keyframes ripple {
   0% {
     transform: scale(0, 0);
